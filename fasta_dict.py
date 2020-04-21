@@ -6,13 +6,9 @@ what file it came from (bin), length, and GC content
 Example use:
 $ python fasta_dict.py .fasta <savename.csv>
 """
-
 import os
 import csv
 import sys
-
-# os.chdir('/Users/Dane/Documents/Lindemann/WhiteSAXApr20/\
-# MaxBin2/MB_W1_BWA')
 
 files = []
 for f in os.listdir():
@@ -21,6 +17,8 @@ for f in os.listdir():
 
 
 def gc_cont(string):
+	""" Function to be used inside of 'read_fasta' in order to obtain
+	gc_content of a string """
 	string = string.upper()
 	g = string.count('G')
 	c = string.count('C')
@@ -28,6 +26,8 @@ def gc_cont(string):
 
 
 def read_fasta(file):
+	""" Open up a .fasta file and return a dictionary containing the header
+	as the key and [filename, length, & gc_cont] as values """
 	fasta_dict = {}
 	with open(file) as f:
 		line = f.readline()
@@ -50,6 +50,10 @@ def read_fasta(file):
 	return fasta_dict
 
 def read_multiple_fasta(files):
+	""" Increase functionality of 'read_fasta' by allowing a list of multiple
+	.fasta files to be read in, returning a master dictionary.
+	Note: this will not work if multiple .fasta files contain same identifier
+	"""
 	master_dict = {}
 	for file in files:
 		print(file)
@@ -61,11 +65,12 @@ def read_multiple_fasta(files):
 
 
 def save_fa_dict(files, savename):
+	""" A function to write .csv values of .fasta output """
 	dictionary = read_multiple_fasta(files)
 	print('Reading in dictionary and writing to .csv...')
 	with open(savename, 'w', newline='') as csvfile:
 		writer = csv.writer(csvfile)
-		writer.writerow(dictionary) # First row (keys of dict)
+		writer.writerow(dictionary)  # First row (keys of dict)
 		for values in zip(*dictionary.values()):
 			writer.writerow(values)
 
