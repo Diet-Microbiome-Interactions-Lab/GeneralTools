@@ -68,7 +68,7 @@ def write_removed_contigs_file(bin1, bin2, filename):
 	removed_dict = find_removed_contigs(bin1, bin2)
 	with open(filename, 'w') as fastafile:
 		for key, value in removed_dict.items():
-			fastafile.write(key)
+			fastafile.write('>' + key)
 			fastafile.write('\n')
 			fastafile.write(str(value))
 			fastafile.write('\n')
