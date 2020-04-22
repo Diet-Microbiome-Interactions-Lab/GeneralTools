@@ -1,4 +1,5 @@
 """
+TESTFILE USED FOR TESTING!!!
 Program to compare two bin sets and write a new .fasta file of contigs
 that were removed from the original set.
 Requires:
