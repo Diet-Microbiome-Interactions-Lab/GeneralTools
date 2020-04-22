@@ -63,7 +63,8 @@ def find_removed_contigs(bin1, bin2):
 
 def write_removed_contigs_file(bin1, bin2, filename):
 	''' Function to write contigs not present in bin2 to
-	a new .fasta file'''
+	a new .fasta file.
+	Note: ">" identifiers are removed!'''
 	removed_dict = find_removed_contigs(bin1, bin2)
 	with open(filename, 'w') as fastafile:
 		for key, value in removed_dict.items():

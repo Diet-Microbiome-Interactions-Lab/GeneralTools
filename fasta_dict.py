@@ -11,7 +11,8 @@ import csv
 import sys
 
 files = []
-for f in os.listdir():
+mydir = os.getcwd()
+for f in os.listdir(mydir):
 	if f.endswith(sys.argv[1]):
 		files.append(f)
 
@@ -22,7 +23,10 @@ def gc_cont(string):
 	string = string.upper()
 	g = string.count('G')
 	c = string.count('C')
-	return (g + g)/len(string)
+	leng = float(len(string))
+	gc = float((g + c))
+<output_dir>
+	return round(gc/leng, 3)
 
 
 def read_fasta(file):
@@ -32,7 +36,7 @@ def read_fasta(file):
 	with open(file) as f:
 		line = f.readline()
 		while line:
-			if line.startswith('>'):
+			if line.startswith('>') or line.startswith('NODE'):
 				header = line.strip('>')
 				header = header.strip()
 				line = f.readline()
@@ -45,7 +49,8 @@ def read_fasta(file):
 				fasta_dict[header] = [file_id,
 									  len(nucleotides),
 									  gc_cont(nucleotides)
-									  # tetranucleotide_freq(nucleotides)]
+									  # This is where more information
+									  # can be added.
 									  ]
 	return fasta_dict
 
@@ -67,12 +72,15 @@ def read_multiple_fasta(files):
 def save_fa_dict(files, savename):
 	""" A function to write .csv values of .fasta output """
 	dictionary = read_multiple_fasta(files)
+	header = 'Contig\tBin\tLength\tGC.Content\n'
 	print('Reading in dictionary and writing to .csv...')
-	with open(savename, 'w', newline='') as csvfile:
-		writer = csv.writer(csvfile)
-		writer.writerow(dictionary)  # First row (keys of dict)
-		for values in zip(*dictionary.values()):
-			writer.writerow(values)
+	with open(savename, 'w') as csvfile:
+		csvfile.write(header)  # First row (keys of dict)
+		for key, val in dictionary.items():
+			line = (key + '\t' + str(val[0]) + 
+						  '\t' + str(val[1]) +
+						  '\t' + str(val[2]) + '\n')
+			csvfile.write(line)
 
 
 if __name__ == "__main__":
