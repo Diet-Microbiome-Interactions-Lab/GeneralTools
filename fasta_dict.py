@@ -7,7 +7,6 @@ Example use:
 $ python fasta_dict.py .fasta <savename.csv>
 """
 import os
-import csv
 import sys
 
 files = []
@@ -25,8 +24,7 @@ def gc_cont(string):
 	c = string.count('C')
 	leng = float(len(string))
 	gc = float((g + c))
-<output_dir>
-	return round(gc/leng, 3)
+	return round(gc / leng, 3)
 
 
 def read_fasta(file):
@@ -73,7 +71,7 @@ def save_fa_dict(files, savename):
 	""" A function to write .csv values of .fasta output """
 	dictionary = read_multiple_fasta(files)
 	header = 'Contig\tBin\tLength\tGC.Content\n'
-	print('Reading in dictionary and writing to .csv...')
+	print('Reading in dictionary and writing to .txt...')
 	with open(savename, 'w') as csvfile:
 		csvfile.write(header)  # First row (keys of dict)
 		for key, val in dictionary.items():

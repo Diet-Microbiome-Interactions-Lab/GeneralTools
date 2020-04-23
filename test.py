@@ -9,20 +9,32 @@ Requires:
 """
 
 from Bio import SeqIO
+from collections import Counter
 import os
 import sys
 import csv
 
-mydict = {'dane': [1, 2, 3, 4],
-		  'dillon': [5,6,7,8],
-		  'jesse': [55, 66, 77, 88],
-		  'nick': [11,22,33,44]}
+mydict = {'daners': 'string1.5',
+		  'dillon': 'string2',
+		  'jesse': 'string3.5',
+		  'nicholas': 'string4'}
 
-l1 = mydict.keys()
-print(l1)
-l2 = []
-for key, val in mydict.items():
-	print(key)
-	print(val[0])
-	line = key + '\t' + str(val[0]) + '\t' + str(val[1])
-	print(line)
+mydict2 = {'dane': 'string1',
+		  'dillon': 'string2',
+		  'jesse': 'string3',
+		  'nick': 'string4'}
+
+mydict3 = {'daned': 'string1.51',
+		  'dillon': 'string2',
+		  'jessead': 'string3',
+		  'nick': 'string4'}
+
+a = list(mydict.keys())
+b = list(mydict2.keys())
+c = []
+c = c + a
+cnter = Counter(c)
+print(cnter)
+for i in cnter.keys():
+	print(i)
+
