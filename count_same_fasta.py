@@ -15,6 +15,7 @@ $ python count_same_fasta.py -i .fasta -o removed_contigs.txt \
 '''
 
 import os
+import sys
 from collections import Counter
 import argparse
 
@@ -22,7 +23,7 @@ import argparse
 
 parser = argparse.ArgumentParser(description="Parser")
 parser.add_argument("-i", "--Input", help="Input file pattern to find common \
-    entries", required=True, default="")
+    entries", required=True, default=sys.stdin)
 parser.add_argument("-o", "--Output", help="Output file name",
                     required=True, default="")
 parser.add_argument("-c", "--Compare", help="File to further compare what fasta \
