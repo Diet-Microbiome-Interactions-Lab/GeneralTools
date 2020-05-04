@@ -9,9 +9,10 @@ $ wget ftp://ftp.jcvi.org/pub/data/TIGRFAMs/TIGRFAMs_15.0_INFO.tar.gz
 
 Example usage:
 
-# python pfam_tigrfam_processing_anvio.py -t <tigrfam_genes.tsv> \
+$ python pfam_tigrfam_processing_anvio.py -t <tigrfam_genes.tsv> \
 -p <pfam_genes.tsv> -d <path/to/TIGR.INFO/files> -o <output_file>
 
+Real Example:
 $ python pfam_tigrfam_processing_anvio.py -t genes.TIGR.tsv \
 -p genes.Pfam.tsv -d TIGR/ -o tigr_pfam_results.txt
 
