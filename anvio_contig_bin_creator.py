@@ -1,4 +1,15 @@
+'''
+Program designed to take a directory containing all bin files and output a tab-delimited
+file containing contig names in the first column and their associated bin number in the
+second column.
+The output is in a format that can be directly imported into an Anvio database using:
+$ anvi-import-collection <output-from-this-program.txt> -c $CONTIG_DB -p $PROFILE \
+--contig-mode --collection-name "Whatever name you choose!"
 
+Example usage:
+$ python anvio_contig_bin_creator.py <bin-file-format> <output-file-name>
+$ python anvio_contig_bin_creator.py fasta contigs-to-be-imported.txt
+'''
 
 import os
 import sys
