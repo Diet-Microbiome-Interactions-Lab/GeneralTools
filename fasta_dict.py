@@ -9,11 +9,6 @@ $ python fasta_dict.py .fasta <savename.csv>
 import os
 import sys
 
-files = []
-mydir = os.getcwd()
-for f in os.listdir(mydir):
-	if f.endswith(sys.argv[1]):
-		files.append(f)
 
 
 def gc_cont(string):
@@ -35,8 +30,7 @@ def read_fasta(file):
 		line = f.readline()
 		while line:
 			if line.startswith('>') or line.startswith('NODE'):
-				header = line.strip('>')
-				header = header.strip()
+				header = line.strip()
 				line = f.readline()
 				nucleotides = ''
 				file_id = ''
@@ -46,7 +40,8 @@ def read_fasta(file):
 				file_id = file.strip()
 				fasta_dict[header] = [file_id,
 									  len(nucleotides),
-									  gc_cont(nucleotides)
+									  gc_cont(nucleotides),
+									  nucleotides
 									  # This is where more information
 									  # can be added.
 									  ]
@@ -82,4 +77,9 @@ def save_fa_dict(files, savename):
 
 
 if __name__ == "__main__":
+	files = []
+	mydir = os.getcwd()
+	for f in os.listdir(mydir):
+		if f.endswith(sys.argv[1]):
+			files.append(f)
 	save_fa_dict(files, sys.argv[2])
