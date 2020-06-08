@@ -1,9 +1,20 @@
 '''
 Program that takes a numeric value n and the name of a fasta
 file and returns the top n largest sequences
+$ python <myfile.fasta> <seqlength_to_filter_(int)> <output.fasta>
 '''
 
 import sys
+
+''' Initialize the arguments to be entered '''
+parser = argparse.ArgumentParser(description="Parser")
+parser.add_argument("-i", "--Input", help="Input fasta to be filtered",
+                    required=True)
+parser.add_argument("-n", "--Length", help="Length to filter",
+                    required=True)
+parser.add_argument("-o", "--Output", help="Output file name",
+                    required=True)
+argument = parser.parse_args()
 
 
 def read_fasta(file):
@@ -48,7 +59,4 @@ def write_largest_fastas(file, n, output):
 
 
 if __name__ == "__main__":
-    file = sys.argv[1]
-    n = sys.argv[2]
-    output = sys.argv[3]
-    write_largest_fastas(file, n, output)
+    write_largest_fastas(argument.Input, argument.Length, argument.Output)

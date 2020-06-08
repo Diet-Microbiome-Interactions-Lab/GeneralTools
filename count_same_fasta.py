@@ -1,6 +1,6 @@
 ''' Program that takes a group of .fasta files and returns a .tab-separated
 spreasheet of each fasta entry and a column showing how many files that
-same entry is the same in. IF you add the flag --Compare, then the program
+same entry is the same in. If you add the flag --Compare, then the program
 will compare the results of the shared fasta entries to that of another
 fasta file.
 This was designed to track how many entries were removed from bin sets after

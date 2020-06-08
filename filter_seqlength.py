@@ -2,7 +2,7 @@
 that are at least N nucleotides long
 
 Example usage:
-$ python filter_seqlength.py <input.fasta> <length_threshold> <output.fasta>
+$ python2 filter_seqlength.py <input.fasta> <length_threshold> <output.fasta>
 '''
 
 import sys

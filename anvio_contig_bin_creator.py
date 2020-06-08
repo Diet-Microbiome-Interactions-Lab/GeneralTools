@@ -11,13 +11,23 @@ $ python anvio_contig_bin_creator.py <bin-file-format> <output-file-name>
 $ python anvio_contig_bin_creator.py fasta contigs-to-be-imported.txt
 '''
 
+''' Initialize the arguments to be entered '''
+parser = argparse.ArgumentParser(description="Parser")
+parser.add_argument("-d", "--Directory", help="Directory containing files",
+                    required=True)
+parser.add_argument("-o", "--Output", help="Output file name",
+                    required=True)
+argument = parser.parse_args()
+
+
+
 import os
 import sys
 
 files = []
 mydir = os.getcwd()
 for f in os.listdir(mydir):
-    if f.endswith(sys.argv[1]):
+    if f.endswith(argument.Directory):
         files.append(f)
 
 
@@ -66,4 +76,4 @@ def save_fa_dict(files, savename):
 
 
 if __name__ == "__main__":
-    save_fa_dict(files, sys.argv[2])
+    save_fa_dict(files, argument.Output)
