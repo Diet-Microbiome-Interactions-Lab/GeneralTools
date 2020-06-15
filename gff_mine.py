@@ -28,7 +28,6 @@ import os
 import argparse
 
 
-
 def list_gff_attributes(gff):
     identifiers = []
     with open(gff, errors='replace') as f:
@@ -94,9 +93,55 @@ def get_gff_attribute(gff, attribute):
     return mydict
 
 
+# def write_gff_attribute(gffdict, attribute, bins, outfile, top=None):
+#     mydict = get_gff_attribute(gffdict, attribute)
+#     bindict = get_bin_dictionary(bins)
+#     with open(outfile, 'w') as o:
+#         header = f"Contig\t{attribute}\tN\tBin\n"
+#         o.write(header)
+#         # For each contig in mydict (keys)
+#         for key in mydict.keys():
+#             # Flag to get only the top result
+#             if top is not None:
+#                 # Initialize a new dictionary
+#                 valuedict = {}
+#                 # Go through each unique value for the key
+#                 for val in set(mydict[key]):
+#                     # Use the attribute info as key, and count as value
+#                     valuedict[val] = mydict[key].count(val)
+#                 # Find the attribute with the highest count
+#                 besthit = max(valuedict, key=lambda key: valuedict[key])
+#                 print(besthit)
+#                 # Create a variable of the count of the best hit
+#                 count = valuedict[besthit]
+#                 # If that node is in bin file, append information
+#                 if key in bindict:
+#                     # Initialize the write line
+#                     writeline = f"{key}\t{besthit}\t{count}\t{bindict[key]}\n"
+#                     o.write(writeline)
+#                 else:
+#                     writeline = f"{key}\t{besthit}\t{count}\tNoBin\n"
+#                     o.write(writeline)
+#             else:
+#                 # Loop through all unique values in key
+#                 for val in set(mydict[key]):
+#                     # Count each one of those unique values occurences
+#                     count = mydict[key].count(val)
+#                     # If the key (node) matches a bin, append info
+#                     if key in bindict:
+#                         writeline = f"{key}\t{val}\t{count}\t{bindict[key]}\n"
+#                         o.write(writeline)
+#                     else:
+#                         writeline = f"{key}\t{val}\t{count}\tNoBin\n"
+#                         o.write(writeline)
+
+
 def write_gff_attribute(gffdict, attribute, bins, outfile, top=None):
     mydict = get_gff_attribute(gffdict, attribute)
     bindict = get_bin_dictionary(bins)
+    updict = {}
+    for key in bindict.keys():
+        updict[str(int(key.split('_')[1]))] = bindict[key]
     with open(outfile, 'w') as o:
         header = f"Contig\t{attribute}\tN\tBin\n"
         o.write(header)
@@ -112,13 +157,14 @@ def write_gff_attribute(gffdict, attribute, bins, outfile, top=None):
                     valuedict[val] = mydict[key].count(val)
                 # Find the attribute with the highest count
                 besthit = max(valuedict, key=lambda key: valuedict[key])
-                print(besthit)
                 # Create a variable of the count of the best hit
                 count = valuedict[besthit]
                 # If that node is in bin file, append information
-                if key in bindict:
+                identifier = str(int(key.split('_')[1]))
+                if identifier in updict:
+                    b = updict[identifier]
                     # Initialize the write line
-                    writeline = f"{key}\t{besthit}\t{count}\t{bindict[key]}\n"
+                    writeline = f"{key}\t{besthit}\t{count}\t{b}\n"
                     o.write(writeline)
                 else:
                     writeline = f"{key}\t{besthit}\t{count}\tNoBin\n"
@@ -129,8 +175,10 @@ def write_gff_attribute(gffdict, attribute, bins, outfile, top=None):
                     # Count each one of those unique values occurences
                     count = mydict[key].count(val)
                     # If the key (node) matches a bin, append info
-                    if key in bindict:
-                        writeline = f"{key}\t{val}\t{count}\t{bindict[key]}\n"
+                    identifier = str(int(key.split('_')[1]))
+                    if identifier in updict:
+                        b = updict[identifier]
+                        writeline = f"{key}\t{val}\t{count}\t{b}\n"
                         o.write(writeline)
                     else:
                         writeline = f"{key}\t{val}\t{count}\tNoBin\n"
