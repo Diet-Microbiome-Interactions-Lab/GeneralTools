@@ -5,11 +5,11 @@ assembly with orginal node names. It then outputs
 a new bin identification file with original names.
 
 Example usage:
-$ python change_bin_nodenames.py <binfile.txt>
-<assembly.fasta> <new-binfile.txt>
+$ python change_bin_nodenames.py -b <binfile.txt>
+-a <assembly.fasta> -o <new-binfile.txt>
 """
 
-import sys
+import argparse
 
 
 def read_bins(binfile):
@@ -54,4 +54,13 @@ def change_names(binfile, assembly, output):
 
 
 if __name__ == "__main__":
-    change_names(sys.argv[1], sys.argv[2], sys.argv[3])
+    """ Arguments """
+    parser = argparse.ArgumentParser(description="Parser")
+    parser.add_argument("-b", "--Bins", help="File containing bins",
+                        required=True)
+    parser.add_argument("-a", "--Assembly", help="Assembly file",
+                        required=True)
+    parser.add_argument("-o", "--Output", help="Updated bin list name",
+                        required=False)
+    argument = parser.parse_args()
+    change_names(argument.Bins, argument.Assembly, argument.Output)
