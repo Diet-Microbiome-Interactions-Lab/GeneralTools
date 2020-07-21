@@ -7,8 +7,8 @@ using:
 $ anvi-import-collection <output-from-this-program.txt> -c $CONTIG_DB -p \
 $PROFILE --contig-mode --collection-name "Whatever name you choose!"
 Example usage:
-$ python anvio_contig_bin_creator.py <bin-file-format> <output-file-name>
-$ python anvio_contig_bin_creator.py fasta contigs-to-be-imported.txt
+$ python getContigBinIdentifer.py <bin-file-format> <output-file-name>
+$ python getContigBinIdentifer.py fasta contigs-to-be-imported.txt
 '''
 import os
 import argparse
