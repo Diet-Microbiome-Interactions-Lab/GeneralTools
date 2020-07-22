@@ -7,7 +7,8 @@ $ python filterSeqlength.py <input.fasta> <length_threshold> <output.fasta>
 '''
 
 import sys
-
+from Bio import SeqIO
+from Bio.SeqIO.FastaIO import SimpleFastaParser
 
 def filter_fasta(file, size, output):
     """
