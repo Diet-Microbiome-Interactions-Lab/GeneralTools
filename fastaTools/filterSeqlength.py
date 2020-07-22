@@ -17,7 +17,7 @@ def filter_fasta(file, size, output):
     """
     with open(output, 'w') as o:
         with open(file) as f:
-            for values in SimpleFastaParser():
+            for values in SimpleFastaParser(f):
                 defline = values[0]
                 length = len(values[1])
                 if length > size:
