@@ -20,7 +20,7 @@ def filter_fasta(file, size, output):
             for values in SimpleFastaParser(f):
                 defline = values[0]
                 length = len(values[1])
-                if length > size:
+                if length > int(size):
                     o.write(defline)
                     o.write(values[1])
                 else:
