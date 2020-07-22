@@ -3,7 +3,6 @@ Program that takes a numeric value n and the name of a fasta
 file and returns the top n largest sequences
 $ python -i <myfile.fasta> -n <seqlength_to_filter_(int)> -o <output.fasta>
 '''
-
 import argparse
 from Bio.SeqIO.FastaIO import SimpleFastaParser
 from operator import itemgetter
