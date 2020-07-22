@@ -25,7 +25,7 @@ def filter_fasta(file, size, output):
                     o.write(values[1])
                 else:
                     pass
-    return fasta_dict
+    return 0
 
 
 if __name__ == "__main__":
