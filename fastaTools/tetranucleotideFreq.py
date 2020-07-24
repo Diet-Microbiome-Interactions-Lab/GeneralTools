@@ -1,12 +1,13 @@
 """
 Obtain tetranucleotide frequency for a
 given string within a nucleotide sequnce
+
+Example usage:
+$ python tetranucleotideFreq.py 'MYSTRING'
 """
 
 import sys
-import csv
 
-mysequence = sys.argv[1:]
 
 def tetranucleotide_freq(sequence):
 	nuc = ["A", "T", "G", "C"]
@@ -29,4 +30,4 @@ def tetranucleotide_freq(sequence):
 
 
 if __name__ == "__main__":
-	tetranucleotide_freq(mysequence)
+	tetranucleotide_freq(sys.argv[1])
