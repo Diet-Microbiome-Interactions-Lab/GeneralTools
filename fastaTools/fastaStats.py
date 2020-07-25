@@ -1,4 +1,5 @@
 """
+Author: Dane
 Function that requires: 1+ .FASTA files and
 writes a csv files containing: .fasta description,
 what file it came from (bin), length, and GC content
