@@ -29,38 +29,26 @@ parser.add_argument("-o", "--Output", help="Output file name",
 parser.add_argument("-c", "--Compare", help="File to further compare what fasta \
     entries were originally in the bin pre-filtering",
                     required=False, default="")
+parser.add_argument("-d", "--Directory", help="Directory containing FASTA files",
+                    required=True, default="")
 argument = parser.parse_args()
 
 ''' Grab all of the files matching the pattern in the current directory '''
 files = []
-mydir = os.getcwd()
+mydir = os.getcwd(argument.Directory)
 # Grab all files following pattern from first argument.
 for f in os.listdir(mydir):
     if argument.Input in f:
         files.append(f)
 
 
-def read_fasta(file):
-    """ Open up a .fasta file and return a dictionary containing the header
-    as the key and [filename, length, & gc_cont] as values """
-    fasta_dict = {}
-    with open(file) as f:
-        line = f.readline()
-        while line:
-            if line.startswith('>') or line.startswith('NODE'):
-                header = line.strip('>')
-                header = header.strip()
-                line = f.readline()
-                nucleotides = ''
-                file_id = ''
-            else:
-                nucleotides = nucleotides + line.strip()
-                line = f.readline()
-                file_id = file.strip()
-                fasta_dict[header] = [file_id,
-                                      nucleotides
-                                      ]
-    return fasta_dict
+def return_fasta_dic(file):
+    """
+    Open up a .fasta file and return the entries as a dictionary in the
+    form of dic[defline]=seq
+    """
+    seq_dict = {rec.id: rec.seq for rec in SeqIO.parse(file, "fasta")}
+    return seq_dict.keys()
 
 
 def compile_multiple_fasta_dictionaries(files):
@@ -73,6 +61,10 @@ def compile_multiple_fasta_dictionaries(files):
 
 
 def get_original_bins(binfile):
+    '''
+    Read in a file containing all contigs that were originally
+    binned (1 name per line)
+    '''
     contigs = []
     with open(binfile) as f:
         line = f.readline()
@@ -82,40 +74,37 @@ def get_original_bins(binfile):
     return contigs
 
 
-if argument.Compare:
-    def write_fasta_counts(files, filename, org_file):
-        falist = []
-        originals = get_original_bins(org_file)
-        o_counts = Counter(originals)
-        dicts = compile_multiple_fasta_dictionaries(files)
-        for d in dicts:
-            falist = falist + list(d.keys())
-        counts = Counter(falist)
-        # Write the Counter dictionary object to a file.
-        with open(filename, 'w') as file:
-            header = ('Contig\tRemoved\tOriginal\tRatio\n')
-            file.write(header)
-            for key, value in counts.items():
-                ratio = round(value/(o_counts[key]*2), 2)
-                line = (key + '\t' + str(value) + '\t' +
-        str(o_counts[key]*2) + '\t' + str(ratio) + '\n')
-                file.write(line)
-
-    if __name__ == "__main__":
+if__name__ == "__main__":
+    if argument.Compare:
+        def write_fasta_counts(files, filename, org_file):
+            falist = []
+            originals = get_original_bins(org_file)
+            o_counts = Counter(originals)
+            dicts = compile_multiple_fasta_dictionaries(files)
+            for d in dicts:
+                falist = falist + list(d.keys())
+            counts = Counter(falist)
+            # Write the Counter dictionary object to a file.
+            with open(filename, 'w') as file:
+                header = ('Contig\tRemoved\tOriginal\tRatio\n')
+                file.write(header)
+                for key, value in counts.items():
+                    ratio = round(value/(o_counts[key]*2), 2)
+                    line = (key + '\t' + str(value) + '\t' +
+            str(o_counts[key]*2) + '\t' + str(ratio) + '\n')
+                    file.write(line)
         write_fasta_counts(files, argument.Output, argument.Compare)
-else:
-    def write_fasta_counts(files, filename):
-        falist = []
-        dicts = compile_multiple_fasta_dictionaries(files)
-        for d in dicts:
-            falist = falist + list(d.keys())
-        counts = Counter(falist)
-        # Write the Counter dictionary object to a file.
-        with open(filename, 'w') as file:
-            header = ('Contig\tRemoved\n')
-            file.write(header)
-            for key, value in counts.items():
-                line = (key + '\t' + str(value) + '\n')
-                file.write(line)
-    if __name__ == "__main__":
-        write_fasta_counts(files, argument.Output)
+    else:
+        def write_fasta_counts(files, filename):
+            falist = []
+            dicts = compile_multiple_fasta_dictionaries(files)
+            for d in dicts:
+                falist = falist + list(d.keys())
+            counts = Counter(falist)
+            # Write the Counter dictionary object to a file.
+            with open(filename, 'w') as file:
+                header = ('Contig\tRemoved\n')
+                file.write(header)
+                for key, value in counts.items():
+                    line = (key + '\t' + str(value) + '\n')
+                    file.write(line)
