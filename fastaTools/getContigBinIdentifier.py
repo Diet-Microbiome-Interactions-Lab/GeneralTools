@@ -10,22 +10,16 @@ Example usage:
 $ python getContigBinIdentifer.py <bin-file-format> <output-file-name>
 $ python getContigBinIdentifer.py fasta contigs-to-be-imported.txt
 '''
+
 import os
 import argparse
+from Bio import SeqIO
 
 
 def return_deflines(file):
     """ Open up a .fasta file and return the defline values in a list """
-    defline = []
-    with open(file) as f:
-        line = f.readline()
-        while line:
-            if line.startswith('>') or line.startswith('NODE'):
-                defline.append(line.strip())
-            else:
-                pass
-            line = f.readline()
-    return defline
+    seq_dict = {rec.id: rec.seq for rec in SeqIO.parse(file, "fasta")}
+    return seq_dict.keys()
 
 def read_multiple_fasta(files):
     """ Increase functionality of 'read_fasta' by allowing a list of multiple
@@ -34,7 +28,12 @@ def read_multiple_fasta(files):
     """
     master_dict = {}
     for file in files:
-        bin_id = 'Bin_' + str(file).split('.')[1]
+        '''
+        The line below may need to be changed depending on how
+        the bin files are name!
+        '''
+        bin_id = os.path.basename(file)
+        bin_id = str(file).split('.')[0]
         deflines = return_deflines(file)
         master_dict[bin_id] = deflines
     return master_dict
@@ -48,6 +47,7 @@ def write_fa_dict(files, savename):
         o.write(header)  # First row (keys of dict)
         for bin_id, deflines in master.items():
             for defline in deflines:
+                bin_id = os.path.basename(bin_id)
                 line = f"{bin_id}\t{defline}\n"
                 o.write(line)
 
@@ -64,5 +64,5 @@ if __name__ == "__main__":
     mydir = os.getcwd()
     for f in os.listdir(argument.Directory):
         if (f.endswith('.fasta') or f.endswith('.fa')):
-            files.append(f)
+            files.append(os.path.join(argument.Directory, f))
     write_fa_dict(files, argument.Output)
