@@ -24,25 +24,31 @@ parser.add_argument("-2", "--In2", help="One of two files to compare to one anot
                     required=True)
 parser.add_argument("-o", "--Output", help="Output file name",
                     required=True, default="")
+parser.add_argument("-d", "--Different", help="Add flag is two bin sets use different labeling \
+for the contigs but the number remains the same",
+                    required=False, action="store_true")
 argument = parser.parse_args()
 
 
-def return_fasta_dic(file):
+def return_fasta_dic(file, different=False):
     """
     Open up a .fasta file and return the entries as a dictionary in the
     form of dic[defline]=seq
     """
-    seq_dict = {rec.id: rec.seq for rec in SeqIO.parse(file, "fasta")}
+    if different is True:
+        seq_dict = {str(int(rec.id.split('-')[1])): rec.seq for rec in SeqIO.parse(file, "fasta")}
+    else:
+        seq_dict = {rec.id: rec.seq for rec in SeqIO.parse(file, "fasta")}
     return seq_dict
 
 
-def compare_two_binsets(file1, file2):
+def compare_two_binsets(file1, file2, different=False):
     '''
     Compare how many shared entries there are between two binsets,
     along with differences
     '''
-    bin1 = return_fasta_dic(file1)
-    bin2 = return_fasta_dic(file2)
+    bin1 = return_fasta_dic(file1, different)
+    bin2 = return_fasta_dic(file2, different)
     shared_len = 0
     bin1_unique_len = 0
     bin2_unique_len = 0
@@ -65,8 +71,8 @@ def compare_two_binsets(file1, file2):
             bin2_unique_quantity, bin2_unique_len]
 
 
-def write_comparisons(file1, file2, output):
-    stats = compare_two_binsets(file1, file2)
+def write_comparisons(file1, file2, output, different=False):
+    stats = compare_two_binsets(file1, file2, different)
     print(stats)
     with open(output, 'w') as o:
         header = "\t".join(["SQuant", "SLen",
@@ -80,4 +86,7 @@ def write_comparisons(file1, file2, output):
 
 
 if __name__ == "__main__":
-    write_comparisons(argument.In1, argument.In2, argument.Output)
+    if argument.Different:
+        write_comparisons(argument.In1, argument.In2, argument.Output)
+    else:
+        write_comparisons(argument.In1, argument.In2, argument.Output, different=True)
