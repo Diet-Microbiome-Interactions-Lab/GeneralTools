@@ -1,4 +1,6 @@
-''' Program that takes two fasta files that will be compared for matching
+''' 
+Author: Dane
+Program that takes two fasta files that will be compared for matching
 entries.
 This was designed to track how many entries were removed from bin sets after
 refinement, and then those removed contigs were compared to the original
