@@ -9,46 +9,29 @@ bin sets to see how many were removed vs. how many were originally binned.
 Example usage:
 $ python count_same_fasta.py -1 <firstFile> -2 <secondFile> -o <outfile_name>
 '''
-
 import os
-import sys
 import argparse
 from Bio import SeqIO
 
-''' Initialize the arguments to be entered into program '''
 
-parser = argparse.ArgumentParser(description="Parser")
-parser.add_argument("-1", "--In1", help="One of two files to compare to one another",
-                    required=True)
-parser.add_argument("-2", "--In2", help="One of two files to compare to one another",
-                    required=True)
-parser.add_argument("-o", "--Output", help="Output file name",
-                    required=True, default="")
-parser.add_argument("-d", "--Different", help="Add flag is two bin sets use different labeling \
-for the contigs but the number remains the same",
-                    required=False, action="store_true")
-argument = parser.parse_args()
-
-
-def return_fasta_dic(file, different=False):
+def return_fasta_dic(file):
     """
     Open up a .fasta file and return the entries as a dictionary in the
     form of dic[defline]=seq
     """
-    if different is True:
-        seq_dict = {str(int(rec.id.split('-')[1])): rec.seq for rec in SeqIO.parse(file, "fasta")}
-    else:
-        seq_dict = {rec.id: rec.seq for rec in SeqIO.parse(file, "fasta")}
+    seq_dict = {rec.id: rec.seq for rec in SeqIO.parse(file, "fasta")}
     return seq_dict
 
 
-def compare_two_binsets(file1, file2, different=False):
+def compare_two_bins(file1, file2):
     '''
     Compare how many shared entries there are between two binsets,
     along with differences
     '''
-    bin1 = return_fasta_dic(file1, different)
-    bin2 = return_fasta_dic(file2, different)
+    bin1 = return_fasta_dic(file1)
+    bin2 = return_fasta_dic(file2)
+    print(bin1)
+    print(bin2)
     shared_len = 0
     bin1_unique_len = 0
     bin2_unique_len = 0
@@ -71,22 +54,29 @@ def compare_two_binsets(file1, file2, different=False):
             bin2_unique_quantity, bin2_unique_len]
 
 
-def write_comparisons(file1, file2, output, different=False):
-    stats = compare_two_binsets(file1, file2, different)
+def write_comparisons(file1, file2, output):
+    stats = compare_two_bins(file1, file2)
     print(stats)
     with open(output, 'w') as o:
         header = "\t".join(["SQuant", "SLen",
-                            "Bin1_Quant", "Bin1_Len",
-                            "Bin2_Quant", "Bin2_Len", "\n"])
+                            f"{os.path.basename(file1)}_Quant",
+                            f"{os.path.basename(file1)}_Len",
+                            f"{os.path.basename(file2)}_Quant",
+                            f"{os.path.basename(file2)}_Len", "\n"])
         o.write(header)
-        writeline = "\t".join(stat for stat in stats) + '\n'
+        writeline = "\t".join(str(stat) for stat in stats) + '\n'
         o.write(writeline)
     return 0
 
 
 if __name__ == "__main__":
-    if argument.Different:
-        write_comparisons(argument.In1, argument.In2, argument.Output)
-    else:
-        write_comparisons(argument.In1, argument.In2,
-                          argument.Output, different=True)
+    parser = argparse.ArgumentParser(description="Parser")
+    parser.add_argument("-1", "--In1", help="One of two files to compare to one another",
+                        required=True)
+    parser.add_argument("-2", "--In2", help="One of two files to compare to one another",
+                        required=True)
+    parser.add_argument("-o", "--Output", help="Output file name",
+                        required=True, default="")
+    argument = parser.parse_args()
+    write_comparisons(argument.In1, argument.In2,
+                          argument.Output)
