@@ -84,9 +84,9 @@ def write_comparisons(file1, file2, output, different=False):
     return 0
 
 
-
 if __name__ == "__main__":
     if argument.Different:
         write_comparisons(argument.In1, argument.In2, argument.Output)
     else:
-        write_comparisons(argument.In1, argument.In2, argument.Output, different=True)
+        write_comparisons(argument.In1, argument.In2,
+                          argument.Output, different=True)
