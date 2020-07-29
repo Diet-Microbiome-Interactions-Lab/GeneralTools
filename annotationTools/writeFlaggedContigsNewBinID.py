@@ -47,14 +47,15 @@ def read_attribute_output(attfile):
     return final_dic
 
 
-def write_new_bin_file(attfile, output):
+def write_new_bin_file(attfile, output, removed=True):
     # Dict[node] = bin
     # bin_dic = get_bin_dictionary(binfile)
     # Dict[bin] = Attribute
     '''
     Takes in an attribute file and writes a new bin identification
     file depending on if the contig contains the consensus attribute
-    for the bin it is in (or remains NoBin if un-binned)
+    for the bin it is in (or remains NoBin if un-binned).
+    If removed=False, write NoBin instead of Removed
     '''
     att_dict = read_attribute_output(attfile)
     with open(attfile) as f:
@@ -65,14 +66,17 @@ def write_new_bin_file(attfile, output):
             node = line[0]
             attrib = line[1]
             b = line[3].strip()
-            # Test is attribute is the consensus for the bin
+            # Test if attribute is the consensus for the bin
             if attrib == att_dict[b]:
                 writeline = f"{node}\t{b}\n"
             else:
                 if b == 'NoBin':
                     writeline = f"{node}\t{b}\n"
                 else:
-                    writeline = f"{node}\tRemoved\n"
+                    if removed is True:
+                        writeline = f"{node}\tRemoved\n"
+                    else:
+                        writeline = f"{node}\t{b}\n"
             with open(output, 'a') as o:
                 o.write(writeline)
             line = f.readline()
@@ -88,5 +92,12 @@ if __name__ == "__main__":
     parser.add_argument("-o", "--OutBins",
                         help="Output bin identification file",
                         required=True)
+    parser.add_argument("-n", "--NoRemoved",
+                        help="""If specified, label bins as NoBin instead of
+                             Removed""", action='store_true')
     argument = parser.parse_args()
-    write_new_bin_file(argument.Annotation, argument.OutBins)
+    if argument.NoRemoved:
+        write_new_bin_file(argument.Annotation, argument.OutBins,
+                           removed=False)
+    else:
+        write_new_bin_file(argument.Annotation, argument.OutBins)
