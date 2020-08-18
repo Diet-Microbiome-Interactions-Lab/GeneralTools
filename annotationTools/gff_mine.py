@@ -64,11 +64,13 @@ def get_bin_dictionary(binfile):
     '''
     bindict = {}
     with open(binfile) as f:
-        line = f.readline()
+        line = f.readline().strip()
         while line:
             line = line.split('\t')
-            bindict[line[0].strip('>')] = line[1].strip()
-            line = f.readline()
+            binid = line[0].split('.')[1]
+            contig = line[1].strip('>')
+            bindict[contig] = binid
+            line = f.readline().strip()
     return bindict
 
 
@@ -174,7 +176,7 @@ if __name__ == "__main__":
     parser.add_argument("-o", "--Output", help="Output file to write",
                         required=False)
     parser.add_argument("-t", "--Top", help="Get the hit with mode per contig",
-                        required=False, default=None)
+                        required=False, default=None, action='store_true')
     argument = parser.parse_args()
     """ Arguments """
     if argument.List:
