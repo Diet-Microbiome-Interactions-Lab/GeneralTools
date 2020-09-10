@@ -73,12 +73,18 @@ def write_vanilla_gff(gff):
     GFF file to count how many reads from a BAM file overlap each contig in
     an assembly.
     '''
-    with open(gff) as i:
-        line = i.readline()
-        while line:
-            line = line.split('\t')
-            
+    output = os.path.basename(gff).rsplit('.', 1)[0]
+    output = output + ".vanilla.gff"
+    with open(output, 'w') as o:
+        with open(gff) as i:
             line = i.readline()
+            while line:
+                line = line.split('\t')
+                length = line[0].split('_')[3]
+                writeline=[line[0], 'bowtie2', 'contig', '1', str(length), '40', '.', '.', f'gene_id "{line[0]}"']
+                writeline = '\t'.join(writeline) + '\n'
+                o.write(writeline)        
+                line = i.readline()
                                         
 if __name__ == "__main__":
     import argparse
@@ -89,14 +95,12 @@ if __name__ == "__main__":
     parser.add_argument("-f", "--Feature", help="Feature to count (Default=gene_id)",
                         required=False, default='gene_id')
     parser.add_argument("-b", "--Bins", help="Bin identification file",
-                        required=False)
+                        required=False, default=False)
     parser.add_argument("-v", "--Vanilla", help="If specified, creates a GFF file where each \
     sequence ID is turned into the feature of choice, with contig length extracted from node name",
                         required=False)
     argument = parser.parse_args()
-    if len(sys.argv) == 4:
-        trim_gff_by_feature(sys.argv[1], sys.argv[2], binfile=sys.argv[3])
-    elif len(sys.argv) == 3:
-        trim_gff_by_feature(sys.argv[1], sys.argv[2])
+    if argument.Vanilla:
+        write_vanilla_gff(argument.GFF)
     else:
-        print('Invalid number of arguments. Requires (1) GFF file, (2) Feature name and optionally (3) Binfile')
+        trim_gff_by_feature(argument.GFF, argument.Feature, binfile=argument.Bins)
