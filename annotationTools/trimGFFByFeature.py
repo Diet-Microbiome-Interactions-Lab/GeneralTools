@@ -65,7 +65,35 @@ def trim_gff_by_feature(gff, feat_name, binfile=False):
                 line = i.readline().strip()
 
 
+def write_vanilla_gff(gff):
+    '''
+    Function that takes in a GFF file and outputs a vanilla GFF file,
+    which creates an entry for every sequence ID and for the feature it
+    writes "gene_id <sequenceID>". Example usage would be to create a simple
+    GFF file to count how many reads from a BAM file overlap each contig in
+    an assembly.
+    '''
+    with open(gff) as i:
+        line = i.readline()
+        while line:
+            line = line.split('\t')
+            
+            line = i.readline()
+                                        
 if __name__ == "__main__":
+    import argparse
+    """ Arguments """
+    parser = argparse.ArgumentParser(description="Parser")
+    parser.add_argument("-g", "--GFF", help="GFF file (Version 3)",
+                        required=True)
+    parser.add_argument("-f", "--Feature", help="Feature to count (Default=gene_id)",
+                        required=False, default='gene_id')
+    parser.add_argument("-b", "--Bins", help="Bin identification file",
+                        required=False)
+    parser.add_argument("-v", "--Vanilla", help="If specified, creates a GFF file where each \
+    sequence ID is turned into the feature of choice, with contig length extracted from node name",
+                        required=False)
+    argument = parser.parse_args()
     if len(sys.argv) == 4:
         trim_gff_by_feature(sys.argv[1], sys.argv[2], binfile=sys.argv[3])
     elif len(sys.argv) == 3:
