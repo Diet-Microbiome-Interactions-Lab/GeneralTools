@@ -8,7 +8,7 @@ indicated in a bin identification file.
 Example usage:
 $ python trimGFFByFeature.py 
 '''
-
+import os
 import sys
 
 
@@ -57,7 +57,7 @@ def trim_gff_by_feature(gff, feat_name, binfile=False):
                                     o.write(f"{line}\n")
                                     break
                             else:
-                                o.write(f"{line}\n
+                                o.write(f"{line}\n")
                         else:
                             pass
                 except IndexError:
@@ -73,17 +73,24 @@ def write_vanilla_gff(gff):
     GFF file to count how many reads from a BAM file overlap each contig in
     an assembly.
     '''
+    # Keep track of contigs so they only get read once
+    read_list = []
     output = os.path.basename(gff).rsplit('.', 1)[0]
     output = output + ".vanilla.gff"
     with open(output, 'w') as o:
         with open(gff) as i:
+            line = i.readline()  # Skip header
             line = i.readline()
             while line:
                 line = line.split('\t')
-                length = line[0].split('_')[3]
-                writeline=[line[0], 'bowtie2', 'contig', '1', str(length), '40', '.', '.', f'gene_id "{line[0]}"']
-                writeline = '\t'.join(writeline) + '\n'
-                o.write(writeline)        
+                if (line[0].startswith('NODE') and line[0] not in read_list):
+                    length = line[0].split('_')[3]
+                    writeline=[line[0], 'bowtie2', 'contig', '1', str(length), '40', '.', '.', f'gene_id "{line[0]}"']
+                    writeline = '\t'.join(writeline) + '\n'
+                    o.write(writeline)   
+                    read_list.append(line[0])
+                else:
+                    pass
                 line = i.readline()
                                         
 if __name__ == "__main__":
@@ -98,7 +105,7 @@ if __name__ == "__main__":
                         required=False, default=False)
     parser.add_argument("-v", "--Vanilla", help="If specified, creates a GFF file where each \
     sequence ID is turned into the feature of choice, with contig length extracted from node name",
-                        required=False)
+                        required=False, action='store_true')
     argument = parser.parse_args()
     if argument.Vanilla:
         write_vanilla_gff(argument.GFF)
