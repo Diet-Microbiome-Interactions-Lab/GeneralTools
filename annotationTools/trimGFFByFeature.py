@@ -1,12 +1,17 @@
 '''
 Author: Dane Deemer
-Script used to filter a .GFF file to contain either:
+Script used to filter a .GFF file to contain:
 i) Only entries that contain a specific feature, OR
 ii) Only entries that contain a specific feauture and are
 indicated in a bin identification file.
+iii) Creates a vanilla .GFF file that only contains the contig
+name as the feature attribute.
 
 Example usage:
-$ python trimGFFByFeature.py 
+$ python trimGFFByFeature.py -g mygff.gff -f tigrfam_acc
+$ python trimGFFByFeature.py -g mygff.gff -f tigrfam_acc -b Bins/mybins.txt
+$ python trimGFFByFeature.py -g mygff.gff --Vanilla
+
 '''
 import os
 import sys
