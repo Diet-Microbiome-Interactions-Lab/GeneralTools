@@ -1,6 +1,6 @@
 '''
-Note - this can be combined with the gff)mine program in the future!!!!!
-Script designed to take in a file created from the gff_mine.py script and produce
+Note - this can be combined with the gff_mine.py program in the future!!!!!
+Script designed to take in a file created from the gff_mine.py and produce
 the top feature for each bin. The top feature is specified as the mode and ties
 will be arbitrarily assigned on of the tying features.
 Example usage:
