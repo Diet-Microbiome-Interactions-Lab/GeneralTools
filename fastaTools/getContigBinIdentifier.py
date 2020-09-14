@@ -1,14 +1,11 @@
 '''
 Program designed to take a directory containing all bin files and output a
-tab-delimited file containing contig names in the first column and their
-associated bin number in the second column.
-The output is in a format that can be directly imported into an Anvio database
-using:
-$ anvi-import-collection <output-from-this-program.txt> -c $CONTIG_DB -p \
-$PROFILE --contig-mode --collection-name "Whatever name you choose!"
+tab-delimited file containing bin number first column and the associated
+contig in the second column.
+
 Example usage:
-$ python getContigBinIdentifer.py <bin-file-format> <output-file-name>
-$ python getContigBinIdentifer.py fasta contigs-to-be-imported.txt
+$ python getContigBinIdentifer.py <fasta-directory> <output-file-name>
+$ python getContigBinIdentifer.py binfiles/ contigs-to-be-imported.txt
 '''
 
 import os
@@ -33,14 +30,14 @@ def read_multiple_fasta(files):
         the bin files are name!
         '''
         bin_id = os.path.basename(file)
-        bin_id = str(file).split('.')[0]
+        bin_id = str(file).split('.')[1]
         deflines = return_deflines(file)
         master_dict[bin_id] = deflines
     return master_dict
 
 
 def write_fa_dict(files, savename):
-    """ A function to write .csv values of .fasta output """
+    """ A function to write .txt values of .fasta output """
     master = read_multiple_fasta(files)
     header = f"Contig\tBin\n"
     with open(savename, 'w') as o:
