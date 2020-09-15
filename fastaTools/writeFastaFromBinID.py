@@ -1,9 +1,7 @@
 """
-Program designed to take in an assembly file and will output:
-1.) New fasta files IF --FastaDirectory <location> is specified (and binID file)
-Note: Fasta file names will be written in the format: <binID>.fasta
-2.) New BinID file IF --Identity <filename> is specified, along with 
-3.) Both IF both flags are raised
+Program designed to take in an assembly file and a bin identification file and
+will output a series of multi-fasta files (one corresponding to each bin in
+the bin identification file).
 
 
 Example usage:
