@@ -21,8 +21,8 @@ def filter_fasta(file, size, output):
                 defline = values[0]
                 length = len(values[1])
                 if length > int(size):
-                    o.write(defline)
-                    o.write(values[1])
+                    o.write('>' + defline + '\n')
+                    o.write(values[1] + '\n')
                 else:
                     pass
     return 0
