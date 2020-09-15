@@ -30,7 +30,7 @@ def read_multiple_fasta(files):
         the bin files are name!
         '''
         bin_id = os.path.basename(file)
-        bin_id = str(file).split('.')[1]
+        bin_id = str(bin_id).split('.')[1]
         deflines = return_deflines(file)
         master_dict[bin_id] = deflines
     return master_dict
@@ -39,12 +39,9 @@ def read_multiple_fasta(files):
 def write_fa_dict(files, savename):
     """ A function to write .txt values of .fasta output """
     master = read_multiple_fasta(files)
-    header = f"Contig\tBin\n"
     with open(savename, 'w') as o:
-        o.write(header)  # First row (keys of dict)
         for bin_id, deflines in master.items():
             for defline in deflines:
-                bin_id = os.path.basename(bin_id)
                 line = f"{bin_id}\t{defline}\n"
                 o.write(line)
 
@@ -52,14 +49,9 @@ def write_fa_dict(files, savename):
 if __name__ == "__main__":
     ''' Initialize the arguments to be entered '''
     parser = argparse.ArgumentParser(description="Parser")
-    parser.add_argument("-d", "--Directory", help="Directory containing files",
-                        required=True)
+    parser.add_argument("-f", "--Files", help="Fasta files",
+                        required=True, nargs='*')
     parser.add_argument("-o", "--Output", help="Output file name",
                         required=True)
     argument = parser.parse_args()
-    files = []
-    mydir = os.getcwd()
-    for f in os.listdir(argument.Directory):
-        if (f.endswith('.fasta') or f.endswith('.fa')):
-            files.append(os.path.join(argument.Directory, f))
-    write_fa_dict(files, argument.Output)
+    write_fa_dict(argument.Files, argument.Output)
