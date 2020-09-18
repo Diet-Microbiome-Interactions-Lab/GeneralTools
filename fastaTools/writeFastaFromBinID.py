@@ -22,17 +22,15 @@ def read_binfile(binfile):
     Function that reads in a binID file into a dictionary
     in the form: dic[nodeNum]=binID
     '''
-    bins = {}
+    bin_dic = {}
     with open(binfile) as b:
-        line = b.readline()
+        line = b.readline() 
         while line:
-            match = line.split('\t')[0].split('_')[1]
-            match = str(int(match))
-            match = f"NODE_{match}_"
-            bi = line.split('\t')[1].strip()
-            bins[match] = bi
+            contig = line.split('\t')[1].strip()
+            bin_num = line.split('\t')[0]
+            bin_dic[contig] = bin_num
             line = b.readline()
-    return bins
+    return bin_dic
 
 
 def write_fastas(binfile, assemblyfile, outdirectory):
@@ -45,7 +43,7 @@ def write_fastas(binfile, assemblyfile, outdirectory):
     for record in SeqIO.parse(assemblyfile, "fasta"):
         match = record.id.strip('>')
         if match in bindic:
-            outfile = f"{outdirectory}/{bindic[match]}.fasta"
+            outfile = f"{outdirectory}/Bin.{bindic[match]}.fasta"
             with open(outfile, 'a') as o:
                 o.write(f">{record.id}\n{record.seq}\n")
     return 0
