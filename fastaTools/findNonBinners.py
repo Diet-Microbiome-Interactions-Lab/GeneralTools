@@ -81,4 +81,4 @@ if __name__ == "__main__":
     nobinners = "nobinners_" + os.path.basename(str(argument.Reference))
     with open(nobinners, 'w') as handle:
         for contig in contigs.keys():
-            handle.write(f"NoBin\n{contig.strip('>')}\\n")
+            handle.write(f"NoBin\t{contig.strip('>')}\n")
