@@ -16,6 +16,7 @@ from Bio import SeqIO
 
 def return_deflines(file):
     """ Open up a .fasta file and return the defline values in a list """
+    assert file.lower().endswith(('.fa', '.fasta')), "File does not end in .fasta or .fa"
     seq_dict = {rec.id: rec.seq for rec in SeqIO.parse(file, "fasta")}
     return seq_dict.keys()
 
