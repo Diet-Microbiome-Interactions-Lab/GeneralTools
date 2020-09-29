@@ -18,7 +18,7 @@ def return_deflines(file):
     """ Open up a .fasta file and return the defline values in a list """
     assert file.lower().endswith(('.fa', '.fasta')), "File does not end in .fasta or .fa"
     seq_dict = {rec.id: rec.seq for rec in SeqIO.parse(file, "fasta")}
-    return seq_dict.keys()
+    return list(seq_dict.keys())
 
 def read_multiple_fasta(files):
     """ Increase functionality of 'read_fasta' by allowing a list of multiple
@@ -47,7 +47,10 @@ def write_fa_dict(files, savename, log):
                 with open(log, 'a') as lg:
                     lg.write(f"{bin_id} contains {len(deflines)} contigs\n")
             for defline in deflines:
-                line = f"{bin_id}\t{defline}\n"
+                if defline.startswith('super'):
+                    line=f"{bin_id}\t{defline.split('super_max_')[1]}\n"
+                else:
+                    line = f"{bin_id}\t{defline}\n"
                 o.write(line)
 
 
