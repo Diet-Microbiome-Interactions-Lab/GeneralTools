@@ -38,6 +38,10 @@ def write_fastas(binfile, assemblyfile, outdirectory):
     Function that writes a new FASTA file if the defline
     of the assembly matches a bin entry
     '''
+    try:
+        os.mkdir(outdirectory)
+    except FileExistsError:
+        pass
     # Option A: Write new multi-fasta files to 'outdirectory'
     bindic = read_binfile(binfile)
     for record in SeqIO.parse(assemblyfile, "fasta"):
