@@ -1,4 +1,5 @@
 '''
+Author: Dane
 Program that takes a numeric value n and the name of a fasta
 file and returns the top n largest entries (key=len(sequence))
 $ python -i <myfile.fasta> -n <seqlength_to_filter_(int)> -o <output.fasta>
