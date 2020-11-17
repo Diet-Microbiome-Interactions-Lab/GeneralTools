@@ -1,4 +1,5 @@
 '''
+Author: Dane
 Program to filter .FASTA files based on sequences
 that are at least N nucleotides long
 
