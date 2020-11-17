@@ -1,5 +1,10 @@
 '''
-Finding the reverse compliment and printing to stdout
+Author: Dane
+Date: 17Nov20
+Finding the reverse compliment and printing to stdout.
+Example useage:
+$ python reverseCompliment.py <string>
+$ python reverseCompliment.py AGGCTCGCTAGC
 '''
 import time
 import sys
