@@ -1,8 +1,11 @@
 """
 Author: Dane
 Function that requires: 1+ .FASTA files and
-writes a csv files containing: .fasta description,
-what file it came from (bin), length, and GC content
+writes a tab-delimited files containing:
+.fasta description, what file it came from (bin), length, and GC content.
+
+If the option --Bin is used, it will also create a shortened
+file with statistics for each bin (instead of for each contig).
 
 Example use:
 $ python fasta_dict.py .fasta <savename.csv>
@@ -10,6 +13,7 @@ $ python fasta_dict.py .fasta <savename.csv>
 from Bio import SeqIO
 from Bio.SeqIO.FastaIO import SimpleFastaParser
 import argparse
+import os
 
 
 def gc_cont(string):
@@ -49,23 +53,38 @@ def read_multiple_fasta(files):
     master_dict = {}
     for file in files:
         fasta_dict = basic_fasta_stats(file)
-        master_dict[str(file)] = fasta_dict
+        master_dict[os.path.basename(str(file))] = fasta_dict
     return master_dict
 
 
-def save_fa_dict(files, output):
+def save_fa_dict(files, output, bin=False):
     """
-    A function to write .csv values of .fasta output
+    A function to write .txt values of .fasta output
     """
     dictionary = read_multiple_fasta(files)
-    header = 'File\tContig\tLength\tGC_Content\n'
     with open(output, 'w') as o:
-        o.write(header)  # First row (keys of dict)
-        for file in dictionary:
-            for defline, stats in dictionary[file].items():
-                line = [file, defline] + [str(stat) for stat in stats]
-                line = '\t'.join(line) + '\n'
-                o.write(line)
+        if not bin:
+            header = 'File\tContig\tLength\tGC_Content\n'
+            o.write(header)  # First row (keys of dict)
+            for file in dictionary:
+                for defline, stats in dictionary[file].items():
+                    line = [file, defline] + [str(stat) for stat in stats]
+                    line = '\t'.join(line) + '\n'
+                    o.write(line)
+        if bin:
+            header = 'Bin\tLength\tGC_Content\n'
+            o.write(header)
+            for file in dictionary:
+                total_length = 0
+                GC = 0
+                count = 0
+                for defline, stats in dictionary[file].items():
+                    count += 1
+                    total_length += stats[0]
+                    GC += stats[1]
+                GC = GC / count
+                writeline = "\t".join([file, str(count), str(total_length), str(GC)]) + "\n"
+                o.write(writeline)
     return 0
 
 
@@ -77,5 +96,8 @@ if __name__ == "__main__":
     parser.add_argument("-o", "--Output",
                         help="Output file to write to",
                         required=True)
+    parser.add_argument("-b", "--Bin",
+                        help="Get information on a bin-by-bin level",
+                       action='store_true', required=False)
     argument = parser.parse_args()
-    save_fa_dict(argument.FASTA, argument.Output)
+    save_fa_dict(argument.FASTA, argument.Output, bin=argument.Bin)
