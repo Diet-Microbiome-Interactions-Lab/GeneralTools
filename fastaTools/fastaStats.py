@@ -72,7 +72,7 @@ def save_fa_dict(files, output, bin=False):
                     line = '\t'.join(line) + '\n'
                     o.write(line)
         if bin:
-            header = 'Bin\tLength\tGC_Content\n'
+            header = 'Bin\tCount\tLength\tGC_Content\n'
             o.write(header)
             for file in dictionary:
                 total_length = 0
