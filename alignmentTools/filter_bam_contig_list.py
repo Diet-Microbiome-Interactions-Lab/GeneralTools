@@ -26,8 +26,8 @@ def get_contigs(contigfile):
         line = contigs.readline()  # First line is header; skip
         line = contigs.readline()
         while line:
-            c_name = line.split('\t')[0]
-            bin_name = line.split('\t')[1]
+            c_name = line.split('\t')[1]
+            bin_name = line.split('\t')[0]
             if bin_name in bin_dictionary:
                 bin_dictionary[bin_name].append(c_name)
             else:
