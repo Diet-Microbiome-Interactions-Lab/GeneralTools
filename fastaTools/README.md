@@ -1,7 +1,7 @@
 # fastaTools
 *Tools for general manipulation of .fasta/.mfa/.faa files*
 
-|                |ASCII                          |HTML                         |
+|Filename        |                          |HTML                         |
 |----------------|-------------------------------|-----------------------------|
 |Single backticks|`'Isn't this fun?'`            |'Isn't this fun?'            |
 |Quotes          |`"Isn't this fun?"`            |"Isn't this fun?"            |
