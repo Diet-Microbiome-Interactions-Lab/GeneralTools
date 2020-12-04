@@ -3,6 +3,6 @@
 
 |Filename        |Description                    |Author                       |SPV                       |
 |----------------|-------------------------------|-----------------------------|-----------------------------|
-|calcBinsetLenghts.py|`'Isn't this fun?'`            |'Isn't this fun?'            |                             |
-|Quotes          |`"Isn't this fun?"`            |"Isn't this fun?"            |                             |
-|Dashes          |`-- is en-dash, --- is em-dash`|-- is en-dash, --- is em-dash|                             |
+|changeBinNodeNames.py|Convert Anvio simplified node names to original|Dane Deemer|None|
+|compareTwoBinFiles|Compare 2 multia-fasta files for content differences|Dane Deemer|None|
+|fastaStats.py|Return basic stats about a FASTA files content|Dane Deemer|None|
