@@ -1,8 +1,9 @@
 """
 Author: Dane
-Function that requires: 1+ .FASTA files and
+Dane: NA
+Purpose: Function that requires: 1+ .FASTA files and
 writes a tab-delimited files containing:
-.fasta description, what file it came from (bin), length, and GC content.
+fasta description, what file it came from (bin), length, and GC content.
 
 If the option --Bin is used, it will also create a shortened
 file with statistics for each bin (instead of for each contig).
@@ -24,9 +25,7 @@ def gc_cont(string):
     string = string.upper()
     g = string.count('G')
     c = string.count('C')
-    leng = float(len(string))
-    gc = float((g + c))
-    return round(gc / leng, 3)
+    return round((g + c) / len(string), 3)
 
 
 def basic_fasta_stats(file):
@@ -51,9 +50,11 @@ def read_multiple_fasta(files):
     Note: this will not work if multiple .fasta files contain same identifier
     """
     master_dict = {}
+    
     for file in files:
         fasta_dict = basic_fasta_stats(file)
         master_dict[os.path.basename(str(file))] = fasta_dict
+        
     return master_dict
 
 
@@ -62,6 +63,7 @@ def save_fa_dict(files, output, bin=False):
     A function to write .txt values of .fasta output
     """
     dictionary = read_multiple_fasta(files)
+    
     with open(output, 'w') as o:
         if not bin:
             header = 'File\tContig\tLength\tGC_Content\n'
@@ -83,7 +85,8 @@ def save_fa_dict(files, output, bin=False):
                     total_length += stats[0]
                     GC += stats[1]
                 GC = GC / count
-                writeline = "\t".join([file, str(count), str(total_length), str(GC)]) + "\n"
+                writeline = "\t".join(
+                    [file, str(count), str(total_length), str(GC)]) + "\n"
                 o.write(writeline)
     return 0
 
@@ -91,13 +94,13 @@ def save_fa_dict(files, output, bin=False):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Parser")
     parser.add_argument("-f", "--FASTA",
-                        help="FASTA files to parse",
+                        help="FASTA files to parse (can be multiple)",
                         required=True, nargs='*')
     parser.add_argument("-o", "--Output",
                         help="Output file to write to",
                         required=True)
     parser.add_argument("-b", "--Bin",
                         help="Get information on a bin-by-bin level",
-                       action='store_true', required=False)
+                        action='store_true', required=False)
     argument = parser.parse_args()
     save_fa_dict(argument.FASTA, argument.Output, bin=argument.Bin)
