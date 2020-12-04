@@ -1,7 +1,9 @@
 '''
-Program designed to take in 1+ multifasta files and outputting a tab-delimited
-file recording the total nucleotide length, total fasta entries (e.g., contigs),
-and the file name. For example, the output would be formatted:
+Author: Dane
+Date: NA
+Purpose: Program designed to take in 1+ multifasta files and outputting a tab-delimited
+file recording the total nucleotide length, total fasta entries (e.g., contigs), and
+the file name. For example, the output would be formatted:
 Nucleotides\tContigs\tFile
 120000\t10\tSampleA.fasta
 80000\t6\tSampleB.fasta
@@ -9,16 +11,15 @@ Nucleotides\tContigs\tFile
 Example usage:
 $ python calcBinsetLengths.py -b MySampleBins/*.fasta -o mySampleBinsSizes.txt
 '''
-
-
 import os
 import argparse
 from Bio.SeqIO.FastaIO import SimpleFastaParser
 
 
-def bin_size(file):
+def CalcBinSizeLength(file):
     '''
-    How many contigs and nucleotide content per bin file
+    Calculate total length of multi-fasta file and how many
+    sequences are in it.
     '''
     length = 0
     count = 0
@@ -29,15 +30,15 @@ def bin_size(file):
     return length, count
 
 
-def multiple_bin_sizes(files, output):
+def loopCalcs(files, output):
     '''
-    Extend bin_size to multiple fastas
+    Extend CalcBinSizeLength to multiple fastas
     '''
     with open(output, 'w') as o:
         o.write(f"Nucleotides\tContigs\tFile\n")
         for file in files:
             name = os.path.basename(file)
-            length, count = bin_size(file)
+            length, count = CalcBinSizeLength(file)
             o.write(f"{length}\t{count}\t{name}\n")
     return 0
 
@@ -49,4 +50,4 @@ if __name__ == "__main__":
     parser.add_argument("-o", "--Output", help="Output file",
                         required=True)
     argument = parser.parse_args()
-    multiple_bin_sizes(argument.BinFiles, argument.Output)
+    loopCalcs(argument.BinFiles, argument.Output)
