@@ -1,15 +1,14 @@
 '''
 Author: Dane
-Program to filter .FASTA files based on sequences
-that are at least N nucleotides long
+Date: 18Dec20
+Purpose: Program to filter .FASTA files based on sequences that are at
+least N nucleotides long
 
 Example usage:
 $ python filterSeqlength.py <input.fasta> <length_threshold> <output.fasta>
 '''
-
-import sys
-from Bio import SeqIO
 from Bio.SeqIO.FastaIO import SimpleFastaParser
+
 
 def filter_fasta(file, size, output):
     """
@@ -30,4 +29,14 @@ def filter_fasta(file, size, output):
 
 
 if __name__ == "__main__":
-    filter_fasta(sys.argv[1], sys.argv[2], sys.argv[3])
+    import argparse
+    parser = argparse.ArgumentParser(description="Parser")
+    parser.add_argument("-a", "--Assembly",
+                        help="Assembly to filter", required=True)
+    parser.add_argument("-l", "--Length",
+                        help="Length to filter fasta by", required=True)
+    parser.add_argument("-o", "--Output",
+                        help="Output filtered fasta file to write to",
+                        required=True)
+    argument = parser.parse_args()
+    filter_fasta(argument.Assembly, argument.Length, argument.Output)

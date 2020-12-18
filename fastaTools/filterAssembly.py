@@ -1,3 +1,4 @@
+
 '''
 Author: Dane
 Date: 01Dec20
@@ -6,36 +7,42 @@ the multi-fasta so only contain the sequences in the BID file.
 
 Example usage:
 $ python filterAssembly.py <assembly.fasta> <bid.txt> <output.txt>
-'''
 
-
-'''
 Notes:
-Find a way to auto initialize a a list of size (max(contignumber))
+In the future, add functionality to specify the delimiter for the
+bin identification file.
 '''
-
-import sys
 from Bio.SeqIO.FastaIO import SimpleFastaParser
 
 
-def readBinID(binid):
-    contiglist = [0] * 329249
+# First, count how many contigs are in the assembly to know how big
+# to initialize the contig index.
+def blocks(file, size=65536):
+    while True:
+        b = file.read(size)
+        if not b:
+            break
+        yield b
+
+
+def readBinID(binid, ncontigs, field):
+    contiglist = [0] * ncontigs
     with open(binid) as b:
         line = b.readline().strip()
         while line:
-            contig = int(line.split('\t')[1].split('_')[1])
+            contig = int(line.split('\t')[int(field)].split('_')[1])
             contiglist[contig] = 1
             line = b.readline().strip()
     return contiglist
 
 
-def filterFasta(assembly, binid, output):
+def filterFasta(assembly, binid, output, ncontigs, field):
     """
     Open up a .fasta file and return a dictionary containing the header
     as the key and length as the value
     """
 
-    contigList = readBinID(binid)
+    contigList = readBinID(binid, ncontigs, field)
 
     with open(output, 'w') as o:
         with open(assembly) as f:
@@ -51,8 +58,22 @@ def filterFasta(assembly, binid, output):
 
 
 if __name__ == '__main__':
-    from datetime import datetime
-    start = datetime.now()
-    filterFasta(sys.argv[1], sys.argv[2], sys.argv[3])
-    with open('log.txt', 'a') as log:
-        log.write(f"{datetime.now() - start}\n")
+    import argparse
+    parser = argparse.ArgumentParser(description="Parser")
+    parser.add_argument("-a", "--Assembly",
+                        help="Assembly to filter", required=True)
+    parser.add_argument("-o", "--Output",
+                        help="Output assembly to write", required=True)
+    parser.add_argument("-i", "--Id_File",
+                        help="File containing list of entries to filter",
+                        required=True)
+    parser.add_argument("-f", "--Field",
+                        help="Field where contigs list is",
+                        required=False, default=1)
+    argument = parser.parse_args()
+    # Count how many entries are in the fasta file
+    with open(argument.Assembly, "r", encoding="utf-8", errors='ignore') as f:
+        ncontigs = sum(bl.count(">") for bl in blocks(f)) + 1
+
+    filterFasta(argument.Assembly, argument.Id_File, argument.Output,
+                ncontigs, argument.Field)
