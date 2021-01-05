@@ -1,6 +1,6 @@
 """
 Author: Dane
-Dane: NA
+Date: NA
 Purpose: Function that requires: 1+ .FASTA files and
 writes a tab-delimited files containing:
 fasta description, what file it came from (bin), length, and GC content.

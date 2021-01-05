@@ -1,13 +1,16 @@
 '''
-Author: Dane
-Date: 01Dec20
-Program design to filter a .BAM file based on alignments
+Author: Dane Deemer
+Date: NA
+Purpose: Program design to filter a .BAM file based on alignments
 matching a list of provided reference identifiers
 Use example: map all reads to an assembly, and then once
 you bin the contigs from each assembly, you can go back and
-look at how each binset was aligned against the raw reads
-'''
+look at how each binset was aligned against the raw reads.
 
+Example usage:
+$ python filterBamByReference.py -c <contiglist.txt> -i <input.bam> \
+-o <output.out>
+'''
 import sys
 import argparse
 import pysam
@@ -30,10 +33,39 @@ def readBinID(binid, keep_bin=False):
     return contigList
 
 
+def filterHeader(bam, contigList):
+    '''
+    Filter the BAM header to append to the output from filterBam
+    '''
+    header = {}
+    header['SQ'] = []
+    head = str(bam.header).split('\n')
+    for value in head:
+        if value.startswith('@SQ'):
+            index = int(value.split('\t')[1].split('_')[1])
+            if contigList[index] == 1:
+                node = value.split('\t')[1].split(':')[1]
+                ln = int(value.split('\t')[2].split(':')[1])
+                cur_dic = {'LN': ln, 'SN': node}
+                header['SQ'].append(cur_dic)
+        elif value.startswith('@HD'):
+            tag = value.split('\t')[0].strip('@')
+            version = value.split('\t')[1].split(':')[1]
+            header[tag] = {'VN': version}
+        else:
+            pass
+    return header
+
+
 def filterBam(inBam, outBam, contigs, keep_bin=False):
+    '''
+    Filter a bam file based on a bin identification file.
+    '''
     contigList = readBinID(contigs, keep_bin)
+
     bam = pysam.AlignmentFile(inBam)
-    obam = pysam.AlignmentFile(outBam, 'wb', template=bam)
+    header = filterHeader(bam, contigList)
+    obam = pysam.AlignmentFile(outBam, 'wb', header=header)
 
     for b in bam.fetch(until_eof=True):
         try:
@@ -45,6 +77,7 @@ def filterBam(inBam, outBam, contigs, keep_bin=False):
 
     bam.close()
     obam.close()
+
     return 0
 
 

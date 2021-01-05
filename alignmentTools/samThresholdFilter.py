@@ -1,22 +1,17 @@
-''' Program to parse a .SAM file and filter it for a user-defined
-percent identity '''
+'''
+Author: Dane Deemer
+Date: NA
+Purpose: Program to parse a .SAM file and filter it for a user-defined
+percent identity 
 
+Example usage:
+$ samtools view -h <sample.bam> | python samThresholdFilter.py -s 150 \
+-t 99 > <output.sam>
+-o <output.out>
+'''
 import sys
 import argparse
 import re
-
-''' Initialize the arguments to be entered '''
-parser = argparse.ArgumentParser(description="Parser")
-parser.add_argument("-i", "--Input", help="Input .SAM file to filter",
-                    default=sys.stdin)
-parser.add_argument("-o", "--Output", help="Filtered output filename to read \
-    to", default=sys.stdout)
-parser.add_argument("-s", "--Readsize", help="Readsize of .fastq pairs")
-parser.add_argument("-t", "--Threshold", help="Percent idenity threshold to \
-    filter")
-parser.add_argument("-md", "--mdColumn", help="Zero-based column number that \
-    the MD score is in. Default value correlates to Bowtie2 field", default=17)
-argument = parser.parse_args()
 
 
 if argument.Input == sys.stdin:
@@ -76,7 +71,7 @@ option -h when using samtools view.')
                                 for m in matches:
                                     entry_matches = entry_matches + m
                                 if ((entry_matches / int(readsize)) >
-                                     float(threshold)):
+                                        float(threshold)):
                                     outf.write(line)
                                 else:
                                     low_identity += 1
@@ -85,6 +80,18 @@ option -h when using samtools view.')
 
 
 if __name__ == '__main__':
+    ''' Initialize the arguments to be entered '''
+    parser = argparse.ArgumentParser(description="Parser")
+    parser.add_argument("-i", "--Input", help="Input .SAM file to filter",
+                        default=sys.stdin)
+    parser.add_argument("-o", "--Output", help="Filtered output filename to read \
+        to", default=sys.stdout)
+    parser.add_argument("-s", "--Readsize", help="Readsize of .fastq pairs")
+    parser.add_argument("-t", "--Threshold", help="Percent idenity threshold to \
+        filter")
+    parser.add_argument("-md", "--mdColumn", help="Zero-based column number that \
+        the MD score is in. Default value correlates to Bowtie2 field", default=17)
+    argument = parser.parse_args()
     if argument.mdColumn:
         filter_same_percent_identity(argument.Input, argument.Output,
                                      argument.Readsize, argument.Threshold,
