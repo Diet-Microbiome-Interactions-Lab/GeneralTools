@@ -6,7 +6,6 @@ entries.
 This was designed to track how many entries were removed from bin sets after
 refinement, and then those removed contigs were compared to the original
 bin sets to see how many were removed vs. how many were originally binned.
-
 Example usage:
 $ python count_same_fasta.py -1 <firstFile> -2 <secondFile> -o <outfile_name>
 '''
