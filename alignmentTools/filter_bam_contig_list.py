@@ -41,9 +41,7 @@ def filter_bam(contigfile, input, output):
     # Read from the stdin
     with open(output, 'w') as out:
         for line in argument.Input:
-            print(line)
             if line.startswith('@'):
-                print('Yes')
                 out.write(line)
                 header_flag = True
             else:
