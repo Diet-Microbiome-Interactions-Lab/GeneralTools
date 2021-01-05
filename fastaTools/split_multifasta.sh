@@ -1,6 +1,7 @@
 #!/bin/bash
 
-# Read in a multi-fasta file and split into n files, all labeled according to ident line
+# Purpose: Read in a multi-fasta file and split into n files,
+# all labeled according to the defline
 
 while read line
 do
