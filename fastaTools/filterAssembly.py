@@ -1,8 +1,7 @@
-
 '''
 Author: Dane
 Date: 01Dec20
-Purpose: 2
+Purpose: Filter a multi-fasta file by a bin identification file.
 
 Example usage:
 $ python filterAssembly.py <assembly.fasta> <bid.txt> <output.txt>
