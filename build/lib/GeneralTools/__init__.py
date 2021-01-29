@@ -1,9 +1,14 @@
 import os
 import sys
-# Below, should not need but perhaps? Mess with this later.
+# print(os.path.split())
 _bin = os.path.join(os.path.split(__file__)[0], '../GT_Bin')
+print('\n\n\n')
+print(sys.path)
 sys.path.extend([_bin])
-
+print(sys.path)
+# from .bin import exp
+# from .bin import sums
+# from .bin.greet import Greet
 
 mypackage_version = '0.1-setup'
 

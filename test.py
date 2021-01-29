@@ -13,7 +13,3 @@ print(sys.path)
 
 if __name__ == '__main__':
     main()
-
-import glob
-a = [script for script in glob.glob('GT_Bin/*.py')]
-print(a)
