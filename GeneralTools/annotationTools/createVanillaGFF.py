@@ -3,21 +3,7 @@ Create a blank GFF file from an assembly .FASTA file
 Example usage:
 $python createVanillaGFF.py -f infile.fasta -o outfile.gff
 '''
-
-
-import argparse
 from Bio.SeqIO.FastaIO import SimpleFastaParser
-
-# Arguments v
-parser = argparse.ArgumentParser(description="Parser")
-parser.add_argument("-f", "--File",
-                    help="Bam file to parse.",
-                    required=True,)
-parser.add_argument("-o", "--Output",
-                    required=True,
-                    help="Output GFF file name.")
-arg = parser.parse_args()
-# Arguments ^
 
 
 def createGFF(file, output):
@@ -44,4 +30,14 @@ def createGFF(file, output):
 
 
 if __name__ == "__main__":
+    # Arguments v
+    import argparse
+    parser = argparse.ArgumentParser(description="Parser")
+    parser.add_argument("-f", "--File",
+                        help="Bam file to parse.",
+                        required=True,)
+    parser.add_argument("-o", "--Output",
+                        required=True,
+                        help="Output GFF file name.")
+    arg = parser.parse_args()
     createGFF(arg.File, arg.Output)
