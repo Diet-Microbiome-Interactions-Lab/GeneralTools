@@ -27,20 +27,6 @@ except Exception:
 os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 
 
-# # Add the GT_Bin folder to our path
-<<<<<<< HEAD
-# _bin = os.path.join(os.path.split(__file__)[0], 'GT_Bin')
-# print(_bin)
-# print(sys.path)
-# sys.path.extend([_bin])
-=======
-_bin = os.path.join(os.path.split(__file__)[0], 'GT_Bin')
-print(_bin)
-print(sys.path)
-sys.path.extend([_bin])
->>>>>>> 9caad2a919cff1f3be717d3221cb9fccce206c7f
-
-
 # Set up the package.
 setup(
     name="danes-general-tools",
@@ -54,11 +40,7 @@ setup(
 
     url="https://github.com/ddeemerpurdue",
 
-<<<<<<< HEAD
     scripts=[script for script in glob.glob('GT_Bin/*')],
-=======
-    scripts=[script for script in glob.glob('Bin/*')],
->>>>>>> 9caad2a919cff1f3be717d3221cb9fccce206c7f
     packages=find_packages(),
     classifiers=[
         "Programming Language :: Python :: 3",

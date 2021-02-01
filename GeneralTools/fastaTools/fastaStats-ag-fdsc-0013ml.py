@@ -32,6 +32,7 @@ def basic_fasta_stats(file):
     as the key and [filename, length, & gc_cont] as values
     """
     fasta_dict = {}
+    print(file)
     with open(file) as f:
         for values in SimpleFastaParser(f):
             defline = values[0]
@@ -47,6 +48,7 @@ def read_multiple_fasta(files):
     .fasta files to be read in, returning a master dictionary.
     Note: this will not work if multiple .fasta files contain same identifier
     """
+    print(f"Inside of rMf: {files}")
     master_dict = {}
 
     for file in files:
@@ -56,10 +58,13 @@ def read_multiple_fasta(files):
     return master_dict
 
 
-def main(files, output, bin=False):
+def save_fa_dict(files, output, bin=False):
     """
     A function to write .txt values of .fasta output
     """
+    files = list(files)
+    print(f"Inside of SFD: {files}")
+
     dictionary = read_multiple_fasta(files)
 
     with open(output, 'w') as o:
@@ -101,4 +106,4 @@ if __name__ == "__main__":
                         help="Get information on a bin-by-bin level",
                         action='store_true', required=False)
     argument = parser.parse_args()
-    main(argument.FASTA, argument.Output, bin=argument.Bin)
+    save_fa_dict(fasta, argument.Output, bin=argument.Bin)

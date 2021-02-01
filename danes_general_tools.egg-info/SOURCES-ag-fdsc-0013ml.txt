@@ -2,6 +2,7 @@ MANIFEST.in
 README.md
 setup.cfg
 setup.py
+GT_Bin/another_test.py
 GT_Bin/gt_test.py
 GT_Bin/gt_test2.py
 GeneralTools/__init__.py

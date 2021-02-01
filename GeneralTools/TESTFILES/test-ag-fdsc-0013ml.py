@@ -4,6 +4,10 @@
 # a = set(d1) ^ set(d2)
 # print([f"{val}\n" for val in a])
 
+val = 's'
 
-mylist = ['a'] + ['b', 'c']
-print(mylist)
+newval = list(val)
+print(newval)
+
+val2 = ['s']
+print(list(val2))

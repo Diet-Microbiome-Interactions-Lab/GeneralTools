@@ -1,8 +1,4 @@
-import os
 import sys
-# Below, should not need but perhaps? Mess with this later.
-_bin = os.path.join(os.path.split(__file__)[0], '../GT_Bin')
-sys.path.extend([_bin])
 
 
 mypackage_version = '0.1-setup'
@@ -15,3 +11,17 @@ try:
         sys.exit(-1)
 except Exception:
     sys.stderr.write("Failed to determine what python version is being used.")
+
+
+main_help = "This is the documentation for the main help."
+
+programs = {
+    'fastaStats': (
+        ['value1', 'value2'],
+        {'help': 'This is the help for fastaStats'}
+    ),
+    'tetranucleotideFreq': (
+        ['v1', 'v2'],
+        {'help': 'Help for tetranucleotideFreq'}
+    ),
+}
