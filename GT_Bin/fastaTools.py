@@ -37,7 +37,7 @@ def main(command):
                 PrintHelp(program, avail_programs)
             else:  # Run parse the arguments and run!
                 imp_mod = f"GeneralTools.fastaTools.{program}"
-                # current_program = importlib.import_module(imp_mod)
+                current_program = importlib.import_module(imp_mod)
                 # p_sig = signature(current_program.main)
 
                 # Now we need a solution to feed the correct command to the program

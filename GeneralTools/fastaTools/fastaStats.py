@@ -56,14 +56,14 @@ def read_multiple_fasta(files):
     return master_dict
 
 
-def main(files, output, bin=False):
+def main(files, output, _bin=False):
     """
     A function to write .txt values of .fasta output
     """
     dictionary = read_multiple_fasta(files)
 
     with open(output, 'w') as o:
-        if not bin:
+        if not _bin:
             header = 'File\tContig\tLength\tGC_Content\n'
             o.write(header)  # First row (keys of dict)
             for file in dictionary:
@@ -71,7 +71,7 @@ def main(files, output, bin=False):
                     line = [file, defline] + [str(stat) for stat in stats]
                     line = '\t'.join(line) + '\n'
                     o.write(line)
-        if bin:
+        if _bin:
             header = 'Bin\tCount\tLength\tGC_Content\n'
             o.write(header)
             for file in dictionary:
