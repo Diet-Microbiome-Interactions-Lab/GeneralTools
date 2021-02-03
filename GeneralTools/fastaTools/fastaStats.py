@@ -90,6 +90,7 @@ def main(files, output, bin=False):
 
 
 if __name__ == "__main__":
+    print('Running in main!!!')
     parser = argparse.ArgumentParser(description="Parser")
     parser.add_argument("-f", "--FASTA",
                         help="FASTA files to parse (can be multiple)",

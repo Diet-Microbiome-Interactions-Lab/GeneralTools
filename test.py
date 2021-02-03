@@ -13,10 +13,24 @@
 
 # if __name__ == '__main__':
 #     main()
+import sys
 
 
-a = ['--help', '-h', '-H']
-b = ['example', 'dane']
+def fx(**kwargs):
+    print(a, b, c)
+    for arg in args:
+        print(arg)
+    for kwarg in kwargs:
+        print(kwargs)
+    return 0
 
-if any(x in a for x in b):
-    print(a)
+
+mycommand = "run myprogram -f file -o output"
+arguments = mycommand.split()[2:]
+
+
+def parseArgs(command):
+    print(command)
+
+
+parseArgs(arguments)

@@ -2,9 +2,15 @@ MANIFEST.in
 README.md
 setup.cfg
 setup.py
+GT_Bin/fastaTools.py
 GT_Bin/gt_test.py
 GT_Bin/gt_test2.py
 GeneralTools/__init__.py
+GeneralTools/argumentParser.py
+GeneralTools/warnings.py
+GeneralTools/TESTFILES/__init__.py
+GeneralTools/TESTFILES/test-ag-fdsc-0013ml.py
+GeneralTools/TESTFILES/test.py
 GeneralTools/alignmentTools/__init__.py
 GeneralTools/alignmentTools/filterBamByReference.py
 GeneralTools/alignmentTools/samThresholdFilter.py
@@ -43,6 +49,7 @@ GeneralTools/miscTools/recursivelyMoveFiles.py
 GeneralTools/miscTools/reverseCompliment.py
 GeneralTools/miscTools/vcf_filter.py
 danes_general_tools.egg-info/PKG-INFO
+danes_general_tools.egg-info/SOURCES-ag-fdsc-0013ml.txt
 danes_general_tools.egg-info/SOURCES.txt
 danes_general_tools.egg-info/dependency_links.txt
 danes_general_tools.egg-info/requires.txt

@@ -17,11 +17,17 @@ main_help = "This is the documentation for the main help."
 
 programs = {
     'fastaStats': (
-        ['value1', 'value2'],
-        {'help': 'This is the help for fastaStats'}
+        [],  # List of positional arguments
+        {
+            'files': [],  # Dictionary of kwargs
+            'output': '',
+            'bin': False
+        },
+        {'help': 'This is the help for fastaStats'}  # Help message
     ),
     'tetranucleotideFreq': (
-        ['v1', 'v2'],
-        {'help': 'Help for tetranucleotideFreq'}
+        ['sequence'],
+        {'argRange': [1, 1],
+         'help': 'Help for tetranucleotideFreq'}
     ),
 }

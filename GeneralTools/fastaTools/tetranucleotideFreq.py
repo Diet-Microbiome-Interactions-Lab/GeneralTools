@@ -8,7 +8,7 @@ $ python tetranucleotideFreq.py 'MYSTRING'
 import sys
 
 
-def tetranucleotide_freq(sequence):
+def main(sequence, sequenc2, kw=None):
     nuc = ["A", "T", "G", "C"]
     mer_list = []
     for i in range(4):
@@ -29,4 +29,4 @@ def tetranucleotide_freq(sequence):
 
 
 if __name__ == "__main__":
-    tetranucleotide_freq(sys.argv[1])
+    main(sys.argv[1])
