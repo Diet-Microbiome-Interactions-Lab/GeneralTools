@@ -56,10 +56,13 @@ def read_multiple_fasta(files):
     return master_dict
 
 
-def main(files, output, _bin=False):
+def main(args):
     """
     A function to write .txt values of .fasta output
     """
+    files = args.FASTA
+    output = args.Output
+    _bin = args.Bin
     dictionary = read_multiple_fasta(files)
 
     with open(output, 'w') as o:
@@ -89,8 +92,7 @@ def main(files, output, _bin=False):
     return 0
 
 
-if __name__ == "__main__":
-    print('Running in main!!!')
+def parse_args():
     parser = argparse.ArgumentParser(description="Parser")
     parser.add_argument("-f", "--FASTA",
                         help="FASTA files to parse (can be multiple)",
@@ -101,5 +103,12 @@ if __name__ == "__main__":
     parser.add_argument("-b", "--Bin",
                         help="Get information on a bin-by-bin level",
                         action='store_true', required=False)
-    argument = parser.parse_args()
-    main(argument.FASTA, argument.Output, bin=argument.Bin)
+    return parser
+
+
+if __name__ == "__main__":
+    print('Running in main!!!')
+    parser = parse_args()
+    args = parser.parse_args()
+    print(args)
+    main(args)

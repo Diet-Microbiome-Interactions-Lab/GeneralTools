@@ -1,11 +1,10 @@
 #!/Users/ddeemer/.pyenv/versions/3.9.0/bin/python
 import importlib
-from inspect import signature
+import os
 import sys
 from GeneralTools import programs as avail_programs
 from GeneralTools import main_help as main_help
 from GeneralTools import warnings
-from GeneralTools import argumentParser
 # from GeneralTools.fastaTools.fastaStats import save_fa_dict as fastStats
 
 
@@ -20,7 +19,6 @@ def main(command):
     '''
 
     help_flags = ['--help', '-h', '-H']
-    print(command)
     if len(command) < 1:
         warnings.TooFewArgumentsWarning()
     else:
@@ -36,15 +34,20 @@ def main(command):
                 # print(avail_programs[program][1]['help'])
                 PrintHelp(program, avail_programs)
             else:  # Run parse the arguments and run!
+                print('No help flags...Moving on...\n')
                 imp_mod = f"GeneralTools.fastaTools.{program}"
+
+                # Importing the current module dynamically
+                # kind of as a plugin
                 current_program = importlib.import_module(imp_mod)
-                # p_sig = signature(current_program.main)
 
                 # Now we need a solution to feed the correct command to the program
-                a = argumentParser.main(command[1:], program)
-                # print(a)
+                parser = current_program.parse_args()
+                args = parser.parse_args(command[1:])
+                print(f"Parser:\n{parser}\nArgs:\n{args}")
+                print(current_program.main(args))
+                print('Fini!')
 
-                # current_program.main([arguments[1:]])
                 return 0
         else:
             warnings.InvalidArgument(program)

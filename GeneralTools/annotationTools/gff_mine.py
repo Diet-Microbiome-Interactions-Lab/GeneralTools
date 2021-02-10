@@ -67,7 +67,7 @@ def get_bin_dictionary(binfile):
         line = f.readline().strip()
         while line:
             line = line.split('\t')
-            binid = line[0].split('.')[1]
+            binid = line[0]
             contig = line[1].strip('>')
             bindict[contig] = binid
             line = f.readline().strip()

@@ -1,36 +1,23 @@
-#!/Users/ddeemer/.pyenv/versions/3.9.0/bin/python
-
-# print('In the module')
-
-
-# def main():
-#     print('Script run as __main__')
-
-
-# import sys
-
-# print(sys.path)
-
-# if __name__ == '__main__':
-#     main()
+import argparse
 import sys
 
 
-def fx(**kwargs):
-    print(a, b, c)
-    for arg in args:
-        print(arg)
-    for kwarg in kwargs:
-        print(kwargs)
-    return 0
+def parse_args():
+    parser = argparse.ArgumentParser(description="ArgParser")
+    parser.add_argument("-i", "--input", help="My input file",
+                        required=True)
+    parser.add_argument("-o", "--output", help="My output file",
+                        required=False)
+    return parser
 
 
-mycommand = "run myprogram -f file -o output"
-arguments = mycommand.split()[2:]
+def main(myin, myout):
+    print('Running main...')
+    print(f"{myin}\t{myout}")
 
 
-def parseArgs(command):
-    print(command)
-
-
-parseArgs(arguments)
+if __name__ == "__main__":
+    parser = parse_args()
+    print(f"Parser: {parser}")
+    args = parser.parse_args()
+    print(f"Args: {args}")
