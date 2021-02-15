@@ -2,13 +2,13 @@
 General warnings to display
 '''
 import sys
-from GeneralTools import programs as avail_programs
+from GeneralTools import toolSets
 
 
 def TooFewArgumentsWarning():
     sys.stdout.write('Not enough arguments provided.\n')
-    sys.stdout.write('See below for a list of all available programs:\n')
-    sys.stdout.write('\n'.join([prg for prg in avail_programs.keys()]) + '\n')
+    sys.stdout.write('See below for a list of all available tools:\n')
+    sys.stdout.write('\n'.join([prg for prg in toolSets]) + '\n')
     return 0
 
 

@@ -1,3 +1,0 @@
-File	Contig	Length	GC_Content
-sequence.fasta	header1	20	0.65
-sequence.fasta	header2	20	0.5

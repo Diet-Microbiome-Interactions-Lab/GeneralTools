@@ -2,11 +2,11 @@ MANIFEST.in
 README.md
 setup.cfg
 setup.py
+GT_Bin/annotationTools
+GT_Bin/annotationtools
 GT_Bin/fastaTools.py
-GT_Bin/gt_test.py
 GT_Bin/gt_test2.py
 GeneralTools/__init__.py
-GeneralTools/argumentParser.py
 GeneralTools/warnings.py
 GeneralTools/TESTFILES/__init__.py
 GeneralTools/TESTFILES/test-ag-fdsc-0013ml.py
@@ -16,7 +16,7 @@ GeneralTools/alignmentTools/filterBamByReference.py
 GeneralTools/alignmentTools/samThresholdFilter.py
 GeneralTools/annotationTools/__init__.py
 GeneralTools/annotationTools/createVanillaGFF.py
-GeneralTools/annotationTools/gff_mine.py
+GeneralTools/annotationTools/gffMine.py
 GeneralTools/annotationTools/trimGFFByFeature.py
 GeneralTools/annotationTools/writeFlaggedContigsNewBinID.py
 GeneralTools/annotationTools/writeModeGFFFeaturePerBin.py
@@ -47,6 +47,7 @@ GeneralTools/miscTools/mergeCounts.py
 GeneralTools/miscTools/processMetaphlanOutput.py
 GeneralTools/miscTools/recursivelyMoveFiles.py
 GeneralTools/miscTools/reverseCompliment.py
+GeneralTools/miscTools/subjectEncryption.py
 GeneralTools/miscTools/vcf_filter.py
 danes_general_tools.egg-info/PKG-INFO
 danes_general_tools.egg-info/SOURCES-ag-fdsc-0013ml.txt
