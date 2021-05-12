@@ -48,22 +48,25 @@ def read_multiple_fasta(files):
     Note: this will not work if multiple .fasta files contain same identifier
     """
     master_dict = {}
-    
+
     for file in files:
         fasta_dict = basic_fasta_stats(file)
         master_dict[os.path.basename(str(file))] = fasta_dict
-        
+
     return master_dict
 
 
-def save_fa_dict(files, output, bin=False):
+def main(args):
     """
     A function to write .txt values of .fasta output
     """
+    files = args.FASTA
+    output = args.Output
+    _bin = args.Bin
     dictionary = read_multiple_fasta(files)
-    
+
     with open(output, 'w') as o:
-        if not bin:
+        if not _bin:
             header = 'File\tContig\tLength\tGC_Content\n'
             o.write(header)  # First row (keys of dict)
             for file in dictionary:
@@ -71,7 +74,7 @@ def save_fa_dict(files, output, bin=False):
                     line = [file, defline] + [str(stat) for stat in stats]
                     line = '\t'.join(line) + '\n'
                     o.write(line)
-        if bin:
+        if _bin:
             header = 'Bin\tCount\tLength\tGC_Content\n'
             o.write(header)
             for file in dictionary:
@@ -89,7 +92,7 @@ def save_fa_dict(files, output, bin=False):
     return 0
 
 
-if __name__ == "__main__":
+def parse_args():
     parser = argparse.ArgumentParser(description="Parser")
     parser.add_argument("-f", "--FASTA",
                         help="FASTA files to parse (can be multiple)",
@@ -100,5 +103,12 @@ if __name__ == "__main__":
     parser.add_argument("-b", "--Bin",
                         help="Get information on a bin-by-bin level",
                         action='store_true', required=False)
-    argument = parser.parse_args()
-    save_fa_dict(argument.FASTA, argument.Output, bin=argument.Bin)
+    return parser
+
+
+if __name__ == "__main__":
+    print('Running in main!!!')
+    parser = parse_args()
+    args = parser.parse_args()
+    print(args)
+    main(args)

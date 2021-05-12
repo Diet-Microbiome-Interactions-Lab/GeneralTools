@@ -5,10 +5,12 @@ given string within a nucleotide sequnce
 Example usage:
 $ python tetranucleotideFreq.py 'MYSTRING'
 """
+import argparse
 import sys
 
 
-def tetranucleotide_freq(sequence):
+def main(args):
+    sequence = args.Sequence
     nuc = ["A", "T", "G", "C"]
     mer_list = []
     for i in range(4):
@@ -28,5 +30,15 @@ def tetranucleotide_freq(sequence):
     return freq_hash
 
 
+def parse_args():
+    parser = argparse.ArgumentParser(description="Parser")
+    parser.add_argument("-s", "--Sequence",
+                        help="Sequence to extract TNF",
+                        required=True)
+    return parser
+
+
 if __name__ == "__main__":
-    tetranucleotide_freq(sys.argv[1])
+    parser = parse_args()
+    args = parser.parse_args()
+    main(args)

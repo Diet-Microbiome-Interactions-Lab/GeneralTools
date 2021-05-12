@@ -15,6 +15,7 @@ $ python writeFastaFromBinID.py -a <assembly.fasta> -b <binID.txt> \
 """
 import argparse
 from Bio import SeqIO
+import os
 
 
 def read_binfile(binfile):
@@ -24,10 +25,10 @@ def read_binfile(binfile):
     '''
     bin_dic = {}
     with open(binfile) as b:
-        line = b.readline() 
+        line = b.readline()
         while line:
-            contig = line.split('\t')[1].strip()
-            bin_num = line.split('\t')[0]
+            contig = line.split('\t')[0].split('_split_')[0]
+            bin_num = line.split('\t')[1].strip()
             bin_dic[contig] = bin_num
             line = b.readline()
     return bin_dic
