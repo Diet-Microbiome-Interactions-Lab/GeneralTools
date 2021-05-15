@@ -1,4 +1,4 @@
-#!/Users/ddeemer/.pyenv/versions/3.9.0/bin/python
+#!python
 import importlib
 import os
 import sys

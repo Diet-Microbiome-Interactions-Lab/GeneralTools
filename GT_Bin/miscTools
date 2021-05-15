@@ -1,6 +1,5 @@
-#!/Users/ddeemer/.pyenv/versions/3.9.0/bin/python
+#!python
 import importlib
-import os
 import sys
 from GeneralTools import miscTools_programs as avail_programs
 from GeneralTools import main_help as main_help
@@ -27,27 +26,26 @@ def main(command):
             return 0
         elif program in avail_programs:
             # print(f"Found the program: {command[0]}...continuing\n")
-            if any(x in help_flags for x in command) or len(command) == 1:
-                PrintHelp(avail_programs, program)
-            else:
-                imp_mod = f"GeneralTools.annotationTools.{program}"
+            imp_mod = f"GeneralTools.miscTools.{program}"
 
-                # Importing the current module dynamically as a plugin
-                current_program = importlib.import_module(imp_mod)
+            # Importing the current module dynamically as a plugin
+            current_program = importlib.import_module(imp_mod)
 
-                # Now we need a solution to feed the correct command to the program
-                parser = current_program.parse_args()
-                args = parser.parse_args(command[1:])
-                print(f"Parser:\n{parser}\nArgs:\n{args}")
-                print(current_program.main(args))
-                print('Fini!')
+            # Now we need a solution to feed the correct command to the program
+            parser = current_program.parse_args()
+            args = parser.parse_args(command[1:])
+            print(f"Parser:\n{parser}\nArgs:\n{args}")
+            print(current_program.main(args))
+            print('Fini!')
 
-                return 0
+            return 0
+        elif program == '--View':
+            print(f'Available programs from {sys.argv[0]}:')
+            print('\n'.join([val for val in avail_programs]))
         else:
             warnings.InvalidArgument(program)
 
 
 if __name__ == '__main__':
     arguments = sys.argv[1:]
-    # print(arguments, avail_programs)
     main(arguments)

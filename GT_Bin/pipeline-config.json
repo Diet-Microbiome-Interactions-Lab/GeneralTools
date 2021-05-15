@@ -1,0 +1,7 @@
+{
+    "executables": ["miscTools", "fastaTools", "poop"],
+    "cpus": 80,
+    "run": {
+        "SLURM": ["standby","04:00:00"]
+    }
+}

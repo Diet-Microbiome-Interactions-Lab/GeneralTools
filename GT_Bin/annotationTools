@@ -1,4 +1,4 @@
-#!/Users/ddeemer/.pyenv/versions/3.9.0/bin/python
+#!python
 import importlib
 import os
 import sys
@@ -6,7 +6,6 @@ from GeneralTools import annotationTools_programs as avail_programs
 from GeneralTools import main_help as main_help
 from GeneralTools import warnings
 # from GeneralTools.fastaTools.fastaStats import save_fa_dict as fastStats
-
 
 # Put this somewhere else
 def PrintHelp(avail_programs, program):

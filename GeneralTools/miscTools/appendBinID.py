@@ -7,6 +7,7 @@ be used for comparison and the delimiter.
 Example usage:
 $ python appendBinID.py
 '''
+import argparse
 
 
 def get_bin_dic(reference, delim='\t', ref_contig=1, ref_bin=0):
@@ -57,9 +58,7 @@ def main(reference, query, output, delim='\t', ref_contig=1, ref_bin=0, que_cont
     return 0
 
 
-if __name__ == '__main__':
-    """ Arguments """
-    import argparse
+def parse_args():
     parser = argparse.ArgumentParser(description="Parser")
     parser.add_argument("-r", "--Reference",
                         help="Reference file", required=True)
@@ -76,7 +75,10 @@ if __name__ == '__main__':
     parser.add_argument("-b", "--ReferenceBin",
                         help="Reference bin number", required=False,
                         default=0)
-    argument = parser.parse_args()
-    main(argument.Reference, argument.Query, argument.Output,
-         argument.Delimiter, argument.ReferenceContig,
-         argument.ReferenceBin)
+    return parser
+
+
+if __name__ == "__main__":
+    parser = parse_args()
+    args = parser.parse_args()
+    main(args)

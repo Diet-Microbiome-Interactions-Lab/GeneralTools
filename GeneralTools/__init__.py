@@ -15,7 +15,7 @@ except Exception:
 
 main_help = "This is the documentation for the main help."
 
-toolSets = ['fastaTools', 'annotationTools']
+toolSets = ['alignmentTools', 'annotationTools', 'fastaTools', 'miscTools']
 
 # Dictionaries for each executable script to find their programs
 
@@ -98,7 +98,10 @@ fastaTools_programs = {
 
 miscTools_programs = {
     'appendBinID': (
-        {'help': 'ADD TO THIS'}
+        {'help':
+         'Program that will append the bin identification a new field in a file \
+delimited by a specified character. User must specify which field will \
+be used for comparison and the delimiter.'}
     ),
     'CatToBatOutputConverter': (
         {'help': 'ADD TO THIS'}
@@ -106,7 +109,7 @@ miscTools_programs = {
     'compare2BinIDs': (
         {'help': 'ADD TO THIS'}
     ),
-    'constainsUniGCodeParser': (
+    'constrainsUniGCodeParser': (
         {'help': 'ADD TO THIS'}
     ),
     'convertTPM': (
