@@ -1,7 +1,7 @@
 import sys
 
 
-mypackage_version = '0.1-setup'
+mypackage_version = '0.2-setup'
 
 # Ensure the user is using python version >= 3
 try:
