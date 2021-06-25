@@ -1,14 +1,11 @@
 '''
-Script to parse an outlook email and grab all of them
-sent by a specific name
 '''
 import os
-
 import mailparser
 import pandas as pd
 
+
 os.chdir('/Users/ddeemer/OneDrive - purdue.edu/Projects/AshProject/Summer21Analyses/TypeStrains-01Jun21/EmailParsing/')
-d = '/Users/ddeemer/OneDrive - purdue.edu/Projects/AshProject/Summer21Analyses/TypeStrains-01Jun21/EmailParsing/Emails'
 
 
 def parse_email(body):
@@ -51,7 +48,15 @@ def get_tygs_information(directory):
     column_names = ['Query_strain', 'Subject_strain', 'dDDH_d0',
                     'CI_d0', 'dDDH_d4', 'CI_d4', 'dDDH_d6',
                     'CI_d6', 'GC_content_difference']
-    out_table = pd.DataFrame(columns=column_names)
+    table3_out = pd.DataFrame(columns=column_names)
+    columns_names2 = [
+        'TYGS ID', 'Kind', 'Species cluster', 'Subspecies cluster',
+        'Preferred name', 'Deposit', 'Authority', 'Other deposits',
+        'Synonymous taxon names', 'Base pairs', 'Percent G+C', 'No. proteins',
+        'Goldstamp', 'Bioproject accession', 'Biosample accession',
+        'Assembly accession', 'IMG OID', 'BacDive'
+    ]
+    table4_out = pd.DataFrame(columns=columns_names2)
 
     for link in parse_emails(directory):
         print(link)
@@ -60,12 +65,33 @@ def get_tygs_information(directory):
         for table in mytables:
             if table.columns[0] == 'Query strain':
                 hit += 1
-                mytable = table
-        mytable.columns = column_names
-        tmp = mytable.sort_values('dDDH_d4').drop_duplicates(
+                table3 = table
+            if table.columns[0] == 'TYGS ID':
+                table4 = table
+
+        # Process table 3
+        table3.columns = column_names
+        tmp = table3.sort_values('dDDH_d4').drop_duplicates(
             ["Query_strain"], keep="last")
-        out_table = out_table.append(tmp)
-    out_table.to_excel('test1.xlsx')
+        # Grab subject strains from table 3
+        tmp_strains = tmp['Subject_strain'].tolist()
+        table3_out = table3_out.append(tmp)
+
+        # Process table 4
+        tmp_names = table4['Preferred name'].tolist()
+        matches = [name for name in tmp_names if any(
+            name in val for val in tmp_strains)]
+        tmp2 = table4[table4['Preferred name'].isin(matches)]
+        table4_out = table4_out.append(tmp2)
+
+    table3_out.to_excel('Table3-23Jun21-DGD.xlsx')
+    table4_out.to_excel('Table4-23Jun21-DGD.xlsx')
+
+    return None
 
 
-get_tygs_information(d)
+# get_tygs_information('Emails/')
+
+
+# Next part, go through the list of Assembly accessions and download the
+# assemblies
