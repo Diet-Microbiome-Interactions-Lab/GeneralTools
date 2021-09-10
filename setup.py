@@ -41,7 +41,7 @@ setup(
 
     url="https://github.com/ddeemerpurdue",
 
-    scripts=[script for script in glob.glob('GT_Bin/*')],
+    scripts=[script for script in glob.glob('bin/*')],
     packages=find_packages(),
     classifiers=[
         "Programming Language :: Python :: 3",
