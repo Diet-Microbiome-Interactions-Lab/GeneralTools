@@ -1,0 +1,47 @@
+#! /Users/ddeemer/.pyenv/shims/ python
+import importlib
+import sys
+from GeneralTools import main_help as main_help
+from GeneralTools import miscTools_programs as avail_programs
+from GeneralTools.Utilities import warnings, shellOutput
+
+
+def main(command):
+    '''
+    First thing is to test if the argument is in our dictionary
+    '''
+    help_flags = ['--help', '-h', '-H']
+    use_flags = ['--use', '--Use']
+    if len(command) < 1:
+        print(main_help, '\n')
+        warnings.TooFewArgumentsWarning()
+    else:
+        program = command[0]
+        if program in help_flags:
+            shellOutput.printMainExecutableHelp(__file__)
+            shellOutput.printAvailablePrograms(__file__, avail_programs)
+            return 0
+        elif program in ['--list', '-L', '--List']:
+            shellOutput.printAvailablePrograms(sys.argv[0], avail_programs)
+        elif program in avail_programs:
+            if any(x in use_flags for x in command) or len(command) == 1:
+                shellOutput.printSubprogramHelp(program, avail_programs)
+            else:
+                imp_mod = f"GeneralTools.annotationTools.{program}"
+
+                current_program = importlib.import_module(imp_mod)
+
+                parser = current_program.parse_args()
+                args = parser.parse_args(command[1:])
+                current_program.main(args)
+
+            print('Finished')
+
+            return 0
+        else:
+            warnings.InvalidArgumentOrSubprogram(program)
+
+
+if __name__ == '__main__':
+    arguments = sys.argv[1:]
+    main(arguments)
