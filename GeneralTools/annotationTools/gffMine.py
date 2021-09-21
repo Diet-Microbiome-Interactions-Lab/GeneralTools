@@ -23,8 +23,6 @@ $ python gff_mine.py --GFF <example.gff> --Attribute <something-from-list>
 
 
 '''
-
-import os
 import argparse
 
 

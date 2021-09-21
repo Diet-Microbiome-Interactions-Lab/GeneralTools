@@ -9,11 +9,12 @@ $python find_no_binners.py -b <1+_fasta_files.fasta> -a <assembly.fasta>
 
 '''
 import os
+import sys
 import argparse
 from Bio.SeqIO.FastaIO import SimpleFastaParser
 
 
-def main(fasta, reference, output, log):
+def main(args):
     '''
     Add reference into a list index by node name (defline #)
     '''
@@ -40,7 +41,7 @@ def main(fasta, reference, output, log):
     return 0
 
 
-if __name__ == "__main__":
+def parse_args():
     """ Arguments """
     parser = argparse.ArgumentParser(description="Parser")
     parser.add_argument("-b", "--Bins",
@@ -48,7 +49,7 @@ if __name__ == "__main__":
                         required=True, nargs='*')
     parser.add_argument("-a", "--Assembly",
                         help="Assembly contig fasta file to compare bin files to",
-                        required=True)
+                        required=False)
     parser.add_argument("-o", "--Output",
                         help="Output file to write to",
                         required=True)
@@ -56,6 +57,10 @@ if __name__ == "__main__":
                         help="Optional log file",
                         required=False, action='store_true',
                         default=False)
-    argument = parser.parse_args()
-    main(argument.Bins, argument.Assembly,
-         argument.Output, argument.Log)
+    return parser
+
+
+if __name__ == "__main__":
+    parser = parse_args()
+    args = parser.parse_args()
+    main(args)

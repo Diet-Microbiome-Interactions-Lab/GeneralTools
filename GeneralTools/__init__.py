@@ -13,9 +13,13 @@ except Exception:
     sys.stderr.write("Failed to determine what python version is being used.")
 
 
-main_help = "This is the documentation for the main help."
+main_help = "A suite of tools used during various bioinformatic analyses."
 
-toolSets = ['alignmentTools', 'annotationTools', 'fastaTools', 'miscTools']
+toolSets = {
+    'alignmentTools': 'Tools used during alignment',
+    'annotationTools': 'Tools used during annotation',
+    'fastaTools': 'Tools used for with fasta as input',
+    'miscTools': 'Tools with miscellaneous uses'}
 
 # Dictionaries for each executable script to find their programs
 
@@ -55,12 +59,17 @@ annotationTools_programs = {
 
 fastaTools_programs = {
     'changeBinNodeNames': (
-        {'help': 'ADD TO THIS'}
+        {'help': 'Given a bin identification file and an assembly,\
+write fasta files to the current directory.'}
     ),
     'compareTwoBinFiles': (
         {'help': 'ADD TO THIS'}
     ),
     'createBinID': (
+        {'help': 'Create a bin identification file from a set of fastas \
+and a corresponding assembly.'}
+    ),
+    'fastaToFaa': (
         {'help': 'ADD TO THIS'}
     ),
     'fastaStats': (
@@ -78,10 +87,13 @@ fastaTools_programs = {
     'magBinMatrix': (
         {'help': 'ADD TO THIS'}
     ),
-    'pfam_tigrfam_processing_anvio': (
+    'pfamTigrfamProcessingAnvio': (
         {'help': 'ADD TO THIS'}
     ),
     'split_multifasta': (
+        {'help': 'ADD TO THIS'}
+    ),
+    'splitFastaByHeader': (
         {'help': 'ADD TO THIS'}
     ),
     'tetranucleotideFreq': (
