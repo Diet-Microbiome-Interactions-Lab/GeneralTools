@@ -31,7 +31,7 @@ def main(command):
 
                 current_program = importlib.import_module(imp_mod)
 
-                parser = current_program.parse_args()
+                parser = current_program.program_args()
                 args = parser.parse_args(command[1:])
                 current_program.main(args)
 

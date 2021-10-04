@@ -9,7 +9,6 @@ $python find_no_binners.py -b <1+_fasta_files.fasta> -a <assembly.fasta>
 
 '''
 import os
-import sys
 import argparse
 from Bio.SeqIO.FastaIO import SimpleFastaParser
 

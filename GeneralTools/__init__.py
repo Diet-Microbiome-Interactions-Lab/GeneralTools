@@ -70,7 +70,8 @@ write fasta files to the current directory.'}
 and a corresponding assembly.'}
     ),
     'fastaToFaa': (
-        {'help': 'ADD TO THIS'}
+        {'help': 'Convert a FASTA file to FAA format. Reading frame by \
+default is 0.'}
     ),
     'fastaStats': (
         {'help': 'This is the help for fastaStats'}
