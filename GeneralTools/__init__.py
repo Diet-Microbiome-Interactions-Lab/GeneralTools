@@ -58,7 +58,11 @@ annotationTools_programs = {
 
 
 fastaTools_programs = {
-    'changeBinNodeNames': (
+    'calcBinsetLengths': (
+        {'help': 'Output tab-delimited file summarizing fasta \
+length and number of contigs'}
+    ),
+    'revertBinIdToOriginal': (
         {'help': 'Given a bin identification file and an assembly,\
 write fasta files to the current directory.'}
     ),
