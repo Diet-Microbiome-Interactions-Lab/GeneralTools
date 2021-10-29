@@ -1,4 +1,4 @@
-# 🦠 🧬 Lindemann Lab: GeneralTools 🧬 🦠  
+# 🦠 🧬 Lindemann Lab: GeneralTools 🧬 🦠  <img src="ruby.png" width=40 align="right"> 
 
 ---  
 
@@ -20,3 +20,4 @@ For all categories, the commands are in this configuration:
 *$ \<category> \<executable> [arguments]*  
 Real example:  
 *$ fastaTools createBinID -f FastaFileDirectory/\*.fasta -o MyBinID.txt*
+
