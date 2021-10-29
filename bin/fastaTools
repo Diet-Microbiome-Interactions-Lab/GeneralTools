@@ -1,9 +1,16 @@
 #! /Users/ddeemer/.pyenv/shims/ python
+import glob
 import importlib
+import os
 import sys
-from GeneralTools import fastaTools_programs as avail_programs
+from GeneralTools import fastaTools_programs as program_info
 from GeneralTools import main_help as main_help
 from GeneralTools.Utilities import warnings, shellOutput
+
+# TODO  - Below, make a shared module to get available programs!
+avail_programs = glob.glob('../fastaTools/*.py')
+avail_programs = [os.path.basename(prg) for prg in avail_programs]
+avail_programs = [prg.rsplit('.', 1)[0] for prg in avail_programs]
 
 
 def main(command):
@@ -19,13 +26,17 @@ def main(command):
         program = command[0]
         if program in help_flags:
             shellOutput.printMainExecutableHelp(__file__)
-            shellOutput.printAvailablePrograms(__file__, avail_programs)
+            shellOutput.printAvailablePrograms(__file__, program_info)
             return 0
         elif program in ['--list', '-L', '--List']:
-            shellOutput.printAvailablePrograms(sys.argv[0], avail_programs)
+            shellOutput.printAvailablePrograms(sys.argv[0], program_info)
         elif program in avail_programs:
             if any(x in use_flags for x in command) or len(command) == 1:
-                shellOutput.printSubprogramHelp(program, avail_programs)
+                try:
+                    shellOutput.printSubprogramHelp(program, avail_programs)
+                except IndexError:
+                    print(
+                        f"No program information in __init__ file yet for {program}\n")
             else:  # Run parse the arguments and run!
                 imp_mod = f"GeneralTools.fastaTools.{program}"
 

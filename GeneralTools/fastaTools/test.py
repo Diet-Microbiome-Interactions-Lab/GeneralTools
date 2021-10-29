@@ -1,0 +1,4 @@
+def problem():
+    print('Yes')
+
+

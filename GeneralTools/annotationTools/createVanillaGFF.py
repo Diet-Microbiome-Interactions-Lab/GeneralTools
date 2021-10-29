@@ -37,7 +37,7 @@ def main(args):
     return 0
 
 
-def parse_args():
+def program_args():
     parser = argparse.ArgumentParser(description="Parser")
     parser.add_argument("-f", "--File",
                         help="Bam file to parse.",
