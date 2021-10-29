@@ -1,15 +1,14 @@
 '''
 '''
 import argparse
-import sys
 from Bio.SeqIO.FastaIO import SimpleFastaParser
 from Bio.Seq import Seq
 
 
 def main(args):
-    file, output = args.Input, args.Output
+    fasta_file, output = args.Fasta, args.Output
     with open(output, 'w') as out:
-        with open(file) as f:
+        with open(fasta_file) as f:
             for values in SimpleFastaParser(f):
                 defline = values[0]
                 sequence = values[1]
@@ -17,10 +16,10 @@ def main(args):
                 out.write(f">{defline}\n{amino_acids}\n")
 
 
-def program_args():
+def parse_args():
     """ Arguments """
     parser = argparse.ArgumentParser(description="Parser")
-    parser.add_argument("-i", "--Input",
+    parser.add_argument("-f", "--Fasta",
                         help="Input fasta file.",
                         required=True)
     parser.add_argument("-o", "--Output",

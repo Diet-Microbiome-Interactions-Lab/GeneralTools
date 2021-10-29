@@ -15,10 +15,10 @@ import argparse
 import os
 
 
-def gc_cont(string):
+def gcContent(string):
     """
     Function to be used inside of 'read_fasta' in order to obtain
-    gc_content of a string
+    gcContentent of a string
     """
     string = string.upper()
     g = string.count('G')
@@ -27,75 +27,60 @@ def gc_cont(string):
 
 
 def basic_fasta_stats(file):
-    """
-    Open up a .fasta file and return a dictionary containing the header
-    as the key and [filename, length, & gc_cont] as values
-    """
     fasta_dict = {}
     with open(file) as f:
         for values in SimpleFastaParser(f):
-            defline = values[0]
-            length = len(values[1])
-            gc = gc_cont(values[1])
+            defline, sequence = values[0:2]
+            length = len(sequence)
+            gc = gcContent(sequence)
             fasta_dict[defline] = [length, gc]
     return fasta_dict
 
 
-def read_multiple_fasta(files):
-    """
-    Increase functionality of 'read_fasta' by allowing a list of multiple
-    .fasta files to be read in, returning a master dictionary.
-    Note: this will not work if multiple .fasta files contain same identifier
-    """
-    master_dict = {}
+def prettyName(filename):
+    return os.path.basename(os.path.splitext(filename)[0])
 
+
+def loopFastaAndWriteStats(files):
+    master_dict = {}
     for file in files:
         fasta_dict = basic_fasta_stats(file)
-        master_dict[os.path.basename(str(file))] = fasta_dict
-
+        filename_key = prettyName(file)
+        master_dict[filename_key] = fasta_dict
     return master_dict
 
 
 def main(args):
-    """
-    A function to write .txt values of .fasta output
-    """
-    files = args.FASTA
+    files = args.Fasta
     output = args.Output
-    _bin = args.Bin
-    dictionary = read_multiple_fasta(files)
+    bin_ = args.Bin
+    all_fasta_file_stats = loopFastaAndWriteStats(files)
 
-    with open(output, 'w') as o:
-        if not _bin:
+    with open(output, 'w') as out:
+        if not bin_:
             header = 'File\tContig\tLength\tGC_Content\n'
-            o.write(header)  # First row (keys of dict)
-            for file in dictionary:
-                for defline, stats in dictionary[file].items():
-                    line = [file, defline] + [str(stat) for stat in stats]
-                    line = '\t'.join(line) + '\n'
-                    o.write(line)
-        if _bin:
-            header = 'Bin\tCount\tLength\tGC_Content\n'
-            o.write(header)
-            for file in dictionary:
-                total_length = 0
-                GC = 0
-                count = 0
-                for defline, stats in dictionary[file].items():
-                    count += 1
-                    total_length += stats[0]
-                    GC += stats[1]
-                GC = GC / count
-                writeline = "\t".join(
-                    [file, str(count), str(total_length), str(GC)]) + "\n"
-                o.write(writeline)
+            out.write(header)
+            for fasta_file in all_fasta_file_stats:
+                count, total_length, GC = 0, 0, 0
+                for defline, stats in all_fasta_file_stats[fasta_file].items():
+                    if bin_:
+                        count += 1
+                        total_length += stats[0]
+                        GC += stats[1]
+                    else:
+                        writeline = f"{fasta_file}\t{defline}\t{stats[0]}\t{stats[1]}\n"
+                        out.write(writeline)
+                if bin_:
+                    GC = GC / count
+                    writeline = f"{file}\t{fasta_count}\t{total_length}\t{GC}\n"
+                    out.write(writeline)
     return 0
 
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Parser")
-    parser.add_argument("-f", "--FASTA",
-                        help="FASTA files to parse (can be multiple)",
+    parser.add_argument("-f", "--Fasta",
+                        help="Fasta files to parse (can be multiple)",
                         required=True, nargs='*')
     parser.add_argument("-o", "--Output",
                         help="Output file to write to",

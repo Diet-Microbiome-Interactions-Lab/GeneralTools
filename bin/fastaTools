@@ -8,7 +8,7 @@ from GeneralTools import main_help as main_help
 from GeneralTools.Utilities import warnings, shellOutput
 
 # TODO  - Below, make a shared module to get available programs!
-avail_programs = glob.glob('../GeneralTools/fastaTools/*.py')
+avail_programs = glob.glob('../fastaTools/*.py')
 avail_programs = [os.path.basename(prg) for prg in avail_programs]
 avail_programs = [prg.rsplit('.', 1)[0] for prg in avail_programs]
 
