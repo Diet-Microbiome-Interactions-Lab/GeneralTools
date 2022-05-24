@@ -1,36 +1,31 @@
-def stringToSplitFasta(string, start, end, delim):
-    commonHeaderString = '_'.join(
-        (string.split(f"{delim}")[int(start):int(end)]))
-    return commonHeaderString + '.fasta'
+from Bio.SeqIO.FastaIO import SimpleFastaParser
 
 
-def main(file, start, end, delim):
-    seen_header = []
-    with open(file) as fopen:
-        line = fopen.readline()
-        while line:
-            if line.startswith('>'):
-                commonHeaderString = stringToSplitFasta(
-                    line, start, end, delim)
-                if commonHeaderString in seen_header:
-                    with open(commonHeaderString, 'a') as currentfile:
-                        currentfile.write(line)
-                        line = fopen.readline()
-                        while line and not line.startswith('>'):
-                            currentfile.write(line)
-                            line = fopen.readline()
-                else:
-                    seen_header.append(commonHeaderString)
-                    with open(commonHeaderString, 'w') as currentfile:
-                        currentfile.write(line)
-                        while line and not line.startswith('>'):
-                            currentfile.write(line)
-                            line = fopen.readline()
-            else:
-                print('Something is being missed...')
-                line = fopen.readline()
+def processDefline(defline, split, val):
+    tmp = defline.split(split)[val]
+    return f'{tmp}.fasta'
 
 
-myfile = 'HL_UCC_isolates_current.fasta'
+def main(fasta, delim, block):
+    with open(fasta) as f:
+        for values in SimpleFastaParser(f):
+            defline = values[0]
+            seq = values[1]
+            output = processDefline(defline, delim, block)
+            with open(output, 'a') as out:
+                out.write(f'>{defline}\n{seq}\n')
+    return 0
 
-main(myfile, 1, 4, " ")
+
+if __name__ == "__main__":
+    import argparse
+    parser = argparse.ArgumentParser(description="Parser")
+    parser.add_argument("-f", "--Fasta",
+                        help="Assembly to filter", required=True)
+    parser.add_argument("-d", "--Delimiter",
+                        help="Delimiter to split defline", required=True)
+    parser.add_argument("-b", "--Block",
+                        help="Which numerical block is the filename?",
+                        required=True, type=int)
+    arg = parser.parse_args()
+    main(arg.Fasta, arg.Delimiter, arg.Block)

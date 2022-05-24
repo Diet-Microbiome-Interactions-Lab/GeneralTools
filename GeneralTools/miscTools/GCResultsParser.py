@@ -99,7 +99,7 @@ class GC_Entry:
 
 class GC_Experiment:
 
-    def __init__(self, ProjectFile):
+    def __init__(self, ProjectFile, runall=False):
         self.ProjectFile = ProjectFile
         self.AcidConcentrations = {'Acetate': [7.5, 15, 30, 60, 120],
                                    'Propionate':  [1.875, 3.75, 7.5, 15, 30],
@@ -108,11 +108,12 @@ class GC_Experiment:
                                    'Isovalerate': [0.9375, 1.875, 3.75, 7.5, 15],
                                    'Isocupric':   [0.998, 0.999, 1, 1.001, 1.002]}
         self.GC_Entries = self.createGCList()
-        self.standardEntries, self.unknownEntries = self.grabGCStandardUnknownEntries()
-        self.standardNormalizedAcids = self.grabStandardAcidValues()
-        self.meanStandardNormalizedAcids = self.calculateMeanStandardAcidValues()
-        self.standardAcidModels = self.calculateStandardAcidRegression()
-        self.FinalTable = self.appendNormalizedConcentration()
+        if runall:
+            self.standardEntries, self.unknownEntries = self.grabGCStandardUnknownEntries()
+            self.standardNormalizedAcids = self.grabStandardAcidValues()
+            self.meanStandardNormalizedAcids = self.calculateMeanStandardAcidValues()
+            self.standardAcidModels = self.calculateStandardAcidRegression()
+            self.FinalTable = self.appendNormalizedConcentration()
 
     def testEntryStart(self, line):
         assert line.startswith('[Header]'), 'Invalid entry'
@@ -268,13 +269,3 @@ class GC_Experiment:
         data['Isocupric'] = isocupricAll
         df = pd.DataFrame(data)
         df.to_excel('Isocupric-Standard-Analysis.xlsx')
-
-
-# filename = 'BSM-Donor1-Results-25May21.txt'
-# filename = 'Jayani_donor1.txt'
-filename = 'Donor2-Jayani.txt'
-# gcfiles = createGCList(filename)
-GCProject = GC_Experiment(filename)
-# GCProject.plotStandardCurves()
-# GCProject.analyzeInternalStandard()
-print(GCProject.FinalTable)

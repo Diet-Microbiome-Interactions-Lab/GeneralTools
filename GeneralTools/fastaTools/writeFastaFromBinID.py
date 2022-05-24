@@ -18,33 +18,31 @@ from Bio import SeqIO
 import os
 
 
-def read_binfile(binfile):
+def read_binfile(binfile, header):
     '''
     Function that reads in a binID file into a dictionary
     in the form: dic[nodeNum]=binID
     '''
     bin_dic = {}
     with open(binfile) as b:
-        line = b.readline()
+        if header:
+            next(b)
+        line = b.readline().strip()
         while line:
-            contig = line.split('\t')[0].split('_split_')[0]
-            bin_num = line.split('\t')[1].strip()
+            contig = line.split('\t')[0]
+            bin_num = line.split('\t')[1]
             bin_dic[contig] = bin_num
-            line = b.readline()
+            line = b.readline().strip()
     return bin_dic
 
 
-def write_fastas(binfile, assemblyfile, outdirectory):
-    '''
-    Function that writes a new FASTA file if the defline
-    of the assembly matches a bin entry
-    '''
+def write_fastas(binfile, header, assemblyfile, outdirectory):
     try:
         os.mkdir(outdirectory)
     except FileExistsError:
         pass
     # Option A: Write new multi-fasta files to 'outdirectory'
-    bindic = read_binfile(binfile)
+    bindic = read_binfile(binfile, header)
     for record in SeqIO.parse(assemblyfile, "fasta"):
         match = record.id.strip('>')
         if match in bindic:
@@ -57,12 +55,14 @@ def write_fastas(binfile, assemblyfile, outdirectory):
 if __name__ == "__main__":
     """ Arguments """
     parser = argparse.ArgumentParser(description="Parser")
-    parser.add_argument("-b", "--Bins", help="File containing bins",
-                        required=True)
     parser.add_argument("-a", "--Assembly", help="Assembly file",
+                        required=True)
+    parser.add_argument("-b", "--Bins", help="File containing bins",
                         required=True)
     parser.add_argument("-f", "--FastaDirectory",
                         help="Output directory to write to",
                         required=True)
-    argument = parser.parse_args()
-    write_fastas(argument.Bins, argument.Assembly, argument.FastaDirectory)
+    parser.add_argument("-h", "--Header",
+                        required=False, default=False)
+    args = parser.parse_args()
+    write_fastas(args.Bins, args.Assembly, args.FastaDirectory, args.Header)
