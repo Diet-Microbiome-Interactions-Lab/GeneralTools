@@ -1,4 +1,5 @@
 '''
+Author: Dane Deemer
 Program is designed to take outputs from running HMMER querying TIGRFAMs
 and PFAMs on an Anvio gene call file and adding functional information
 to the files. The end product is a .txt file containing TIGRFAM and PFAM

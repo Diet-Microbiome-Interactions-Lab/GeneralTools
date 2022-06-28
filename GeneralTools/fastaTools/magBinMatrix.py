@@ -15,6 +15,7 @@ $ python filterAssembly.py <assembly.fasta> <bid.txt> <output.txt>
 '''
 import os
 from Bio.SeqIO.FastaIO import SimpleFastaParser
+from Bio import SeqIO
 
 
 def main(reflist, querylist, output):
@@ -22,50 +23,49 @@ def main(reflist, querylist, output):
     Write a matrix to compare the sequence identity shared between
     two sets of bins. This will pairwise compare all MAGs/.mfa files.
     '''
-    header = []
-    ref_dic = {}
+    all_references = []
+    references = {}
     for ref in reflist:
         ref_name = os.path.splitext(os.path.basename(ref))[0]
-        header.append(ref_name)
-        ref_dic[ref_name] = []
-        with open(ref) as ref:
-            for values in SimpleFastaParser(ref):
-                # defline = values[0]
-                seq = values[1]
-                ref_dic[ref_name].append(seq)  # Collect all seqs in fasta
+        all_references.append(ref_name)
+        for record in SeqIO.parse(ref, "fasta"):
+            references.setdefault(record.seq, [])
+            references[record.seq].append(ref_name)
 
     master_dic = {}
     for quer in querylist:
         quer_name = os.path.splitext(os.path.basename(quer))[0]
         master_dic[quer_name] = {}
-        with open(quer) as quer:
-            for values in SimpleFastaParser(quer):
-                # defline = values[0]
-                seq = values[1]
-                for reference in ref_dic.keys():
-                    # Make sure the nested dict exists
-                    if reference in master_dic[quer_name]:
-                        pass
-                    else:
-                        master_dic[quer_name][reference] = 0
-                    # Count similarities
-                    if seq in ref_dic[reference]:
-                        master_dic[quer_name][reference] += 1
-                    else:
-                        pass
+
+        for record in SeqIO.parse(quer, "fasta"):
+            if record.seq in references:
+                for ref_name in references[record.seq]:
+                    master_dic[quer_name].setdefault(ref_name, 0)
+                    master_dic[quer_name][ref_name] += 1
 
     print(master_dic)
-    # Write the output matrix
-    header = ["Index"] + header + ["\n"]
-    header = '\t'.join(header)
-    with open(output, 'w') as out:
-        out.write(header)
-        for quer in master_dic.keys():
-            line = [str(master_dic[quer][val])
-                    for val in master_dic[quer].keys()]
-            writeline = [quer] + line + ['\n']
-            writeline = '\t'.join(writeline)
-            out.write(writeline)
+    # # Write the output matrix
+    # header = ["Index"] + header + ["\n"]
+    # header = '\t'.join(header)
+    # with open(output, 'w') as out:
+    #     out.write(header)
+    #     for quer in master_dic.keys():
+    #         line = [str(master_dic[quer][val])
+    #                 for val in master_dic[quer].keys()]
+    #         writeline = [quer] + line + ['\n']
+    #         writeline = '\t'.join(writeline)
+    #         out.write(writeline)
+
+    with open(output, 'w') as _out:
+        header = 'Query\t' + '\t'.join(list(master_dic.keys())) + '\n'
+        _out.write(header)
+        for quer_name in master_dic.keys():
+            for ref_name in all_references:
+                writeline = [ref_name]
+                master_dic[quer_name].setdefault(ref_name, 0)
+                writeline.append(master_dic[quer_name][ref_name])
+            writeline = '\t'.join(str(v) for v in writeline) + '\n'
+            _out.write(writeline)
 
 
 if __name__ == '__main__':

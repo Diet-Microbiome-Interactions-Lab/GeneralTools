@@ -1,4 +1,4 @@
-from Bio.SeqIO.FastaIO import SimpleFastaParser
+from Bio import SeqIO
 
 
 def processDefline(defline, split, val):
@@ -7,13 +7,10 @@ def processDefline(defline, split, val):
 
 
 def main(fasta, delim, block):
-    with open(fasta) as f:
-        for values in SimpleFastaParser(f):
-            defline = values[0]
-            seq = values[1]
-            output = processDefline(defline, delim, block)
-            with open(output, 'a') as out:
-                out.write(f'>{defline}\n{seq}\n')
+    for record in SeqIO.parse(fasta, "fasta"):
+        output = processDefline(record.id, delim, record.seq)
+        with open(output, 'a') as _out:
+            _out.write(f'>{record.id}\n{record.seq}\n')
     return 0
 
 
@@ -21,7 +18,7 @@ if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser(description="Parser")
     parser.add_argument("-f", "--Fasta",
-                        help="Assembly to filter", required=True)
+                        help="Fasta file to filter", required=True)
     parser.add_argument("-d", "--Delimiter",
                         help="Delimiter to split defline", required=True)
     parser.add_argument("-b", "--Block",

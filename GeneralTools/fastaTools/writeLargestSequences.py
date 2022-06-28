@@ -5,22 +5,24 @@ file and returns the top n largest entries (key=len(sequence))
 $ python -i <myfile.fasta> -n <seqlength_to_filter_(int) > -o <output.fasta>
 '''
 import argparse
-from Bio.SeqIO.FastaIO import SimpleFastaParser
+from Bio import SeqIO
 
 
 def get_longest_seqs(file, n):
     fasta_dic = {}
-    with open(file) as f:
-        for values in SimpleFastaParser(f):
-            fasta_dic[values[0]] = values[1]
-    return sorted(fasta_dic, key=lambda k: len(fasta_dic[k]), reverse=True)[0:int(n)]
+    for record in SeqIO.parse(file, "fasta"):
+        fasta_dic[record.id] = record.seq
+    top_n = sorted(fasta_dic, key=lambda k: len(
+        fasta_dic[k]), reverse=True)[0:n]
+
+    return {entry: fasta_dic[entry] for entry in top_n}
 
 
 def write_largest_seqs(file, n, output):
     longest_entries = get_longest_seqs(file, n)
-    with open(output, 'w') as out:
-        for k in longest_entries:
-            out.write(f'>{k}\n{longest_entries[k]}\n')
+    with open(output, 'w') as _out:
+        for entry in longest_entries:
+            _out.write(f'>{entry}\n{longest_entries[entry]}\n')
     return 0
 
 
@@ -33,4 +35,4 @@ if __name__ == "__main__":
     parser.add_argument("-o", "--Output", help="Output file name",
                         required=True)
     args = parser.parse_args()
-    write_largest_seqs(args.Input, args.Length, args.Output)
+    write_largest_seqs(args.Fasta, args.Length, args.Output)

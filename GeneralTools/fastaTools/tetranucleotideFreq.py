@@ -1,4 +1,5 @@
 """
+Author: Dane Deemer
 Obtain tetranucleotide frequency for a
 given string within a nucleotide sequnce
 
@@ -6,7 +7,6 @@ Example usage:
 $ python tetranucleotideFreq.py 'MYSTRING'
 """
 import argparse
-import sys
 
 
 def main(args):
