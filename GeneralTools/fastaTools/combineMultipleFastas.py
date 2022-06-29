@@ -4,33 +4,27 @@ import os
 
 
 def main(args):
-    files, output = args.Fastas, args.Output
-    print(f'Writing to {output}...\n')
+    fastas, output, ext = args.Fasta, args.Output, args.Extension
     with open(output, 'w') as out:
-        for file in files:
-            print(file)
+        for file in fastas:
             base = os.path.basename(file)
-            base = file.replace('.fasta', '')
-            print(f'Working on {base}')
-            with open(file, encoding='latin-1') as f:
-                line = f.readline()
-                while line:
-                    if line.startswith('>'):
-                        line = line.strip()
-                        line = f'{line}-{base}\n'
-                    out.write(line)
-                    line = f.readline()
+            base = base.strip(ext)
+            with open(file) as f:
+                for entry in SimpleFastaParser(f):
+                    out.write(f'>{entry[0]}-{base}\n{entry[1]}\n')
 
 
 def parse_args():
     """ Arguments """
     parser = argparse.ArgumentParser(description="Parser")
-    parser.add_argument("-f", "--Fastas",
+    parser.add_argument("-f", "--Fasta",
                         help="Input fasta file.",
                         required=True, nargs='*')
     parser.add_argument("-o", "--Output",
                         help="Output faa file.",
                         required=True)
+    parser.add_argument("-e", "--Extension",
+                        required=False, default="\\.fasta")
     return parser
 
 
