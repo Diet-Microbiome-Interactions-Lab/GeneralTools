@@ -2,7 +2,7 @@
 Author: Dane Deemer
 Date: NA
 Purpose: Program to parse a .SAM file and filter it for a user-defined
-percent identity 
+percent identity
 
 Example usage:
 $ samtools view -h <sample.bam> | python samThresholdFilter.py -s 150 \

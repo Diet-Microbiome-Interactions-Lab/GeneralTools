@@ -9,7 +9,6 @@ file with statistics for each bin (instead of for each contig).
 Example use:
 $ python fasta_dict.py .fasta <savename.csv>
 """
-from Bio import SeqIO
 from Bio.SeqIO.FastaIO import SimpleFastaParser
 import argparse
 import os
