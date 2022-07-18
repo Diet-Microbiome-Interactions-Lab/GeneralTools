@@ -7,14 +7,16 @@ least N nucleotides long
 Example usage:
 $ python filterSeqlength.py <input.fasta> <length_threshold> <output.fasta>
 '''
+import argparse
 from Bio.SeqIO.FastaIO import SimpleFastaParser
 
 
-def filter_fasta(file, size, output):
+def main(args):
     """
     Open up a .fasta file and return a dictionary containing the header
     as the key and length as the value
     """
+    file, size, output = args.Assembly, args.Length, args.Output
     with open(output, 'w') as o:
         with open(file) as f:
             for values in SimpleFastaParser(f):
@@ -28,8 +30,7 @@ def filter_fasta(file, size, output):
     return 0
 
 
-if __name__ == "__main__":
-    import argparse
+def parse_args():
     parser = argparse.ArgumentParser(description="Parser")
     parser.add_argument("-a", "--Assembly",
                         help="Assembly to filter", required=True)
@@ -38,5 +39,10 @@ if __name__ == "__main__":
     parser.add_argument("-o", "--Output",
                         help="Output filtered fasta file to write to",
                         required=True)
-    argument = parser.parse_args()
-    filter_fasta(argument.Assembly, argument.Length, argument.Output)
+    return parser
+
+
+if __name__ == "__main__":
+    parser = parse_args()
+    args = parser.parse_args()
+    main(args)

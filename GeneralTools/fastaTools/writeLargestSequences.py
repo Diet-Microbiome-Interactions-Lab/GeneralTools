@@ -18,7 +18,8 @@ def get_longest_seqs(file, n):
     return {entry: fasta_dic[entry] for entry in top_n}
 
 
-def write_largest_seqs(file, n, output):
+def main(args):
+    file, n, output = args.Fasta, args.Length, args.Output
     longest_entries = get_longest_seqs(file, n)
     with open(output, 'w') as _out:
         for entry in longest_entries:
@@ -26,7 +27,7 @@ def write_largest_seqs(file, n, output):
     return 0
 
 
-if __name__ == "__main__":
+def parse_args():
     parser = argparse.ArgumentParser(description="Parser")
     parser.add_argument("-f", "--Fasta", help="Input fasta to be filtered",
                         required=True)
@@ -34,5 +35,10 @@ if __name__ == "__main__":
                         type=int, required=True)
     parser.add_argument("-o", "--Output", help="Output file name",
                         required=True)
+    return parser
+
+
+if __name__ == "__main__":
+    parser = parse_args()
     args = parser.parse_args()
-    write_largest_seqs(args.Fasta, args.Length, args.Output)
+    main(args)

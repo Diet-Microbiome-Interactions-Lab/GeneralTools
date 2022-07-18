@@ -12,21 +12,23 @@ import argparse
 from Bio import SeqIO
 
 
-def main(fasta1, fasta2, output):
+def main(args):
     '''
     Compare 2 fasta files for differences
     '''
     # Step 1: Check fasta/bin file(s) and remove contigs from all_contigs
+    fasta1, fasta2, output = args.One, args.Two, args.Output
     with open(output, 'w') as out:
         one = {rec.id: rec.seq for rec in SeqIO.parse(fasta1, "fasta")}
         two = {rec.id: rec.seq for rec in SeqIO.parse(fasta2, "fasta")}
         diff = set(one) ^ set(two)
         out.write(f"Differences between {fasta1} and {fasta2}:\n")
-        out.write([f"{val}\n" for val in diff])
+        diffs = [f"{val}\n" for val in diff]
+        for d in diffs:
+            out.write(d)
 
 
-if __name__ == '__main__':
-    """ Arguments """
+def parse_args():
     parser = argparse.ArgumentParser(description="Parser")
     parser.add_argument("-1", "--One",
                         help="File 1",
@@ -37,5 +39,11 @@ if __name__ == '__main__':
     parser.add_argument("-o", "--Output",
                         help="Output",
                         required=True)
-    argument = parser.parse_args()
-    main(argument.One, argument.Two, argument.Output)
+    return parser
+
+
+if __name__ == '__main__':
+    """ Arguments """
+    parser = parse_args()
+    args = parser.parse_args()
+    main(args)

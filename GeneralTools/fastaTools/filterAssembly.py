@@ -7,6 +7,8 @@ Example usage:
 $ python filterAssembly.py <assembly.fasta> <bid.txt> <output.txt>
 
 '''
+from .FastaClasses import BinID
+import argparse
 from Bio.SeqIO.FastaIO import SimpleFastaParser
 
 
@@ -20,55 +22,59 @@ def blocks(file, size=65536):
         yield b
 
 
-def readBinID(binid, ncontigs, field):
-    '''
-    Open up a binID file (binid\tcontig\n) and create a list
-    of all nodes that exist in it. If the file is reverse, e.g.,
-    (contig\tbinid\n), then specify --field 0
-    '''
-    contiglist = [0] * ncontigs
-    with open(binid) as b:
-        line = b.readline().strip()
-        while line:
-            contig = int(line.split('\t')[int(field)].split('_')[1])
-            contiglist[contig] = 1
-            line = b.readline().strip()
-    return contiglist
+# def readBinID(binid, ncontigs, field):
+#     '''
+#     Open up a binID file (binid\tcontig\n) and create a list
+#     of all nodes that exist in it. If the file is reverse, e.g.,
+#     (contig\tbinid\n), then specify --field 0
+#     '''
+#     contiglist = [0] * ncontigs
+#     with open(binid) as b:
+#         line = b.readline().strip()
+#         while line:
+#             contig = int(line.split('\t')[int(field)].split('_')[1])
+#             contiglist[contig] = 1
+#             line = b.readline().strip()
+#     return contiglist
 
 
-def filterFasta(assemblies, binid, output, ncontigs, field, reverse):
+def main(args):
     """
     Parse each fasta defline and filter if in binID or write non-binners
     """
+    assemblies, binid, output = args.Assembly, args.Bins, args.Output
+    field, reverse = args.Field, args.Reverse
+    with open(assemblies[0], "r", encoding="utf-8", errors='ignore') as f:
+        ncontigs = sum(bl.count(">") for bl in blocks(f)) + 1
 
-    contigList = readBinID(binid, ncontigs, field)
+    contig_numbers = BinID(binid).contig_number()
 
-    with open(output, 'w') as o:
+    with open(output, 'w') as out:
         for assembly in assemblies:
             with open(assembly) as f:
                 for values in SimpleFastaParser(f):
                     defline = values[0]
                     index = int(values[0].split('_')[1])
-                    if (reverse and contigList[index] == 0):
-                        o.write('>' + defline + '\n')
-                        o.write(values[1] + '\n')
-                    elif (not reverse and contigList[index] == 1):
-                        o.write('>' + defline + '\n')
-                        o.write(values[1] + '\n')
+                    if index in contig_numbers:
+                        out.write('>' + defline + '\n')
+                        out.write(values[1] + '\n')
+                    elif reverse:
+                        if index not in contig_numbers:
+                            out.write('>' + defline + '\n')
+                            out.write(values[1] + '\n')
                     else:
                         pass
     return 0
 
 
-if __name__ == '__main__':
-    import argparse
+def parse_args():
     parser = argparse.ArgumentParser(description="Parser")
     parser.add_argument("-a", "--Assembly",
                         help="Assembly(s) to filter", required=True,
                         nargs="*")
     parser.add_argument("-o", "--Output",
                         help="Output assembly to write", required=True)
-    parser.add_argument("-i", "--Id_File",
+    parser.add_argument("-b", "--Bins",
                         help="File containing list of entries to filter",
                         required=True)
     parser.add_argument("-r", "--Reverse",
@@ -78,10 +84,10 @@ if __name__ == '__main__':
     parser.add_argument("-f", "--Field",
                         help="Field where contigs list is",
                         required=False, default=1)
-    argument = parser.parse_args()
-    # Count how many entries are in the fasta file
-    with open(argument.Assembly[0], "r", encoding="utf-8", errors='ignore') as f:
-        ncontigs = sum(bl.count(">") for bl in blocks(f)) + 1
+    return parser
 
-    filterFasta(argument.Assembly, argument.Id_File, argument.Output,
-                ncontigs, argument.Field, argument.Reverse)
+
+if __name__ == '__main__':
+    parser = parse_args()
+    args = parser.parse_args()
+    main(args)

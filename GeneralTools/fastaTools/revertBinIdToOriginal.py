@@ -12,7 +12,7 @@ $ python change_bin_nodenames.py -b <binfile.txt> \
 import argparse
 from Bio import SeqIO
 
-import FastaClasses
+from .FastaClasses import BinID
 
 
 def grab_string_match(string):
@@ -32,8 +32,9 @@ def convert_bin_id(BinID):
 
 def main(args):
     binfile, fasta, output = args.Bins, args.Fasta, args.Output
-    BinID = FastaClasses.BinID(binfile)
-    simple_contig_to_bin = convert_bin_id(BinID)
+    header = args.Header
+    binid = BinID(binfile, header=header)
+    simple_contig_to_bin = convert_bin_id(binid)
     total_bin_ids = len(simple_contig_to_bin)
 
     total_bins_written = 0
@@ -56,8 +57,8 @@ def parse_args():
     parser = argparse.ArgumentParser(description="Parser")
     parser.add_argument("-b", "--Bins", help="Simplified bin id file",
                         required=True)
-    parser.add_argument("-h", "--Header", help="Simplified bin id file",
-                        required=False)
+    parser.add_argument("--Header", help="Simplified bin id file",
+                        required=False, default=False)
     parser.add_argument("-f", "--Fasta", help="Assembly file",
                         required=True)
     parser.add_argument("-o", "--Output", help="Updated bin list name",

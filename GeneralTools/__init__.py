@@ -62,6 +62,9 @@ fastaTools_programs = {
         {'help': 'Output tab-delimited file summarizing fasta \
 length and number of contigs'}
     ),
+    'combineMultipleFastas': (
+        {'help': 'Combine multiple fasta files'}
+    ),
     'revertBinIdToOriginal': (
         {'help': 'Given a bin identification file and an assembly,\
 write fasta files to the current directory.'}

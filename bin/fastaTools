@@ -10,9 +10,9 @@ from GeneralTools.Utilities import warnings, shellOutput
 
 # TODO  - Below, make a shared module to get available programs!
 avail_programs = glob.glob('../GeneralTools/fastaTools/*.py')
+
 avail_programs = [os.path.basename(prg) for prg in avail_programs]
 avail_programs = [prg.rsplit('.', 1)[0] for prg in avail_programs]
-print(sorted(avail_programs))
 
 
 def main(command):
@@ -41,14 +41,10 @@ def main(command):
             #             f"No program information in __init__ file yet for {program}\n")
             # else:  # Run parse the arguments and run!
             imp_mod = f"GeneralTools.fastaTools.{program}"
-
             current_program = importlib.import_module(imp_mod)
-
             parser = current_program.parse_args()
             args = parser.parse_args(command[1:])
             current_program.main(args)
-
-            print('Finished')
 
             return 0
         else:

@@ -14,17 +14,19 @@ import argparse
 from Bio import SeqIO
 import os
 
-import FastaClasses
+from .FastaClasses import BinID
 
 
-def write_fastas(binfile, header, assemblyfile, outdirectory):
+def main(args):
+    binfile, assemblyfile = args.Bins, args.Fasta
+    outdirectory, header = args.Output, args.Header
     try:
         os.mkdir(outdirectory)
     except FileExistsError:
         pass
 
-    BinID = FastaClasses.BinID(binfile, header=header)
-    bin_dic = BinID.bin_dic
+    binid = BinID(binfile, header=header)
+    bin_dic = binid.bin_dic
     for record in SeqIO.parse(assemblyfile, "fasta"):
         match = record.id.strip('>')
         if match in bin_dic:
@@ -34,8 +36,7 @@ def write_fastas(binfile, header, assemblyfile, outdirectory):
     return 0
 
 
-if __name__ == "__main__":
-    """ Arguments """
+def parse_args():
     parser = argparse.ArgumentParser(description="Parser")
     parser.add_argument("-f", "--Fasta", help="Assembly file",
                         required=True)
@@ -44,7 +45,13 @@ if __name__ == "__main__":
     parser.add_argument("-o", "--Output",
                         help="Output directory to write to",
                         required=True)
-    parser.add_argument("-h", "--Header",
+    parser.add_argument("--Header",
                         required=False, default=False)
+    return parser
+
+
+if __name__ == "__main__":
+    """ Arguments """
+    parser = parse_args()
     args = parser.parse_args()
-    write_fastas(args.Bins, args.Fasta, args.FastaDirectory, args.Header)
+    main(args)

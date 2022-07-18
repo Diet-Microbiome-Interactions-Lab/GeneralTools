@@ -14,7 +14,7 @@ def printMainExecutableHelp(executable):
 
 def printAvailablePrograms(executable, programList):
     sys.stdout.write(f"Available programs to be called with {executable}:\n")
-    for count, program in enumerate(programList):
+    for count, program in enumerate(sorted(programList)):
         sys.stdout.write(f"{count}: {program}\n")
     sys.stdout.write('\n')
 
