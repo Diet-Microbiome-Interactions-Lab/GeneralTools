@@ -168,8 +168,9 @@ class GC_Experiment:
         for standardEntry in self.standardEntries:
             if all(acid in standardEntry.PeakTable.tolist() for acid in acceptableAcids):
                 return True
-        else:
-            raise IndexError(f"GC Standard entry does not contain all acids!")
+            else:
+                raise IndexError(
+                    f"GC Standard entry does not contain all acids!")
 
     def grabStandardAcidValues(self):
         standardNormalizedAcids = {}
