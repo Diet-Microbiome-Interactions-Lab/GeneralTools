@@ -7,7 +7,7 @@ def main(file, out):
         with open(out, 'w') as outfile:
             for record in SeqIO.parse(f, 'genbank'):
                 outfile.write(
-                    f'{record.id} {record.description}\n{record.seq}\n')
+                    f'>{record.id} {record.description}\n{record.seq}\n')
     return 0
 
 
