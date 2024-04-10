@@ -20,4 +20,5 @@ def printAvailablePrograms(executable, programList):
 
 
 def printSubprogramHelp(subprogram, programList):
+    print(f'In printSubprogramHelp:\n{programList}\n{subprogram}')
     sys.stdout.write(f"{programList[subprogram]['help']}\n\n")
