@@ -5,14 +5,17 @@ Summary: General bioinformatics tools
 Home-page: https://github.com/ddeemerpurdue
 Author: Dane Deemer
 Author-email: ddeemer@purdue.edu
-License: UNKNOWN
-Platform: UNKNOWN
 Classifier: Programming Language :: Python :: 3
 Classifier: License :: OSI Approved :: MIT License
 Classifier: Operating System :: OS Independent
 Requires-Python: >=3.6
 Description-Content-Type: text/markdown
 License-File: LICENSE.txt
+Requires-Dist: bio
+Requires-Dist: matplotlib
+Requires-Dist: numpy
+Requires-Dist: pandas
+Requires-Dist: pysam
 
 # 🦠 🧬 Lindemann Lab: GeneralTools 🧬 🦠  <img src="ruby.png" width=40 align="right"> 
 
@@ -36,6 +39,4 @@ For all categories, the commands are in this configuration:
 *$ \<category> \<executable> [arguments]*  
 Real example:  
 *$ fastaTools createBinID -f FastaFileDirectory/\*.fasta -o MyBinID.txt*
-
-
 

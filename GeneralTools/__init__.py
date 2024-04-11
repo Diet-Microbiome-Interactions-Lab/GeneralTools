@@ -19,7 +19,8 @@ toolSets = {
     'alignmentTools': 'Tools used during alignment',
     'annotationTools': 'Tools used during annotation',
     'fastaTools': 'Tools used for with fasta as input',
-    'miscTools': 'Tools with miscellaneous uses'}
+    'miscTools': 'Tools with miscellaneous uses',
+    'xTools.py': "Example for dev"}
 
 # Dictionaries for each executable script to find their programs
 
@@ -58,6 +59,9 @@ annotationTools_programs = {
 
 
 fastaTools_programs = {
+    'example': (
+        {'help': 'Example to integrate SnakeMake'}
+    ),
     'calcBinsetLengths': (
         {'help': 'Output tab-delimited file summarizing fasta \
 length and number of contigs'}

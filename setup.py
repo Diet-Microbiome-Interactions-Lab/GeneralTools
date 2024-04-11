@@ -31,7 +31,7 @@ os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 
 # Set up the package.
 setup(
-    name="danes-general-tools",
+    name="DaneGeneralTools",
     version=mypack_version,
     author="Dane Deemer",
     author_email="ddeemer@purdue.edu",
