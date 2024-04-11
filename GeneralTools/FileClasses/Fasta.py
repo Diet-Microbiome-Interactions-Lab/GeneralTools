@@ -270,6 +270,3 @@ class Fasta:
             return dict(sorted(self.fastaKey.items(), key=lambda item: item[1][0].lower()))
         return dict(sorted(self.fastaKey.items(), key=lambda item: item[1][0].lower(), reverse=True))
         
-
-
-annotations.txt

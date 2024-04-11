@@ -12,33 +12,23 @@ rule Reformat_Fasta:
         myProgram --fasta {input}
         """
 
-# A-Simplified.fna
-# B-Simplified.fasta
+
+rule run_Metaspades:
+    input:
+        {sample}.txt
+    output:
+        {sample}.tkn
+    params:
+        threads=4,
+        mem="10Gb"
+    shell:
+        """
+        metaspades.py --mode meta --threads 4 --mem {params.mem} --input {input} --output {output}
+        """
 
 
+$ snakemake -s snake.smk file1.tkn
 
-
-# $ dgt fasta -i MyFile.fasta filter
-# $ filtering_progam -i MyFile.fasta -o MyOutput.txt
-
-# $ dgt fasta -i MyFile.fasta annotate
-# $ snakemake -s snake.smk MyFile.gff.gz
-
-# MyFile.fna
-# <config.yaml> annot_ext: gff3
-
-# $ dgt fasta -i MyFile.fasta
-# >> MyFile.fasta.gz
-# {MyFile}.fasta.gz
-
-# $ dgt fasta -i MyFile.fna --what-can-i-do?
-# > Validates to MyFile.fasta.gz
-#     Can run: Reformat_Fasta
-#              Filter
-
-
-# Ran through /Data (type=Fasta)<insert> --> Fasta(data).Validates
-# {mydata}.Filter.Trim.Annotate.Compress
 
 
 rule Unsimplify_Fasta:
