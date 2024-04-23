@@ -1,12 +1,35 @@
 # Given a file, determine which rules it can enter
 
 # Class Rules Representing a File
-- Each has a 'preferred' extension and encoding
-- Each has 'is_known_extension' and 'is_valid' methods
-  - is_valid will call 'validate', which validates the file based on 'soft' or 'medium' modes
-- Each has a method that will write a validated, preferred form as -VALIDATED{self.preferred_extension}
-- Each has self.available_rules
+
+## Class Attributes
+- self.known_extensions
+- self.known_compressions
+- self.preferred_extension: each has a 'preferred' extension and encoding
+- self.available_rules
   - ADD MORE INFO HERE
+- self.outputs
+  - ADD MORE INFO HERE (Potential SnakeMake tie-in)
+
+## Attributes
+- self.file_path -> The input files path
+- self.file_name -> The input files name
+- self.detect_mode -> Detection mode for validation (default: medium)
+- self.preferred_file_path
+  - This is used for writing to a known output in the format: {wildcard}-VALIDATED{self.preferred_extension}. NOTE: This does not write any file, just creates the preferred file path
+- self.valid
+- self.valid_extension -> Does the initial file have a valid/known extension
+  - This is a little misleading, because it makes it seem like a valid_extension ensures the encoding matches the extension or it does not/is unknown
+
+## Methods
+- clean_file_name() -> given the input, create the self.preferred_file_path in the form {wildcard}-VALIDATED{self.preferred_extension}
+- self.write_<filetype> -> This writes a validated file
+- self.write_table -> This writes a validated tabular version of the file
+
+## Properties
+- Properties allow us to get low-level information on the file, such as length, total count, and various other properties we might be interested. This is where community effort can extend the functionality of the class
+
+## Writing Validated Output
 - Whenever I write a new file, I write it from the fastaKey values, not the initial file
   - This requires the file to be validated, since that's where we grabbed that internal data
 

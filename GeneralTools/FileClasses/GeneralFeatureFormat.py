@@ -4,19 +4,19 @@ import pathlib
 import pandas as pd
 
 
-class Fastq:
+class GFF:
     '''
     Class for Fastq Files!
     '''
-    known_extensions = ['.fastq', '.fq']
+    known_extensions = ['.gff', '.gff3']
     known_compressions = ['.gz', '.gzip']
-    preferred_extension = '.fastq.gz'
+    preferred_extension = '.gff3.gz'
 
     available_rules = ['rule_a', 'rule_b', 'rule_d']
-    outputs = ['-SIMPLIFIED.fastq', '-PASS.fastq']
+    outputs = ['-SIMPLIFIED.gff3', '-PASS.gff3']
     ruleToOutput = {
-        'rule_a': ('-SIMPLIFIED.fasta'),
-        'rule_b': ('-UNSIMPLIFIED.fasta')
+        'rule_a': ('-SIMPLIFIED.gff3'),
+        'rule_b': ('-UNSIMPLIFIED.gff3')
     }
 
     def __init__(self, file, detect_mode="medium") -> None:
@@ -24,7 +24,7 @@ class Fastq:
         self.file_path = pathlib.Path(file)
         self.file_name = self.file_path.name
         self.detect_mode = detect_mode
-        self.fastaKey = {}
+        self.gffKey = {}
         self.written_output = []
 
         # Preferences

@@ -4,13 +4,13 @@ import pathlib
 import pandas as pd
 
 
-class Fastq:
+class SAM:
     '''
     Class for Fastq Files!
     '''
-    known_extensions = ['.fastq', '.fq']
-    known_compressions = ['.gz', '.gzip']
-    preferred_extension = '.fastq.gz'
+    known_extensions = ['.sam', '.sm']
+    known_compressions = ['.gz', '.gzip', '.bam']
+    preferred_extension = '.sam'
 
     available_rules = ['rule_a', 'rule_b', 'rule_d']
     outputs = ['-SIMPLIFIED.fastq', '-PASS.fastq']

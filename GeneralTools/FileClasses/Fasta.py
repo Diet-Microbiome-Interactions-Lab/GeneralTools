@@ -13,6 +13,8 @@ def requires_validation(func):
         return func(self, *args, **kwargs)
     return wrapper
 
+class GcFile(BaseClass):
+    pass
 
 class Fasta:
     '''
@@ -191,6 +193,7 @@ class Fasta:
         clean_header = clean_header.replace(' ', '_')
         return clean_header
 
+    # PROPERTIES
     @property
     def all_headers(self):
         return [v[0] for k, v in self.fastaKey.items()]
