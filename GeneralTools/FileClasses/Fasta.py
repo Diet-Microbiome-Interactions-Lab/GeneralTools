@@ -3,6 +3,8 @@ import mimetypes
 import pathlib
 import pandas as pd
 
+from BaseClasses import BioBase
+
 def requires_validation(func):
     def wrapper(self, *args, **kwargs):
         if not self.valid:
@@ -13,17 +15,14 @@ def requires_validation(func):
         return func(self, *args, **kwargs)
     return wrapper
 
-class GcFile(BaseClass):
-    pass
-
-class Fasta:
+class Fasta(BioBase):
     '''
     Class for Fasta Files
     Want it to determine if it's gzip or not
     '''
-    known_extensions = ['.fna', '.fasta', '.fa']
-    known_compressions = ['.gz', '.gzip']
-    preferred_extension = '.fasta.gz'
+    # known_extensions = ['.fna', '.fasta', '.fa']
+    # known_compressions = ['.gz', '.gzip']
+    # preferred_extension = '.fasta.gz'
 
     available_rules = ['rule_a', 'rule_b', 'rule_d']
     outputs = ['-SIMPLIFIED.fasta', ]
@@ -32,69 +31,27 @@ class Fasta:
         'rule_b': ('-UNSIMPLIFIED.fasta')
     }
 
-
     def __init__(self, file, detect_mode="medium") -> None:
+        super().__init__(file, detect_mode)
         # Default values
-        self.file_path = pathlib.Path(file)
-        self.file_name = self.file_path.name
-        self.detect_mode = detect_mode
+        self.known_extensions.extend(['.fna', '.fasta', '.fa'])
+        self.preferred_extension = '.fasta.gz'
+        self.preferred_file_path = self.clean_file_name()
+
+        # Custom stuff
         self.fastaKey = {}
         self.written_output = []
 
-        # Preferences
-        self.preferred_file_path = self.clean_file_name()
-        
         # Validation -> detect_mode=None skips this
         if detect_mode:
             self.valid_extension = self.is_known_extension()
             self.valid = self.is_valid()
+        
 
     # Experimental rule
     def create_output(self, rule):
         pass
-    
-    # ~~~ Preferences ~~~ #
-    def clean_file_name(self) -> str:
-        '''
-        Always want our fasta file to end in .fasta.gz.
-        For example, if a file comes in as myfile.fna, it'll be renamed to myfile.fasta.gz
-        Or, if a file is myfile.txt, it'll be renamed to myfile.fasta.gz
-        '''
-        suffixes = self.file_path.suffixes
-        self.basename = self.file_path.stem
-        if suffixes[-1] in self.known_compressions:
-            if len(suffixes) > 1 and suffixes[-2] in self.known_extensions:
-                self.basename = pathlib.Path(self.basename).stem
-                return self.file_path.with_name(f'{self.basename}-VALIDATED{self.preferred_extension}')
-            return None
-        return self.file_path.with_name(f'{self.basename}-VALIDATED{self.preferred_extension}')
 
-    # ~~~ Validation Stuff ~~~ #
-    def is_known_extension(self) -> bool:
-        '''
-        Is there a known extension of the file?
-        '''
-        suffixes = self.file_path.suffixes
-        if suffixes[-1] in self.known_compressions:
-            return len(suffixes) > 1 and suffixes[-2] in self.known_extensions
-        else:
-            return suffixes[-1] in self.known_extensions
-
-    def is_valid(self) -> bool:
-        file_type, encoding = mimetypes.guess_type(self.file_path)
-
-        if not encoding:  # This means no compression
-            print(f'DEBUG: File is not compressed')
-            with open(str(self.file_path), 'rt') as open_file:
-                return self.validate(iter(open_file))
-        elif encoding == 'gzip':
-            print(f'DEBUG: File is gzip compressed')
-            with gzip.open(str(self.file_path), 'rt') as open_file:
-                return self.validate(iter(open_file))
-        else:
-            print(f'DEBUG: File is compressed but in an unknown format')
-            return False
-    
     def validate(self, open_file, mode="medium"):
         if self.detect_mode == 'soft':
             print(f'DEBUG: Detecting in soft mode, only checking extension')
@@ -273,3 +230,7 @@ class Fasta:
             return dict(sorted(self.fastaKey.items(), key=lambda item: item[1][0].lower()))
         return dict(sorted(self.fastaKey.items(), key=lambda item: item[1][0].lower(), reverse=True))
         
+
+
+mydata = Fasta('GeneralTools/FileClasses/test-files/example.fasta')
+print(mydata.all_headers)

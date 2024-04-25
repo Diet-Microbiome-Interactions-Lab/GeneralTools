@@ -29,6 +29,7 @@ if __name__ == "__main__":
     print(f'Output -> GC Content: {data.gc_content_total}')
     print(f'Output -> GC Content: {data.filter_seqlength()}')
     print(f'Output -> GC Content: {data.n_largest_seqs(n=10)}')
+    print(f'fastaKey: {data.fastaKey}')
 
 
 
