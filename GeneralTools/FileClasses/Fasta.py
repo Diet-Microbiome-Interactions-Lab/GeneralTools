@@ -1,9 +1,12 @@
 import gzip
 import mimetypes
 import pathlib
+import sys
+
 import pandas as pd
 
 from BaseClasses import BioBase
+
 
 def requires_validation(func):
     def wrapper(self, *args, **kwargs):
@@ -31,21 +34,19 @@ class Fasta(BioBase):
         'rule_b': ('-UNSIMPLIFIED.fasta')
     }
 
-    def __init__(self, file, detect_mode="medium") -> None:
-        super().__init__(file, detect_mode)
+    def __init__(self, file=None, detect_mode="medium") -> None:
+        super().__init__(file=file, detect_mode=detect_mode)
         # Default values
         self.known_extensions.extend(['.fna', '.fasta', '.fa'])
         self.preferred_extension = '.fasta.gz'
-        self.preferred_file_path = self.clean_file_name()
 
         # Custom stuff
         self.fastaKey = {}
         self.written_output = []
+        self.preferred_file_path = self.clean_file_name()
 
-        # Validation -> detect_mode=None skips this
-        if detect_mode:
-            self.valid_extension = self.is_known_extension()
-            self.valid = self.is_valid()
+        self.valid_extension = self.is_known_extension()
+        self.valid = self.is_valid()
         
 
     # Experimental rule
@@ -151,52 +152,58 @@ class Fasta(BioBase):
         return clean_header
 
     # PROPERTIES
-    @property
-    def all_headers(self):
-        return [v[0] for k, v in self.fastaKey.items()]
+    def do_all_headers(self, barewords, **kwargs):
+        '''Return all headers to standard out'''
+        response = [v[0] for k, v in self.fastaKey.items()]
+        self.succeeded(msg=f"{response}", dex=response)
 
-    @property
-    def all_seqs(self):
-        return [v[1] for k, v in self.fastaKey.items()]
+    def do_all_seqs(self, barewords, **kwargs):
+        '''Return all sequences to standard out'''
+        response = [v[1] for k, v in self.fastaKey.items()]
+        self.succeeded(msg=f"{response}", dex=response)
     
-    @property
-    def gc_content(self):
+    def do_gc_content(self, barewords, **kwargs):
+        '''Return the GC content of each sequence in the fasta file'''
         gcContent = {}
         for cnt, items in self.fastaKey.items():
             seq = items[1].upper()
             gc_count = seq.count('G') + seq.count('C')
             percent = round((gc_count) / len(seq), 3)
             gcContent[cnt] = (items[0], percent)
-        return gcContent
+        response = gcContent
+        self.succeeded(msg=f"{response}", dex=response)
 
-    @property
-    def gc_content_total(self):
+    def do_gc_content_total(self, barewords, **kwargs):
+        '''Return the total GC content of the fasta file'''
         values = []
         for cnt, items in self.fastaKey.items():
             seq = items[1].upper()
             gc_count = seq.count('G') + seq.count('C')
             gc_content = (gc_count / len(seq)) * 100 if len(seq) > 0 else 0
             values.append(round(gc_content, 3))
-        return sum(values) / len(values) if values else 0
+        response = sum(values) / len(values) if values else 0
+        self.succeeded(msg=f"{response}", dex=response)
 
-    @property
-    def total_seq_length(self):
-        return sum([len(v[1]) for k, v in self.fastaKey.items() ])
+    def do_total_seq_length(self, barewords, **kwargs):
+        '''Return the total length of all sequences in the fasta file'''
+        response =  sum([len(v[1]) for k, v in self.fastaKey.items() ])
+        self.succeeded(msg=f"{response}", dex=response)
 
-    @property
-    def total_seqs(self):
-        return len(self.fastaKey.keys())
+    def do_total_seqs(self, barewords, **kwargs):
+        '''Return the total number of sequences in the fasta file'''
+        print(f'Running inside of total_seqs with {barewords} and {kwargs}')
+        response = len(self.fastaKey.keys())
+        self.succeeded(msg=f"Total sequences: {response}", dex=response)
     
-    @property
-    def get_total_t(self):
-        '''
-        Grab the total ts
-        '''
-        return 400
+    def total_seq_length(self, barewords, **kwargs):
+        response = sum([len(v[1]) for k, v in self.fastaKey.items() ])
+        self.succeeded(msg=f"{response}", dex=response)
+
     
     # Misc. Actions and Functionality
-    @requires_validation
-    def filter_seqlength(self, seqlen=2000, output=None):
+    def do_filter_seqlength(self, barewords, output=None, **kwargs):
+        '''Filter the sequences by length, default is 2000'''
+        seqlength = self.conf.get('seqlen', 2000)
         if not output:
             output = self.file_path.with_name(f'{self.basename}-FILTERED.txt')
 
@@ -205,15 +212,15 @@ class Fasta(BioBase):
                 if len(items[1]) > seqlen:
                     writeline = f'>{items[0]}\n{items[1]}\n'
                     open_file.write(writeline)
-        return 0
+        response = f'Processed with seqlength of {seqlength} and wrote to output: {output}'
+        self.succeeded(msg=f"{response}", dex=response)
     
-    @requires_validation
-    def n_largest_seqs(self, n=10, output=None):
-        if not output:
+    def do_n_largest_seqs(self, barewords, **kwargs):
+        if not self.conf.get(output, None):
             output = self.file_path.with_name(f'{self.basename}-{n}LARGEST.txt')
+        n = self.conf.get('n', 10)
 
         sorted_values = self.sort_fastaKey(ascending=False)
-        print(f'Sorted values: {sorted_values}')
         with open(output, 'wt') as open_file:
             for index, (_, items) in enumerate(sorted_values.items()):
                 print(f'Index: {index} --> {items}')
@@ -223,14 +230,15 @@ class Fasta(BioBase):
                 writeline = f'>{items[0]}\n{items[1]}\n'
                 print(f'Writeline: {writeline}')
                 open_file.write(writeline)
-        return 'Success: File created'
+        response = 'Success: File created'
+        self.succeeded(msg=f"{response}", dex=response)
 
-    def sort_fastaKey(self, ascending=True):
-        if ascending:
+    def do_sort_fasta(self, barewords, **kwargs):
+        if self.conf.get('ascending', False):
             return dict(sorted(self.fastaKey.items(), key=lambda item: item[1][0].lower()))
-        return dict(sorted(self.fastaKey.items(), key=lambda item: item[1][0].lower(), reverse=True))
-        
-
-
-mydata = Fasta('GeneralTools/FileClasses/test-files/example.fasta')
-print(mydata.all_headers)
+        response = dict(sorted(self.fastaKey.items(), key=lambda item: item[1][0].lower(), reverse=True))
+        self.succeeded(msg=f"{response}", dex=response)
+    
+    def do_seq_length(self, barewords, **kwargs):
+        response = {(k, v[0]): len(v[1]) for k, v in self.fastaKey.items()}
+        self.succeeded(msg=f"{response}", dex=response)

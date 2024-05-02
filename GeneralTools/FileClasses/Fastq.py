@@ -7,6 +7,7 @@ import pandas as pd
 from BaseClasses import BioBase
 
 
+# class Fastq(BioBase):
 class Fastq(BioBase):
     '''
     Class for Fastq Files!
@@ -18,33 +19,35 @@ class Fastq(BioBase):
         'rule_b': ('-UNSIMPLIFIED.fasta')
     }
 
-    def __init__(self, file, detect_mode="medium") -> None:
-        # Custom stuff
-        self.fastqKey = {}
-        self.written_output = []
-        super().__init__(file, detect_mode)
+    def __init__(self, file=None, detect_mode="medium") -> None:
+        super().__init__(file=file, detect_mode=detect_mode)
         # Default value extension
         self.known_extensions.extend(['.fastq', '.fq'])
         self.preferred_extension = '.fastq.gz'
         self.preferred_file_path = self.clean_file_name()
 
-        
+        # Custom stuff
+        self.fastqKey = {}
+        self.written_output = []
 
         # Validation -> detect_mode=None skips this
         if detect_mode:
             self.valid_extension = self.is_known_extension()
             self.valid = self.is_valid()
+        
+        # if not self.valid:
+        #     self.file_not_valid_report()
 
-        # Specific
-        self.fastaKey = {}
-        self.written_output = []
+        # Below, self.run comes from clix.App. We need to call it first to get the configuration
+        # Where do we want to run the program? Probably from the main
+        # self.run()
 
     # ~~~ Validation Stuff ~~~ #
     def validate(self, open_file, mode="medium"):
         if self.detect_mode == 'soft':
-            print(f'DEBUG: Detecting in soft mode, only checking extension')
+            # print(f'DEBUG: Detecting in soft mode, only checking extension')
             return self.valid_extension
-        print(f'DEBUG: Detecting comprehensively')
+        # print(f'DEBUG: Detecting comprehensively')
 
         # Content Stuff
         valid_chars = set('ATGCNatgcn')
@@ -99,34 +102,56 @@ class Fastq(BioBase):
 
         return valid
     
-    def do_something_funny(self):
+    def do_test(self, barewords, **kwargs):
+        '''
+        Test function!!!\n
+        This function is for testing purposes only.
+        '''
+        response = 'Test function called'
+        self.succeeded(
+            msg=f"Total sequences: {response}", dex=response)
+        return 0
+    
+    def do_something_funny(self, barewords, **kwargs):
         '''
         Help for telling a joke
         '''
-        print(f'Heres a joke...knock knock!')
+        response = 'Heres a joke...knock knock!'
+        self.succeeded(msg=response, dex=response)
+        return 0
+
     
-    def do_grab_first_record(self):
+    def do_grab_first_record(self, barewords, **kwargs):
         '''
         Returns the first record in the fastq file
         '''
-        return 'Example first key'
+        response = self.fastqKey[0]
+        self.succeeded(
+            msg=f"{response}", dex=response)
+        return 0
 
-    def do_all_headers(self):
+    def do_all_headers(self, barewords, **kwargs):
         '''
         Shows all headers in the fastq file
         '''
-        return [v[0] for k, v in self.fastqKey.items()]
+        response = [v[0] for k, v in self.fastqKey.items()]
+        self.succeeded(
+            msg=f"{response}", dex=response)
+        return 0
     
-    def do_seqlengths(self):
+    def do_seqlengths(self, barewords, **kwargs):
         '''
         Return all of the seqlengths in the fastq file
         '''
         seqlens = set()
         for k, v in self.fastqKey.items():
             seqlens.add(len(v[1]))
-        return seqlens
+        response = seqlens
+        self.succeeded(
+            msg=f"{response}", dex=response)
+        return 0
     
-    def do_gc_content(self):
+    def do_gc_content(self, barewords, **kwargs):
         '''
         Return the GC content for each record in the fastq file
         '''
@@ -136,9 +161,12 @@ class Fastq(BioBase):
             gc_count = seq.count('G') + seq.count('C')
             percent = round((gc_count) / len(seq), 3)
             gcContent[cnt] = (items[0], percent)
-        return gcContent
+        response = gcContent
+        self.succeeded(
+            msg=f"{response}", dex=response)
+        return 0
 
-    def do_gc_content_total(self):
+    def do_gc_content_total(self, barewords, **kwargs):
         '''
         Get the total GC content for the fastq file
         '''
@@ -148,17 +176,8 @@ class Fastq(BioBase):
             gc_count = seq.count('G') + seq.count('C')
             gc_content = (gc_count / len(seq)) * 100 if len(seq) > 0 else 0
             values.append(round(gc_content, 3))
-        return sum(values) / len(values) if values else 0
-
-
-myfile = 'GeneralTools/FileClasses/test-files/example.fastq'
-
-fastq = Fastq(myfile)
-print(fastq.valid)
-# print(fastq.fastqKey)
-print(fastq.do_all_headers)
-print(fastq.seqlengths)
-print(fastq.gc_content_total)
-
-if __name__ == "__main__":
-    pass
+        value = sum(values) / len(values) if values else 0
+        response = f'Returned a GC value of {value}'
+        self.succeeded(
+            msg=f"{response}", dex=response)
+        return 0
