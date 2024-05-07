@@ -1,8 +1,6 @@
->My defline
-ATGCGGCA
-AAGCGCCGA
->My defline 2
-ATGCGCA
-AAAGCGCGCNananCna
->A pineable
+>My_defline
+ATGCGGCAAAGCGCCGA
+>My_defline_2
+ATGCGCAAAAGCGCGCNANANCNA
+>A_pineable
 AAAGGCTC

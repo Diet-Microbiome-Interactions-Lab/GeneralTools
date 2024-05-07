@@ -29,6 +29,7 @@
 - validate() -> Validate the specific file type. This is where the bulk of the code should be, especially unique code.
 - self.write\_<filetype> -> This writes a validated file
 - self.write_table -> This writes a validated tabular version of the file
+- self.write_confident
 
 ## Properties
 

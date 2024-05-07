@@ -5,12 +5,11 @@ raise ValueError when invalid GC/HPLC file is found
 '''
 import argparse
 import base64
-import io
 from datetime import datetime
 import hashlib
+import os
 import pandas as pd
 from pathlib import Path
-import re
 
 from scipy.stats import linregress
 
@@ -533,10 +532,14 @@ class Chromatography_Experiment:
         }
 
     def write_final_out(self):
-        self.FinalTable.to_csv(f'./FinalTable-{self.now}.csv', index=False)
-        self.StdPeakTable.to_csv(f'./StdPeakTable-{self.now}.csv', index=False)
-        self.ModelTable.to_csv(f'./ModelTable-{self.now}.csv', index=False)
-        self.Standards.MeanDF.to_csv(f'./StandardsMeanDF-{self.now}.csv', index=False)
+        output_path = f'./output-{self.now}'
+        if not os.path.exists(output_path):
+            print(f'\nCreating path...{output_path}\n\n')
+            os.makedirs(output_path)
+        self.FinalTable.to_csv(f'{output_path}/FinalTable-{self.now}.csv', index=False)
+        self.StdPeakTable.to_csv(f'{output_path}/StdPeakTable-{self.now}.csv', index=False)
+        self.ModelTable.to_csv(f'{output_path}/ModelTable-{self.now}.csv', index=False)
+        self.Standards.MeanDF.to_csv(f'{output_path}/StandardsMeanDF-{self.now}.csv', index=False)
 
 
 class GC_Standard:
@@ -670,9 +673,7 @@ class HPLC_Standard:
             norm_area = SPT.loc[SPT['Name'] == acid,
                                 'Area'].values[0] / normalization_val
             cur_entry.append(norm_area)
-            # Above, added pseudo Normalized_Area in case in the future
-            # we need to normalize; also notation consistency between
-            # chromatography types
+
             lvlConc = self.AcidConcentrations[acid][lvl - 1]
             cur_entry.append(lvlConc)
             acid_data.append(cur_entry)
@@ -714,14 +715,13 @@ if __name__ == "__main__":
         parser.add_argument("-i", "--Instrument",
                             help="Instrument",
                             required=False, default='gc')
-        # parser.add_argument("-o", "--Output",
-        #                     help="Save tables",
-        #                     default="Output")
+        parser.add_argument("-s", "--Save",
+                            help="Save tables",
+                            default=False, action='store_true')
         return parser
 
     parser = parse_args()
     args = parser.parse_args()
-    # myclass = Chromatography_Experiment(args.File, args.Instrument)
     file = Path(args.File).expanduser().absolute()
-    print(f'File: {file}')
-    process_chromatography_file(file, args.Instrument)
+
+    process_chromatography_file(file, args.Instrument, savefile=args.Save)

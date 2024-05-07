@@ -37,8 +37,8 @@ class App:
         "report.form": 'prose'
     }
 
-    def __init__(self, name=None, run_mode="cli", comargs=['help'], defaults=None, _mode='normal', **kwargs):
-        self._mode = _mode
+    def __init__(self, name=None, run_mode="cli", comargs=['help'], defaults=None, _mode='normal', filetype=None, **kwargs):
+        self.filetype, self._mode = filetype, _mode
         if self._mode == 'debug':
             print(f'# ~~~~~~~~~~ INIT Start: CLIX ~~~~~~~~~~ #')
             print('DEBUG: (i) Starting init for clix')
@@ -441,17 +441,18 @@ class App:
         return self.succeeded(doc, d)
 
     def do_help(self, barewords, **kwargs):
-        """
-        Show all command patterns and their help messages
-        """
+        """Show all command patterns and their help messages"""
         doclines = []
-        for actionable in sorted(self.dispatches):
+        for cnt, actionable in enumerate(sorted(self.dispatches)):
             tokens, action = actionable
             humanable = " ".join(tokens)
-            doclines.append("* {} {}".format(self.name, humanable))
+            doclines.append(f'{cnt}: \033[92m $ {self.name} {humanable} type: {self.filetype} file: example.{self.filetype}\033[0m')
+            # doclines.append("* {} {}\n".format(self.name, humanable))
             if action.__doc__:
-                for line in action.__doc__.split('\n'):
+                # print(f'Action.doc: {action.__doc__}')
+                for line in action.__doc__.strip().split('\n'):
                     doclines.append(line)
+                doclines.append('\n')
         doc = "\n".join(doclines)
         return self.succeeded(doc)
 

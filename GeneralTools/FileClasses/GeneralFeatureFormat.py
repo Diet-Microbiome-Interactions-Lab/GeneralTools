@@ -3,7 +3,7 @@ import mimetypes
 import pathlib
 import pandas as pd
 
-from BaseClasses import BioBase
+from GeneralTools.FileClasses.BaseClasses import BioBase
 
 def requires_validation(func):
     def wrapper(self, *args, **kwargs):
@@ -28,21 +28,19 @@ class GeneralFeatureFormat(BioBase):
         'rule_b': ('-UNSIMPLIFIED.fasta')
     }
 
-    def __init__(self, file, detect_mode="medium") -> None:
-        super().__init__(file, detect_mode)
+    def __init__(self, file=None, detect_mode="medium") -> None:
+        super().__init__(file, detect_mode, filetype='generalfeatureformat')
         # Default values
         self.known_extensions.extend(['.gff', '.gff3', '.g3'])
         self.preferred_extension = '.gff3.gz'
-        self.preferred_file_path = self.clean_file_name()
 
         # Custom stuff
         self.gffKey = {}
         self.written_output = []
+        self.preferred_file_path = self.clean_file_name()
 
-        # Validation -> detect_mode=None skips this
-        if detect_mode:
-            self.valid_extension = self.is_known_extension()
-            self.valid = self.is_valid()
+        self.valid_extension = self.is_known_extension()
+        self.valid = self.is_valid()
 
     def validate(self, open_file, mode="medium"):
         if self.detect_mode == 'soft':
@@ -59,7 +57,6 @@ class GeneralFeatureFormat(BioBase):
                 line = next(open_file)
                 continue
             line_count += 1
-            print(f'Parsing line {line_count}')
             columns = line.split('\t')
             if not len(columns) == 9:
                 valid = False
@@ -109,34 +106,63 @@ class GeneralFeatureFormat(BioBase):
         return valid
 
     # ~~~ Rewriting ~~~ #
-    def write_confident_gff(self, output=None):
-        '''
-        Here, we always want the same extension and compression: .gff3.gz
-        '''
-        pass
-    
-    def write_to_table(self, output=None):
-        pass
+    def do_write_confident(self, barewords, **kwargs):
+        '''Write the confident GFF3 file to disk using default extension'''
+        if not self.valid:
+            response = 'File is not valid'
+            self.failed(msg=f"{response}")
 
-    def do_get_longest_gene(self):
+        output = self.conf.get('output', None)
+        if not output:
+            output = self.preferred_file_path
+        output = pathlib.Path(output)
+
+        if output.suffix in ['.gz', '.gzip']:
+            with gzip.open(str(self.preferred_file_path), 'wt') as open_file:
+                for _, value in self.gffKey.items():
+                    open_file.write(f'{value[0]}\t{value[1]}\t{value[2]}\t{value[3]}\t{value[4]}\t{value[5]}\t{value[6]}\t{value[7]}\t{value[8]}\n')
+        else:
+            with open(str(output), 'w') as open_file:
+                for _, value in self.gffKey.items():
+                    open_file.write(f'{value[0]}\t{value[1]}\t{value[2]}\t{value[3]}\t{value[4]}\t{value[5]}\t{value[6]}\t{value[7]}\t{value[8]}\n')
+        response = 'Wrote the output file'
+        self.succeeded(msg=f"{response}", dex=response)
+    
+    def do_write_table(self, barewords, **kwargs):
+        '''Tabular output'''
+        if not self.valid:
+            response = 'File is not valid'
+            self.failed(msg=f"{response}")
+
+        output = self.conf.get('output', None)
+        if not output:
+            output = self.preferred_file_path
+        output = pathlib.Path(output)
+
+        if output.suffix in ['.gz', '.gzip']:
+            with gzip.open(str(self.preferred_file_path), 'wt') as open_file:
+                open_file.write(f'seqid,source,type,start,end,score,strand,phase,attributes\n')
+                for _, value in self.gffKey.items():
+                    open_file.write(f'{value[0]},{value[1]},{value[2]},{value[3]},{value[4]},{value[5]},{value[6]},{value[7]},{value[8]}\n')
+        else:
+            with open(str(output), 'w') as open_file:
+                open_file.write(f'seqid,source,type,start,end,score,strand,phase,attributes\n')
+                for _, value in self.gffKey.items():
+                    open_file.write(f'{value[0]},{value[1]},{value[2]},{value[3]},{value[4]},{value[5]},{value[6]},{value[7]},{value[8]}\n')
+        response = 'Wrote the output file'
+        self.succeeded(msg=f"{response}", dex=response)
+
+    def do_get_longest_gene(self, barewords, **kwargs):
         '''
         Get the longest gene in the GFF3 file.
         '''
-        return None
-    # ~~~ Common Properties ~~~ #
-    # @staticmethod
-    # def clean_header(header: str) -> str:
-    #     if header.startswith('>'):
-    #         clean_header = header[1:]
-    #     clean_header = clean_header.replace(' ', '_')
-    #     return clean_header
+        longest_gene = None
+        max = 0
+        for index, entry in self.gffKey.items():
+            gene_length = entry[4] - entry[3]
+            if gene_length > max:
+                max = gene_length
+                longest_gene = entry
+        response = f'Longest gene:\n{longest_gene}'
+        self.succeeded(msg=f"{response}", dex=response)
 
-    # # PROPERTIES
-    # @property
-    # def all_headers(self):
-    #     return [v[0] for k, v in self.fastaKey.items()]
-
-
-mydata = GeneralFeatureFormat('GeneralTools/FileClasses/test-files/example.gff3')
-print(mydata.preferred_file_path)
-print(mydata.gffKey[1])

@@ -1,3 +1,7 @@
+# Local stuff
+*.code-workspace
+*-VALIDATED*
+
 # Byte-compiled / optimized / DLL files
 .venv/
 __pycache__/

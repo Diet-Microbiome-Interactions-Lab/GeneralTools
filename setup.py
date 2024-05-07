@@ -1,4 +1,3 @@
-
 import glob
 print([script for script in glob.glob('GT_Bin/*')])
 import os
@@ -57,4 +56,5 @@ setup(
         'pysam'
     ],
     python_requires='>=3.6',
+    entry_points={'console_scripts': ['fileflux=GeneralTools.FileClasses.main:cli']}
 )

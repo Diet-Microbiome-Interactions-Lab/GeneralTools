@@ -3,7 +3,7 @@ import mimetypes
 import pathlib
 import sys
 
-from caragols.lib import clix
+from GeneralTools.caragols import clix
 
 class BioBase(clix.App):
     '''
@@ -12,9 +12,9 @@ class BioBase(clix.App):
     known_compressions = ['.gz', '.gzip']
     known_extensions = []
 
-    def __init__(self, file=None, detect_mode="medium"):
+    def __init__(self, file=None, detect_mode="medium", filetype=None) -> None:
         self.detect_mode = detect_mode
-        super().__init__(run_mode="cli", name="BioBase")
+        super().__init__(run_mode="cli", name="fileflux", filetype=filetype)
         self.form = self.conf.get('report.form', 'prose')
         # self._mode comes from clix.App
         if self._mode == 'debug':
@@ -31,8 +31,12 @@ class BioBase(clix.App):
             else:
                 sys.exit(0)
 
-        if not self.file:
-            print(f'No self.file, stopping init in BioBase')
+        if self.file:
+            self.file_path = pathlib.Path(self.file)
+            self.file_name = self.file_path.name
+        elif 'help' in self.matched[0]:  # Dont necessarily need a file to show help
+            self.run()
+        else:
             message = f'ERROR: No file provided. Please add file via: $ python3 main.py file: example.fasta'
             self.failed(
                 msg=f"Total sequences: {message}", dex=message)
@@ -43,18 +47,8 @@ class BioBase(clix.App):
                 sys.exit(1)
             else:
                 sys.exit(0)
-            return None
-        else:
-            self.file_path = pathlib.Path(self.file)
-            self.file_name = self.file_path.name
         if self._mode == 'debug':
             print('#~~~~~~~~~~ Finished BioBase Init ~~~~~~~~~~#\n')
-        # self.file = file
-        # self.file_path = pathlib.Path(file)
-        # self.file_name = self.file_path.name
-        # self.detect_mode = detect_mode
-    
-            # ~~~ Preferences ~~~ #
     
     def clean_file_name(self) -> str:
         '''
@@ -112,6 +106,7 @@ class BioBase(clix.App):
             sys.exit(0)
     
     def do_valid(self, barewords, **kwargs):
+        '''Check to see if the file is valid, meaning it has been parsed and the contents are correct'''
         response = self.valid
         self.succeeded(
             msg=f"File was scrubbed and found to be {response}", dex=response)

@@ -1,11 +1,9 @@
 import gzip
-import mimetypes
 import pathlib
-import sys
 
 import pandas as pd
 
-from BaseClasses import BioBase
+from GeneralTools.FileClasses.BaseClasses import BioBase
 
 
 def requires_validation(func):
@@ -35,7 +33,7 @@ class Fasta(BioBase):
     }
 
     def __init__(self, file=None, detect_mode="medium") -> None:
-        super().__init__(file=file, detect_mode=detect_mode)
+        super().__init__(file=file, detect_mode=detect_mode, filetype='fasta')
         # Default values
         self.known_extensions.extend(['.fna', '.fasta', '.fa'])
         self.preferred_extension = '.fasta.gz'
@@ -47,13 +45,13 @@ class Fasta(BioBase):
 
         self.valid_extension = self.is_known_extension()
         self.valid = self.is_valid()
-        
-
-    # Experimental rule
-    def create_output(self, rule):
-        pass
 
     def validate(self, open_file, mode="medium"):
+        '''
+        Validate the Fasta file and hydrate self.fastaKey, a dictionary of the fasta file
+        in the form:
+        {entry_index: (header, sequence)}
+        '''
         if self.detect_mode == 'soft':
             print(f'DEBUG: Detecting in soft mode, only checking extension')
             return self.valid_extension
@@ -99,49 +97,58 @@ class Fasta(BioBase):
         return True
 
     # ~~~ Rewriting ~~~ #
-    def write_confident_fasta(self, output=None):
+    def do_write_confident(self, barewords, **kwargs):
         '''
         Here, we always want the same extension and compression: .fasta.gz
         We also want to ensure only ATGCN and each sequence is on 1 line
         '''
         if not self.valid:
-            print(f'Error: Is not a valid fasta file')
-            return None
-        if not self.detect_mode or self.detect_mode == 'soft':
-            print(f'Error: Cannot write a new file without medium+ verification')
-            return None
+            response = 'File is not valid'
+            self.failed(msg=f"{response}")
+        
 
-        if output:
-            with gzip.open(str(output), 'wt') as open_file:
-                for key, value in self.fastaKey.items():
-                    open_file.write(f'>{value[0]}\n{value[1]}\n')
-            self.written_output.append(('write_confident_fasta', self.preferred_file_path))  # Provenance
-        else:
+        output = self.conf.get('output', None)
+        if not output:
+            output = self.preferred_file_path
+        output = pathlib.Path(output)
+        if output.suffix in ['.gz', '.gzip']:
             with gzip.open(str(self.preferred_file_path), 'wt') as open_file:
                 for key, value in self.fastaKey.items():
                     open_file.write(f'>{value[0]}\n{value[1]}\n')
-            self.written_output.append(('write_confident_fasta', self.preferred_file_path))  # Provenance
-        
-        return 0
-    
-    def write_to_table(self, output=None):
-        if not self.valid:
-            print(f'Error: Is not a valid fasta file')
-            return None
-        if not self.detect_mode or self.detect_mode == 'soft':
-            print(f'Error: Cannot write a new file without medium+ verification')
-            return None
-        
-        table_name = self.file_path.with_name(f'{self.basename}-VALIDATED.txt')
-        data = [[v[0], v[1]] for k, v in self.fastaKey.items()]
-        df = pd.DataFrame(data=data, columns=['Defline', 'Sequence'])
-        if output:
-            df.to_csv(str(output))
-            self.written_output.append(('to_table', str(output)))
+            # self.written_output.append(('write_confident_fasta', self.preferred_file_path))  # Provenance
         else:
-            df.to_csv(table_name)
-            self.written_output.append(('to_table', str(table_name)))
-        return 0
+            with open(str(output), 'w') as open_file:
+                for _, value in self.fastaKey.items():
+                    open_file.write(f'>{value[0]}\n{value[1]}\n')
+            # self.written_output.append(('write_confident_fasta', self.preferred_file_path))  # Provenance
+        response = 'Wrote the output file'
+        self.succeeded(msg=f"{response}", dex=response)
+    
+    def do_write_table(self, barewords, **kwargs):
+        '''Tabular output'''
+        if not self.valid:
+            response = 'File is not valid'
+            self.failed(msg=f"{response}")
+
+        print(self.conf.show())
+        output = self.conf.get('output', None)
+        if not output:
+            print(f'Self.file_path: {self.file_path}')
+            output = self.file_path.stem + '-VALIDATED.txt.gz'
+        output = pathlib.Path(output)
+
+        print(f'Writing to output...{output}')
+        if output.suffix in ['.gz', '.gzip']:
+            with gzip.open(str(output), 'wt') as open_file:
+                for _, value in self.fastaKey.items():
+                    open_file.write(f'{value[0]},{value[1]}\n')
+        else:
+            with open(str(output), 'w') as open_file:
+                for key, value in self.fastaKey.items():
+                    open_file.write(f'{value[0]},{value[1]}\n')
+        response = 'Wrote the output file'
+        self.succeeded(msg=f"{response}", dex=response)
+        
 
     # ~~~ Common Properties ~~~ #
     @staticmethod
@@ -196,49 +203,56 @@ class Fasta(BioBase):
         self.succeeded(msg=f"Total sequences: {response}", dex=response)
     
     def total_seq_length(self, barewords, **kwargs):
+        '''Return the total length of all sequences in the fasta file'''
         response = sum([len(v[1]) for k, v in self.fastaKey.items() ])
         self.succeeded(msg=f"{response}", dex=response)
 
     
     # Misc. Actions and Functionality
-    def do_filter_seqlength(self, barewords, output=None, **kwargs):
+    def do_filter_seqlength(self, barewords, **kwargs):
         '''Filter the sequences by length, default is 2000'''
+
         seqlength = self.conf.get('seqlen', 2000)
+        output = self.conf.get('output', None)
         if not output:
-            output = self.file_path.with_name(f'{self.basename}-FILTERED.txt')
+            output = self.file_path.with_name(f'{self.basename}-FILTERED-{seqlength}bp.txt')
 
         with open(output, 'wt') as open_file:
             for cnt, items in self.fastaKey.items():
-                if len(items[1]) > seqlen:
+                if len(items[1]) > seqlength:
                     writeline = f'>{items[0]}\n{items[1]}\n'
                     open_file.write(writeline)
         response = f'Processed with seqlength of {seqlength} and wrote to output: {output}'
         self.succeeded(msg=f"{response}", dex=response)
     
     def do_n_largest_seqs(self, barewords, **kwargs):
-        if not self.conf.get(output, None):
-            output = self.file_path.with_name(f'{self.basename}-{n}LARGEST.txt')
-        n = self.conf.get('n', 10)
+        '''Return the n largest sequences in the fasta file'''
+        n = int(self.conf.get('n', 10))
+        output = self.conf.get('output', None)
+        if not output:
+            output = self.file_path.with_name(f'{self.basename}-LARGEST-{n}.txt')
 
-        sorted_values = self.sort_fastaKey(ascending=False)
+        sorted_values = self.sorted_fasta
         with open(output, 'wt') as open_file:
-            for index, (_, items) in enumerate(sorted_values.items()):
-                print(f'Index: {index} --> {items}')
-                print(f'Testing {index} >= {n}')
-                if index >= n:
+            for count, (index, (header, seq)) in enumerate(sorted_values.items()):
+                print(f'Testing {seq} >= {n}')
+                if count >= n:
                     break
-                writeline = f'>{items[0]}\n{items[1]}\n'
+                writeline = f'>{header}\n{seq}\n'
                 print(f'Writeline: {writeline}')
                 open_file.write(writeline)
         response = 'Success: File created'
         self.succeeded(msg=f"{response}", dex=response)
 
-    def do_sort_fasta(self, barewords, **kwargs):
-        if self.conf.get('ascending', False):
-            return dict(sorted(self.fastaKey.items(), key=lambda item: item[1][0].lower()))
-        response = dict(sorted(self.fastaKey.items(), key=lambda item: item[1][0].lower(), reverse=True))
-        self.succeeded(msg=f"{response}", dex=response)
-    
     def do_seq_length(self, barewords, **kwargs):
+        '''Return the length of a specific sequence'''
         response = {(k, v[0]): len(v[1]) for k, v in self.fastaKey.items()}
         self.succeeded(msg=f"{response}", dex=response)
+
+    @property
+    def sorted_fasta(self):
+        ascending = self.conf.get('ascending', False)
+        if not ascending:
+            return dict(sorted(self.fastaKey.items(), key=lambda item: item[1][0].lower()))
+        return dict(sorted(self.fastaKey.items(), key=lambda item: item[1][0].lower()), reverse=True)
+    

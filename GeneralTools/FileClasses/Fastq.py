@@ -1,10 +1,9 @@
 import gzip
-import mimetypes
 import pathlib
+
 import pandas as pd
 
-
-from BaseClasses import BioBase
+from GeneralTools.FileClasses.BaseClasses import BioBase
 
 
 # class Fastq(BioBase):
@@ -31,19 +30,16 @@ class Fastq(BioBase):
         self.written_output = []
 
         # Validation -> detect_mode=None skips this
-        if detect_mode:
-            self.valid_extension = self.is_known_extension()
-            self.valid = self.is_valid()
-        
-        # if not self.valid:
-        #     self.file_not_valid_report()
-
-        # Below, self.run comes from clix.App. We need to call it first to get the configuration
-        # Where do we want to run the program? Probably from the main
-        # self.run()
+        self.valid_extension = self.is_known_extension()
+        self.valid = self.is_valid()
 
     # ~~~ Validation Stuff ~~~ #
     def validate(self, open_file, mode="medium"):
+        '''
+        Validate the Fastq file and hydrate self.fastqKey, a dictionary of the fastq file
+        in the form:
+        {entry_index: (header1, sequence, header2, quality)}
+        '''
         if self.detect_mode == 'soft':
             # print(f'DEBUG: Detecting in soft mode, only checking extension')
             return self.valid_extension
@@ -102,25 +98,58 @@ class Fastq(BioBase):
 
         return valid
     
-    def do_test(self, barewords, **kwargs):
+    def do_write_confident(self, barewords, **kwargs):
         '''
-        Test function!!!\n
-        This function is for testing purposes only.
+        Here, we always want the same extension and compression: .fasta.gz
+        We also want to ensure only ATGCN and each sequence is on 1 line
         '''
-        response = 'Test function called'
-        self.succeeded(
-            msg=f"Total sequences: {response}", dex=response)
-        return 0
-    
-    def do_something_funny(self, barewords, **kwargs):
-        '''
-        Help for telling a joke
-        '''
-        response = 'Heres a joke...knock knock!'
-        self.succeeded(msg=response, dex=response)
-        return 0
+        if not self.valid:
+            response = 'File is not valid'
+            self.failed(msg=f"{response}")
 
+        output = self.conf.get('output', None)
+        if not output:
+            output = self.preferred_file_path
+        output = pathlib.Path(output)
+
+        if output.suffix in ['.gz', '.gzip']:
+            with gzip.open(str(self.preferred_file_path), 'wt') as open_file:
+                open_file.write(f'defline,sequence,defline2,quality\n')
+                for key, value in self.fastqKey.items():
+                    open_file.write(f'{value[0]}\n{value[1]}\n{value[2]}\n{value[3]}\n')
+        else:
+            with open(str(output), 'w') as open_file:
+                open_file.write(f'defline,sequence,defline2,quality\n')
+                for _, value in self.fastqKey.items():
+                    open_file.write(f'{value[0]}\n{value[1]}\n{value[2]}\n{value[3]}\n')
+        response = 'Wrote the output file'
+        self.succeeded(msg=f"{response}", dex=response)
     
+    def do_write_table(self, barewords, **kwargs):
+        '''Tabular output'''
+        if not self.valid:
+            response = 'File is not valid'
+            self.failed(msg=f"{response}")
+
+        output = self.conf.get('output', None)
+        if not output:
+            print(f'Self.file_path: {self.file_path}')
+            output = self.file_path.stem + '-VALIDATED.txt.gz'
+        output = pathlib.Path(output)
+
+        if output.suffix in ['.gz', '.gzip']:
+            open_file.write(f'defline,sequence,defline2,quality\n')
+            with gzip.open(str(output), 'wt') as open_file:
+                for _, value in self.fastqKey.items():
+                    open_file.write(f'{value[0]},{value[1]},{value[2]},{value[3]}\n')
+        else:
+            with open(str(output), 'w') as open_file:
+                open_file.write(f'defline,sequence,defline2,quality\n')
+                for key, value in self.fastqKey.items():
+                    open_file.write(f'{value[0]},{value[1]},{value[2]},{value[3]}\n')
+        response = 'Wrote the output file'
+        self.succeeded(msg=f"{response}", dex=response)
+
     def do_grab_first_record(self, barewords, **kwargs):
         '''
         Returns the first record in the fastq file
