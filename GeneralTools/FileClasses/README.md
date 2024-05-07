@@ -1,4 +1,4 @@
-# Given a file, determine which rules it can enter
+# Contribution Guide
 
 # Class Rules Representing a File
 

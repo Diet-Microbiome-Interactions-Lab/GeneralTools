@@ -1,32 +1,15 @@
 import gzip
-import mimetypes
 import pathlib
 import pandas as pd
 
 from GeneralTools.FileClasses.BaseClasses import BioBase
 
-def requires_validation(func):
-    def wrapper(self, *args, **kwargs):
-        if not self.valid:
-            print("This operation cannot be performed because the object is not validated.")
-            # You can also raise an exception instead of returning None
-            # raise Exception("Object is not validated.")
-            return None
-        return func(self, *args, **kwargs)
-    return wrapper
 
 class GeneralFeatureFormat(BioBase):
     '''
     Class definition of General Feature Format version 3
     (GFF3) files.
     '''
-
-    available_rules = ['rule_a', 'rule_b', 'rule_d']
-    outputs = ['-SIMPLIFIED.fasta', ]
-    ruleToOutput = {
-        'rule_a': ('-SIMPLIFIED.fasta'),
-        'rule_b': ('-UNSIMPLIFIED.fasta')
-    }
 
     def __init__(self, file=None, detect_mode="medium") -> None:
         super().__init__(file, detect_mode, filetype='generalfeatureformat')

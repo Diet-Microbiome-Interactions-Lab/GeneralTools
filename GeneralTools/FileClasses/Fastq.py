@@ -6,20 +6,13 @@ import pandas as pd
 from GeneralTools.FileClasses.BaseClasses import BioBase
 
 
-# class Fastq(BioBase):
 class Fastq(BioBase):
     '''
     Class for Fastq Files!
     '''
-    available_rules = ['rule_a', 'rule_b', 'rule_d']
-    outputs = ['-SIMPLIFIED.fastq', '-PASS.fastq']
-    ruleToOutput = {
-        'rule_a': ('-SIMPLIFIED.fasta'),
-        'rule_b': ('-UNSIMPLIFIED.fasta')
-    }
 
     def __init__(self, file=None, detect_mode="medium") -> None:
-        super().__init__(file=file, detect_mode=detect_mode)
+        super().__init__(file=file, detect_mode=detect_mode, filetype='fastq')
         # Default value extension
         self.known_extensions.extend(['.fastq', '.fq'])
         self.preferred_extension = '.fastq.gz'

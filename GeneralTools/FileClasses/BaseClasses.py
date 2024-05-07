@@ -31,11 +31,11 @@ class BioBase(clix.App):
             else:
                 sys.exit(0)
 
-        if self.file:
+        if 'help' in self.matched[0]:  # Dont necessarily need a file to show help
+            self.run()
+        elif self.file:
             self.file_path = pathlib.Path(self.file)
             self.file_name = self.file_path.name
-        elif 'help' in self.matched[0]:  # Dont necessarily need a file to show help
-            self.run()
         else:
             message = f'ERROR: No file provided. Please add file via: $ python3 main.py file: example.fasta'
             self.failed(

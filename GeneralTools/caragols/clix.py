@@ -37,7 +37,7 @@ class App:
         "report.form": 'prose'
     }
 
-    def __init__(self, name=None, run_mode="cli", comargs=['help'], defaults=None, _mode='normal', filetype=None, **kwargs):
+    def __init__(self, name=None, run_mode="cli", comargs=['help'], defaults=None, _mode='debug', filetype=None, **kwargs):
         self.filetype, self._mode = filetype, _mode
         if self._mode == 'debug':
             print(f'# ~~~~~~~~~~ INIT Start: CLIX ~~~~~~~~~~ #')
