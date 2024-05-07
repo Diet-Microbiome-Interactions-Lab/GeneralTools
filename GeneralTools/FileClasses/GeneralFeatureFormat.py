@@ -1,79 +1,151 @@
 import gzip
-import mimetypes
 import pathlib
 import pandas as pd
 
+from GeneralTools.FileClasses.BaseClasses import BioBase
 
-class GFF:
+
+class GeneralFeatureFormat(BioBase):
     '''
-    Class for Fastq Files!
+    Class definition of General Feature Format version 3
+    (GFF3) files.
     '''
-    known_extensions = ['.gff', '.gff3']
-    known_compressions = ['.gz', '.gzip']
-    preferred_extension = '.gff3.gz'
 
-    available_rules = ['rule_a', 'rule_b', 'rule_d']
-    outputs = ['-SIMPLIFIED.gff3', '-PASS.gff3']
-    ruleToOutput = {
-        'rule_a': ('-SIMPLIFIED.gff3'),
-        'rule_b': ('-UNSIMPLIFIED.gff3')
-    }
-
-    def __init__(self, file, detect_mode="medium") -> None:
+    def __init__(self, file=None, detect_mode="medium") -> None:
+        super().__init__(file, detect_mode, filetype='generalfeatureformat')
         # Default values
-        self.file_path = pathlib.Path(file)
-        self.file_name = self.file_path.name
-        self.detect_mode = detect_mode
+        self.known_extensions.extend(['.gff', '.gff3', '.g3'])
+        self.preferred_extension = '.gff3.gz'
+
+        # Custom stuff
         self.gffKey = {}
         self.written_output = []
-
-        # Preferences
         self.preferred_file_path = self.clean_file_name()
-        
-        # Validation -> detect_mode=None skips this
-        if detect_mode:
-            self.valid_extension = self.is_known_extension()
-            self.valid = self.is_valid()
-        
-        # ~~~ Preferences ~~~ #
-    def clean_file_name(self) -> str:
-        '''
-        Always want our fasta file to end in .fastq.gz.
-        For example, if a file comes in as myfile.fg, it'll be renamed to myfile.fastq.gz
-        Or, if a file is fastq.txt, it'll be renamed to myfile.fastq.gz
-        '''
-        suffixes = self.file_path.suffixes
-        self.basename = self.file_path.stem
-        if suffixes[-1] in self.known_compressions:
-            if len(suffixes) > 1 and suffixes[-2] in self.known_extensions:
-                self.basename = pathlib.Path(self.basename).stem
-                return self.file_path.with_name(f'{self.basename}-VALIDATED{self.preferred_extension}')
-            return None
-        return self.file_path.with_name(f'{self.basename}-VALIDATED{self.preferred_extension}')
 
-    # ~~~ Validation Stuff ~~~ #
-    def is_known_extension(self) -> bool:
-        '''
-        Is there a known extension of the file?
-        '''
-        suffixes = self.file_path.suffixes
-        if suffixes[-1] in self.known_compressions:
-            return len(suffixes) > 1 and suffixes[-2] in self.known_extensions
+        self.valid_extension = self.is_known_extension()
+        self.valid = self.is_valid()
+
+    def validate(self, open_file, mode="medium"):
+        if self.detect_mode == 'soft':
+            print(f'DEBUG: Detecting in soft mode, only checking extension')
+            return self.valid_extension
+        print(f'DEBUG: Detecting comprehensively')
+
+        line_count = 0
+        valid = True
+        line = next(open_file)
+        while valid:
+            line = line.strip()
+            if line.startswith('#'):
+                line = next(open_file)
+                continue
+            line_count += 1
+            columns = line.split('\t')
+            if not len(columns) == 9:
+                valid = False
+                break
+            seqid, source, type_, start, end, score, strand, phase, attributes = columns
+            seqid = seqid.strip()
+            source = source.strip()
+            type_ = type_.strip()
+            try:
+                start = int(start)
+                end = int(end)                
+            except ValueError:
+                print(f'DEBUG: Error in line {line_count}: Start or End invalid integer')
+                valid = False
+                break
+
+            if not phase == '.':
+                try:
+                    phase = int(phase)
+                except ValueError:
+                    print(f'DEBUG: Error in line {line_count}: Phase invalid integer')
+                    valid = False
+                    break
+            if not score == '.':                
+                try:
+                    score = float(score)
+                except ValueError:
+                    print(f'DEBUG: Error in line {line_count}: Score invalid float')
+                    valid = False
+                    break
+
+            if phase not in [0, 1, 2, '.']:
+                print(f'DEBUG: Error in line {line_count}: Phase must be 0, 1, 2, or "."')
+                valid = False
+                break
+
+            if strand not in ['+', '-', '.']:
+                print(f'DEBUG: Error in line {line_count}: Strand must be +, -, or "."')
+                valid = False
+                break
+            self.gffKey[line_count] = (seqid, source, type_, start, end, score, strand, phase, attributes)
+
+            try:
+                line = next(open_file)
+            except StopIteration:
+                break
+        return valid
+
+    # ~~~ Rewriting ~~~ #
+    def do_write_confident(self, barewords, **kwargs):
+        '''Write the confident GFF3 file to disk using default extension'''
+        if not self.valid:
+            response = 'File is not valid'
+            self.failed(msg=f"{response}")
+
+        output = self.conf.get('output', None)
+        if not output:
+            output = self.preferred_file_path
+        output = pathlib.Path(output)
+
+        if output.suffix in ['.gz', '.gzip']:
+            with gzip.open(str(self.preferred_file_path), 'wt') as open_file:
+                for _, value in self.gffKey.items():
+                    open_file.write(f'{value[0]}\t{value[1]}\t{value[2]}\t{value[3]}\t{value[4]}\t{value[5]}\t{value[6]}\t{value[7]}\t{value[8]}\n')
         else:
-            return suffixes[-1] in self.known_extensions
-
-    def is_valid(self) -> bool:
-        _, encoding = mimetypes.guess_type(self.file_path)
-
-        if not encoding:  # This means no compression
-            print(f'DEBUG: File is not compressed')
-            # with open(str(self.file_path), 'rt') as open_file:
-            #     return self.validate(iter(open_file))
-        elif encoding == 'gzip':
-            print(f'DEBUG: File is gzip compressed')
-            # with gzip.open(str(self.file_path), 'rt') as open_file:
-            #     return self.validate(iter(open_file))
-        else:
-            print(f'DEBUG: File is compressed but in an unknown format')
-            return False
+            with open(str(output), 'w') as open_file:
+                for _, value in self.gffKey.items():
+                    open_file.write(f'{value[0]}\t{value[1]}\t{value[2]}\t{value[3]}\t{value[4]}\t{value[5]}\t{value[6]}\t{value[7]}\t{value[8]}\n')
+        response = 'Wrote the output file'
+        self.succeeded(msg=f"{response}", dex=response)
     
+    def do_write_table(self, barewords, **kwargs):
+        '''Tabular output'''
+        if not self.valid:
+            response = 'File is not valid'
+            self.failed(msg=f"{response}")
+
+        output = self.conf.get('output', None)
+        if not output:
+            output = self.preferred_file_path
+        output = pathlib.Path(output)
+
+        if output.suffix in ['.gz', '.gzip']:
+            with gzip.open(str(self.preferred_file_path), 'wt') as open_file:
+                open_file.write(f'seqid,source,type,start,end,score,strand,phase,attributes\n')
+                for _, value in self.gffKey.items():
+                    open_file.write(f'{value[0]},{value[1]},{value[2]},{value[3]},{value[4]},{value[5]},{value[6]},{value[7]},{value[8]}\n')
+        else:
+            with open(str(output), 'w') as open_file:
+                open_file.write(f'seqid,source,type,start,end,score,strand,phase,attributes\n')
+                for _, value in self.gffKey.items():
+                    open_file.write(f'{value[0]},{value[1]},{value[2]},{value[3]},{value[4]},{value[5]},{value[6]},{value[7]},{value[8]}\n')
+        response = 'Wrote the output file'
+        self.succeeded(msg=f"{response}", dex=response)
+
+    def do_get_longest_gene(self, barewords, **kwargs):
+        '''
+        Get the longest gene in the GFF3 file.
+        '''
+        longest_gene = None
+        max = 0
+        for index, entry in self.gffKey.items():
+            gene_length = entry[4] - entry[3]
+            if gene_length > max:
+                max = gene_length
+                longest_gene = entry
+        response = f'Longest gene:\n{longest_gene}'
+        self.succeeded(msg=f"{response}", dex=response)
+

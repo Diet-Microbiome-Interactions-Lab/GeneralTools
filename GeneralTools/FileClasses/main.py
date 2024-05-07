@@ -7,39 +7,62 @@ of what the process looks like.
 The natural language description of the pipeline would be hard-coded
 since we know what input and output to expect.
 '''
-from Fasta import Fasta
+import argparse
+import glob
+import importlib
+import os
+import pkgutil
 import sys
 
-# data = Fasta('smartparser/test-files/example.fasta', detect_mode='medium')
-# print(data.valid_fasta)
-# data.write_to_table()
-# data.write_confident_fasta()
-# print(data.written_output)
+# from Fasta import Fasta
+from GeneralTools.FileClasses.BaseClasses import BioBase
+
+package_spec = importlib.util.find_spec("GeneralTools.FileClasses")
+package_path = package_spec.submodule_search_locations[0]
+
+raw_programs = [f.rsplit('.', 1)[0] for f in os.listdir(package_path) if f.endswith('.py') and not f.startswith('__')]
+avail_programs = [(f, f.lower()) for f in raw_programs]
+
+def find_file_type(args: list)  -> importlib:
+    '''
+    This function takes in a list of arguments and determines what type of file
+    it is. It then returns the class that can handle that file.
+    '''
+    type_ = None
+    for cnt, arg in enumerate(args):
+        if arg.startswith('type:'):
+            type_ = args[cnt + 1]
+            type_ = type_.lower()
+            break
+    return type_
+
+
+def cli():
+    matched = False
+    type_ = find_file_type(sys.argv)
+    if type_:
+        print(f'Found type: {type_}, we can work with this...')
+        for program, program_lower in avail_programs:
+            if type_ == program or type_ == program_lower:
+                matched = True
+                print(f'Matched {program} or {program_lower} to {type_}')
+                import_string = f"GeneralTools.FileClasses.{program}"
+                current_module = importlib.import_module(import_string)
+                CurrentClass = getattr(current_module, program)
+                
+                data = CurrentClass()
+                if not data.valid:
+                    data.file_not_valid_report()
+                data.run()
+            else:
+                pass
+        if not matched:
+            print(f'Program not found in available programs to deal with file type: {type_} Exiting...\n\n')
+    else:
+        print(f'No file type provided. Please specify via the command line\nfileflux type: <file_type>\nExiting...')
+
 
 if __name__ == "__main__":
-    file = sys.argv[1]
-    data = Fasta(file)
-    print(f'Output -> Original: {data.file_name}')
-    print(f'Output -> Preferred Name: {data.preferred_file_path}')
-    print(f'Output -> Total seqs: {data.total_seqs}')
-    print(f'Output -> Total seqlen: {data.total_seq_length}')
-    print(f'Output -> Headers: {data.all_headers}')
-    print(f'Output -> Sorted headers: {data.sort_fastaKey()}')
-    # print(f'Output -> Rules: {data.available_rules}')
-    print(f'Output -> GC Content: {data.gc_content_total}')
-    print(f'Output -> GC Content: {data.filter_seqlength()}')
-    print(f'Output -> GC Content: {data.n_largest_seqs(n=10)}')
+    # print(f'Sys.argv: {sys.argv}')
+    cli()
 
-
-
-# print(Workflow.__file__)
-# Initialize a new workflow
-# workflow = Workflow()
-
-# Load the Snakefile
-# workflow.include("smartparser/master.smk")
-
-# Access rules (indirect and limited)
-# rules = workflow.get_rules()
-# for rule in rules:
-#     print(rule)

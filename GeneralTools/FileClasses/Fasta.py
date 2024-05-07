@@ -1,7 +1,10 @@
 import gzip
-import mimetypes
 import pathlib
+
 import pandas as pd
+
+from GeneralTools.FileClasses.BaseClasses import BioBase
+
 
 def requires_validation(func):
     def wrapper(self, *args, **kwargs):
@@ -13,17 +16,14 @@ def requires_validation(func):
         return func(self, *args, **kwargs)
     return wrapper
 
-class GcFile(BaseClass):
-    pass
-
-class Fasta:
+class Fasta(BioBase):
     '''
     Class for Fasta Files
     Want it to determine if it's gzip or not
     '''
-    known_extensions = ['.fna', '.fasta', '.fa']
-    known_compressions = ['.gz', '.gzip']
-    preferred_extension = '.fasta.gz'
+    # known_extensions = ['.fna', '.fasta', '.fa']
+    # known_compressions = ['.gz', '.gzip']
+    # preferred_extension = '.fasta.gz'
 
     available_rules = ['rule_a', 'rule_b', 'rule_d']
     outputs = ['-SIMPLIFIED.fasta', ]
@@ -32,70 +32,26 @@ class Fasta:
         'rule_b': ('-UNSIMPLIFIED.fasta')
     }
 
-
-    def __init__(self, file, detect_mode="medium") -> None:
+    def __init__(self, file=None, detect_mode="medium") -> None:
+        super().__init__(file=file, detect_mode=detect_mode, filetype='fasta')
         # Default values
-        self.file_path = pathlib.Path(file)
-        self.file_name = self.file_path.name
-        self.detect_mode = detect_mode
+        self.known_extensions.extend(['.fna', '.fasta', '.fa'])
+        self.preferred_extension = '.fasta.gz'
+
+        # Custom stuff
         self.fastaKey = {}
         self.written_output = []
-
-        # Preferences
         self.preferred_file_path = self.clean_file_name()
-        
-        # Validation -> detect_mode=None skips this
-        if detect_mode:
-            self.valid_extension = self.is_known_extension()
-            self.valid = self.is_valid()
 
-    # Experimental rule
-    def create_output(self, rule):
-        pass
-    
-    # ~~~ Preferences ~~~ #
-    def clean_file_name(self) -> str:
-        '''
-        Always want our fasta file to end in .fasta.gz.
-        For example, if a file comes in as myfile.fna, it'll be renamed to myfile.fasta.gz
-        Or, if a file is myfile.txt, it'll be renamed to myfile.fasta.gz
-        '''
-        suffixes = self.file_path.suffixes
-        self.basename = self.file_path.stem
-        if suffixes[-1] in self.known_compressions:
-            if len(suffixes) > 1 and suffixes[-2] in self.known_extensions:
-                self.basename = pathlib.Path(self.basename).stem
-                return self.file_path.with_name(f'{self.basename}-VALIDATED{self.preferred_extension}')
-            return None
-        return self.file_path.with_name(f'{self.basename}-VALIDATED{self.preferred_extension}')
+        self.valid_extension = self.is_known_extension()
+        self.valid = self.is_valid()
 
-    # ~~~ Validation Stuff ~~~ #
-    def is_known_extension(self) -> bool:
-        '''
-        Is there a known extension of the file?
-        '''
-        suffixes = self.file_path.suffixes
-        if suffixes[-1] in self.known_compressions:
-            return len(suffixes) > 1 and suffixes[-2] in self.known_extensions
-        else:
-            return suffixes[-1] in self.known_extensions
-
-    def is_valid(self) -> bool:
-        file_type, encoding = mimetypes.guess_type(self.file_path)
-
-        if not encoding:  # This means no compression
-            print(f'DEBUG: File is not compressed')
-            with open(str(self.file_path), 'rt') as open_file:
-                return self.validate(iter(open_file))
-        elif encoding == 'gzip':
-            print(f'DEBUG: File is gzip compressed')
-            with gzip.open(str(self.file_path), 'rt') as open_file:
-                return self.validate(iter(open_file))
-        else:
-            print(f'DEBUG: File is compressed but in an unknown format')
-            return False
-    
     def validate(self, open_file, mode="medium"):
+        '''
+        Validate the Fasta file and hydrate self.fastaKey, a dictionary of the fasta file
+        in the form:
+        {entry_index: (header, sequence)}
+        '''
         if self.detect_mode == 'soft':
             print(f'DEBUG: Detecting in soft mode, only checking extension')
             return self.valid_extension
@@ -141,49 +97,58 @@ class Fasta:
         return True
 
     # ~~~ Rewriting ~~~ #
-    def write_confident_fasta(self, output=None):
+    def do_write_confident(self, barewords, **kwargs):
         '''
         Here, we always want the same extension and compression: .fasta.gz
         We also want to ensure only ATGCN and each sequence is on 1 line
         '''
         if not self.valid:
-            print(f'Error: Is not a valid fasta file')
-            return None
-        if not self.detect_mode or self.detect_mode == 'soft':
-            print(f'Error: Cannot write a new file without medium+ verification')
-            return None
+            response = 'File is not valid'
+            self.failed(msg=f"{response}")
+        
 
-        if output:
-            with gzip.open(str(output), 'wt') as open_file:
-                for key, value in self.fastaKey.items():
-                    open_file.write(f'>{value[0]}\n{value[1]}\n')
-            self.written_output.append(('write_confident_fasta', self.preferred_file_path))  # Provenance
-        else:
+        output = self.conf.get('output', None)
+        if not output:
+            output = self.preferred_file_path
+        output = pathlib.Path(output)
+        if output.suffix in ['.gz', '.gzip']:
             with gzip.open(str(self.preferred_file_path), 'wt') as open_file:
                 for key, value in self.fastaKey.items():
                     open_file.write(f'>{value[0]}\n{value[1]}\n')
-            self.written_output.append(('write_confident_fasta', self.preferred_file_path))  # Provenance
-        
-        return 0
-    
-    def write_to_table(self, output=None):
-        if not self.valid:
-            print(f'Error: Is not a valid fasta file')
-            return None
-        if not self.detect_mode or self.detect_mode == 'soft':
-            print(f'Error: Cannot write a new file without medium+ verification')
-            return None
-        
-        table_name = self.file_path.with_name(f'{self.basename}-VALIDATED.txt')
-        data = [[v[0], v[1]] for k, v in self.fastaKey.items()]
-        df = pd.DataFrame(data=data, columns=['Defline', 'Sequence'])
-        if output:
-            df.to_csv(str(output))
-            self.written_output.append(('to_table', str(output)))
+            # self.written_output.append(('write_confident_fasta', self.preferred_file_path))  # Provenance
         else:
-            df.to_csv(table_name)
-            self.written_output.append(('to_table', str(table_name)))
-        return 0
+            with open(str(output), 'w') as open_file:
+                for _, value in self.fastaKey.items():
+                    open_file.write(f'>{value[0]}\n{value[1]}\n')
+            # self.written_output.append(('write_confident_fasta', self.preferred_file_path))  # Provenance
+        response = 'Wrote the output file'
+        self.succeeded(msg=f"{response}", dex=response)
+    
+    def do_write_table(self, barewords, **kwargs):
+        '''Tabular output'''
+        if not self.valid:
+            response = 'File is not valid'
+            self.failed(msg=f"{response}")
+
+        print(self.conf.show())
+        output = self.conf.get('output', None)
+        if not output:
+            print(f'Self.file_path: {self.file_path}')
+            output = self.file_path.stem + '-VALIDATED.txt.gz'
+        output = pathlib.Path(output)
+
+        print(f'Writing to output...{output}')
+        if output.suffix in ['.gz', '.gzip']:
+            with gzip.open(str(output), 'wt') as open_file:
+                for _, value in self.fastaKey.items():
+                    open_file.write(f'{value[0]},{value[1]}\n')
+        else:
+            with open(str(output), 'w') as open_file:
+                for key, value in self.fastaKey.items():
+                    open_file.write(f'{value[0]},{value[1]}\n')
+        response = 'Wrote the output file'
+        self.succeeded(msg=f"{response}", dex=response)
+        
 
     # ~~~ Common Properties ~~~ #
     @staticmethod
@@ -194,82 +159,100 @@ class Fasta:
         return clean_header
 
     # PROPERTIES
-    @property
-    def all_headers(self):
-        return [v[0] for k, v in self.fastaKey.items()]
+    def do_all_headers(self, barewords, **kwargs):
+        '''Return all headers to standard out'''
+        response = [v[0] for k, v in self.fastaKey.items()]
+        self.succeeded(msg=f"{response}", dex=response)
 
-    @property
-    def all_seqs(self):
-        return [v[1] for k, v in self.fastaKey.items()]
+    def do_all_seqs(self, barewords, **kwargs):
+        '''Return all sequences to standard out'''
+        response = [v[1] for k, v in self.fastaKey.items()]
+        self.succeeded(msg=f"{response}", dex=response)
     
-    @property
-    def gc_content(self):
+    def do_gc_content(self, barewords, **kwargs):
+        '''Return the GC content of each sequence in the fasta file'''
         gcContent = {}
         for cnt, items in self.fastaKey.items():
             seq = items[1].upper()
             gc_count = seq.count('G') + seq.count('C')
             percent = round((gc_count) / len(seq), 3)
             gcContent[cnt] = (items[0], percent)
-        return gcContent
+        response = gcContent
+        self.succeeded(msg=f"{response}", dex=response)
 
-    @property
-    def gc_content_total(self):
+    def do_gc_content_total(self, barewords, **kwargs):
+        '''Return the total GC content of the fasta file'''
         values = []
         for cnt, items in self.fastaKey.items():
             seq = items[1].upper()
             gc_count = seq.count('G') + seq.count('C')
             gc_content = (gc_count / len(seq)) * 100 if len(seq) > 0 else 0
             values.append(round(gc_content, 3))
-        return sum(values) / len(values) if values else 0
+        response = sum(values) / len(values) if values else 0
+        self.succeeded(msg=f"{response}", dex=response)
 
-    @property
-    def total_seq_length(self):
-        return sum([len(v[1]) for k, v in self.fastaKey.items() ])
+    def do_total_seq_length(self, barewords, **kwargs):
+        '''Return the total length of all sequences in the fasta file'''
+        response =  sum([len(v[1]) for k, v in self.fastaKey.items() ])
+        self.succeeded(msg=f"{response}", dex=response)
 
-    @property
-    def total_seqs(self):
-        return len(self.fastaKey.keys())
+    def do_total_seqs(self, barewords, **kwargs):
+        '''Return the total number of sequences in the fasta file'''
+        print(f'Running inside of total_seqs with {barewords} and {kwargs}')
+        response = len(self.fastaKey.keys())
+        self.succeeded(msg=f"Total sequences: {response}", dex=response)
     
-    @property
-    def get_total_t(self):
-        '''
-        Grab the total ts
-        '''
-        return 400
+    def total_seq_length(self, barewords, **kwargs):
+        '''Return the total length of all sequences in the fasta file'''
+        response = sum([len(v[1]) for k, v in self.fastaKey.items() ])
+        self.succeeded(msg=f"{response}", dex=response)
+
     
     # Misc. Actions and Functionality
-    @requires_validation
-    def filter_seqlength(self, seqlen=2000, output=None):
+    def do_filter_seqlength(self, barewords, **kwargs):
+        '''Filter the sequences by length, default is 2000'''
+
+        seqlength = self.conf.get('seqlen', 2000)
+        output = self.conf.get('output', None)
         if not output:
-            output = self.file_path.with_name(f'{self.basename}-FILTERED.txt')
+            output = self.file_path.with_name(f'{self.basename}-FILTERED-{seqlength}bp.txt')
 
         with open(output, 'wt') as open_file:
             for cnt, items in self.fastaKey.items():
-                if len(items[1]) > seqlen:
+                if len(items[1]) > seqlength:
                     writeline = f'>{items[0]}\n{items[1]}\n'
                     open_file.write(writeline)
-        return 0
+        response = f'Processed with seqlength of {seqlength} and wrote to output: {output}'
+        self.succeeded(msg=f"{response}", dex=response)
     
-    @requires_validation
-    def n_largest_seqs(self, n=10, output=None):
+    def do_n_largest_seqs(self, barewords, **kwargs):
+        '''Return the n largest sequences in the fasta file'''
+        n = int(self.conf.get('n', 10))
+        output = self.conf.get('output', None)
         if not output:
-            output = self.file_path.with_name(f'{self.basename}-{n}LARGEST.txt')
+            output = self.file_path.with_name(f'{self.basename}-LARGEST-{n}.txt')
 
-        sorted_values = self.sort_fastaKey(ascending=False)
-        print(f'Sorted values: {sorted_values}')
+        sorted_values = self.sorted_fasta
         with open(output, 'wt') as open_file:
-            for index, (_, items) in enumerate(sorted_values.items()):
-                print(f'Index: {index} --> {items}')
-                print(f'Testing {index} >= {n}')
-                if index >= n:
+            for count, (index, (header, seq)) in enumerate(sorted_values.items()):
+                print(f'Testing {seq} >= {n}')
+                if count >= n:
                     break
-                writeline = f'>{items[0]}\n{items[1]}\n'
+                writeline = f'>{header}\n{seq}\n'
                 print(f'Writeline: {writeline}')
                 open_file.write(writeline)
-        return 'Success: File created'
+        response = 'Success: File created'
+        self.succeeded(msg=f"{response}", dex=response)
 
-    def sort_fastaKey(self, ascending=True):
-        if ascending:
+    def do_seq_length(self, barewords, **kwargs):
+        '''Return the length of a specific sequence'''
+        response = {(k, v[0]): len(v[1]) for k, v in self.fastaKey.items()}
+        self.succeeded(msg=f"{response}", dex=response)
+
+    @property
+    def sorted_fasta(self):
+        ascending = self.conf.get('ascending', False)
+        if not ascending:
             return dict(sorted(self.fastaKey.items(), key=lambda item: item[1][0].lower()))
-        return dict(sorted(self.fastaKey.items(), key=lambda item: item[1][0].lower(), reverse=True))
-        
+        return dict(sorted(self.fastaKey.items(), key=lambda item: item[1][0].lower()), reverse=True)
+    
