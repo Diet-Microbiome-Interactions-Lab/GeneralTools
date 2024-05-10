@@ -16,6 +16,7 @@ import sys
 
 # from Fasta import Fasta
 from GeneralTools.FileClasses.BaseClasses import BioBase
+from GeneralTools.caragols.logger import LOGGER
 
 package_spec = importlib.util.find_spec("GeneralTools.FileClasses")
 package_path = package_spec.submodule_search_locations[0]
@@ -41,11 +42,11 @@ def cli():
     matched = False
     type_ = find_file_type(sys.argv)
     if type_:
-        print(f'Found type: {type_}, we can work with this...')
+        LOGGER.info(f'Found type: {type_}, we can work with this...')
         for program, program_lower in avail_programs:
             if type_ == program or type_ == program_lower:
                 matched = True
-                print(f'Matched {program} or {program_lower} to {type_}')
+                LOGGER.info(f'Matched {program} or {program_lower} to {type_}')
                 import_string = f"GeneralTools.FileClasses.{program}"
                 current_module = importlib.import_module(import_string)
                 CurrentClass = getattr(current_module, program)
@@ -57,9 +58,9 @@ def cli():
             else:
                 pass
         if not matched:
-            print(f'Program not found in available programs to deal with file type: {type_} Exiting...\n\n')
+            LOGGER.error(f'Program not found in available programs to deal with file type: {type_} Exiting...\n\n')
     else:
-        print(f'No file type provided. Please specify via the command line\nfileflux type: <file_type>\nExiting...')
+        LOGGER.error(f'No file type provided. Please specify via the command line\nfileflux type: <file_type>\nExiting...')
 
 
 if __name__ == "__main__":

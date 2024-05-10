@@ -4,6 +4,7 @@ import pathlib
 import sys
 
 from GeneralTools.caragols import clix
+from GeneralTools.caragols.clix import LOGGER
 
 class BioBase(clix.App):
     '''
@@ -16,15 +17,12 @@ class BioBase(clix.App):
         self.detect_mode = detect_mode
         super().__init__(run_mode="cli", name="fileflux", filetype=filetype)
         self.form = self.conf.get('report.form', 'prose')
-        # self._mode comes from clix.App
-        if self._mode == 'debug':
-            print(f'\n#~~~~~~~~~~ Starting BioBase Init ~~~~~~~~~~#')
-            print(f'BioBase:\n{self.conf.show()}')
+        LOGGER.debug('\n#~~~~~~~~~~ Starting BioBase Init ~~~~~~~~~~#')
+        LOGGER.debug(f'BioBase:\n{self.conf.show()}')
         self.file = self.conf.get('file', None)
 
         if not self.matched:
-            sys.stdout.write(self.report.formatted(self.form))
-            sys.stdout.write('\n')
+            LOGGER.info(self.report.formatted(self.form)+'\n')
             self.done()
             if self.report.status.indicates_failure:
                 sys.exit(1)
@@ -40,15 +38,14 @@ class BioBase(clix.App):
             message = f'ERROR: No file provided. Please add file via: $ python3 main.py file: example.fasta'
             self.failed(
                 msg=f"Total sequences: {message}", dex=message)
-            sys.stdout.write(self.report.formatted(self.form))
-            sys.stdout.write('\n')
+            LOGGER.info(self.report.formatted(self.form) + '\n')
             self.done()
             if self.report.status.indicates_failure:
                 sys.exit(1)
             else:
                 sys.exit(0)
-        if self._mode == 'debug':
-            print('#~~~~~~~~~~ Finished BioBase Init ~~~~~~~~~~#\n')
+
+        LOGGER.debug('#~~~~~~~~~~ Finished BioBase Init ~~~~~~~~~~#\n')
     
     def clean_file_name(self) -> str:
         '''
@@ -80,25 +77,24 @@ class BioBase(clix.App):
         _, encoding = mimetypes.guess_type(self.file_path)
 
         if not encoding:  # This means no compression
-            print(f'DEBUG: File is not compressed')
+            LOGGER.debug('File is not compressed')
             with open(str(self.file_path), 'rt') as open_file:
                 return self.validate(iter(open_file))
         #TODO Add dynamic opening from self.known_compressions
         elif encoding == 'gzip':
-            print(f'DEBUG: File is gzip compressed')
+            LOGGER.debug('File is gzip compressed')
             with gzip.open(str(self.file_path), 'rt') as open_file:
                 return self.validate(iter(open_file))
         else:
-            print(f'DEBUG: File is compressed but in an unknown format')
+            LOGGER.debug(f'File is compressed but in an unknown format: {encoding}')
             return False
     
     def file_not_valid_report(self):
-        print(f'File is not valid according to validation')
         message = f'File is not valid according to validation'
+        LOGGER.error(message)
         self.failed(
             msg=f"{message}", dex=message)
-        sys.stdout.write(self.report.formatted(self.form))
-        sys.stdout.write('\n')
+        LOGGER.info(self.report.formatted(self.form) + '\n')
         self.done()
         if self.report.status.indicates_failure:
             sys.exit(1)

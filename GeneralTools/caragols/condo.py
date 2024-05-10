@@ -16,6 +16,7 @@ conf['some.other.key'] = 'else'
 print(conf['some.other.key'])
 print(conf['some']['other']['key'])
 """
+from pathlib import Path
 import sys
 import os
 import os.path
@@ -37,11 +38,7 @@ except:
 assert (sys.version_info.major == 3)
 
 
-# -------------------------------
-# -- Get a handle to a logger.  |
-# -------------------------------
-logger = logging.getLogger(__name__)
-
+from .logger import LOGGER
 
 class ftuple(tuple):
     """
@@ -292,7 +289,7 @@ class CxNode(object):
 
     def load(self, fname, form=None):
         if os.path.exists(fname):
-            logger.debug("CxNode/load: reading configuration from %s" % fname)
+            LOGGER.debug("CxNode/load: reading configuration from %s", fname)
 
             if form is None:
                 # -- Try to guess the form from the file's suffix.
@@ -308,16 +305,20 @@ class CxNode(object):
             JSONs = ['JSON', 'JSN']
             YAMLs = ['YAML', 'YML']
 
+            file_content = Path(fname).read_text()
             blob = None
 
+            LOGGER.debug('Config content: \n' + file_content, extra={'config_file_content': file_content})
+
             if form in JSONs:
-                blob = json.load(open(fname))
+                blob = json.loads(file_content)
 
             elif form in YAMLs:
                 if 'yaml' in sys.modules:
-                    blob = yaml.safe_load(open(fname))
+                    with Path(fname).open() as f:
+                        blob = yaml.safe_load(f)
                 else:
-                    logger.error("CxNode/read: I cannot read yaml files")
+                    LOGGER.error("CxNode/read: I cannot read yaml files")
 
             else:
                 raise Exception(
@@ -326,7 +327,7 @@ class CxNode(object):
             if blob is not None:
                 self.update(blob)
         else:
-            logger.error(
+            LOGGER.error(
                 'CxNode/read: I cannot find the specified file: %s' % fname)
 
         return self
@@ -394,7 +395,7 @@ class CxNode(object):
         nakeds = []
 
         for token in tokens:
-            logger.debug(
+            LOGGER.debug(
                 "CxNode/sed state is {} working on key '{}' ingesting token '{}'".format(state, key, token))
             if token.endswith((':', '!', '~', '+', '-')) or token.startswith('^'):
                 state = 'SCANNING'

@@ -5,6 +5,8 @@ import pandas as pd
 
 from GeneralTools.FileClasses.BaseClasses import BioBase
 
+from GeneralTools.caragols.clix import LOGGER
+
 
 def requires_validation(func):
     def wrapper(self, *args, **kwargs):
@@ -53,9 +55,9 @@ class Fasta(BioBase):
         {entry_index: (header, sequence)}
         '''
         if self.detect_mode == 'soft':
-            print(f'DEBUG: Detecting in soft mode, only checking extension')
+            LOGGER.debug('Detecting in soft mode, only checking extension')
             return self.valid_extension
-        print(f'DEBUG: Detecting comprehensively')
+        LOGGER.debug('Detecting comprehensively')
 
         valid_chars = set('ATGCNatgcn')
         prev_header = False
@@ -74,7 +76,7 @@ class Fasta(BioBase):
                 current_header = line.strip()
                 current_seq = ''
                 if prev_header:
-                    print('Error: 2 headers in a row')
+                    LOGGER.error('2 headers in a row')
                     self.fastaKey = {}
                     return False
                 prev_header = True
@@ -82,7 +84,7 @@ class Fasta(BioBase):
             else:
                 while line and not line.startswith('>'):
                     if not set(line).issubset(valid_chars):
-                        print(f'Error: Line has invalid character...{line}')
+                        LOGGER.error(f'Line has invalid character...{line}')
                         return False
                     else:
                         current_seq += line.strip()

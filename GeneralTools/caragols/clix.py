@@ -17,6 +17,10 @@ RGB thumbnail ^defaults ^myconf landingzone: $HOME/APPF/LZ
     by loading in myconf.yml and then applying the changes described in the rest of
     the line.
 """
+import json
+import logging.config
+import logging.handlers
+from pathlib import Path
 import sys
 import os.path
 import glob
@@ -25,7 +29,8 @@ import logging
 from GeneralTools.caragols import carp
 from GeneralTools.caragols import condo
 
-DEFAULT_LOG_LEVEL = logging.WARN
+from .logger import LOGGER, LOG_HANDLERS
+
 
 
 class App:
@@ -39,9 +44,17 @@ class App:
 
     def __init__(self, name=None, run_mode="cli", comargs=['help'], defaults=None, _mode='debug', filetype=None, **kwargs):
         self.filetype, self._mode = filetype, _mode
-        if self._mode == 'debug':
-            print(f'# ~~~~~~~~~~ INIT Start: CLIX ~~~~~~~~~~ #')
-            print('DEBUG: (i) Starting init for clix')
+
+        # OK to add handlers since we are executing as CLI / Application, not a library
+        for handler in logging.root.handlers:
+            if handler.name in LOG_HANDLERS: # "consoleHandler", "plaintextFileHandler", 'jsonFileHandler'
+                LOGGER.addHandler(handler)
+    
+        # self.logger = LOGGER.getChild(name)
+        LOGGER.debug('# ~~~~~~~~~~ INIT Start: CLIX ~~~~~~~~~~ #')
+        LOGGER.debug('(i) Starting init for clix')
+
+
         self.run_mode = run_mode
         self.comargs = comargs
         self.actions = []
@@ -56,39 +69,28 @@ class App:
         if self.DEFAULTS:
             self.conf.update(self.DEFAULTS)
 
-        # -------------------------------------------------------------------------
-        # -- Set up basic logging before we allow for more advanced configuration |
-        # -- Any subclass specific logging can be overridden in .configure_logger |
-        # -------------------------------------------------------------------------
-        self.initialize_logger()
-
         # ---------------------------------------------------------------------------
         # -- load any configurations that are in expected places in the file system |
         # ---------------------------------------------------------------------------
         self.configure()
         # self._mode = self.conf.get('mode', 'normal')
-        self.configure_logger()
 
         # -----------------------------------------------------------------------
         # -- the default dispatcher is loaded by reading self for .do_* methods |
         # -----------------------------------------------------------------------
-        if self._mode == 'debug':
-            print(f'\n\nDEBUG: (ii) Attr Parsing')
+        LOGGER.debug(f'\n\n(ii) Attr Parsing')
         for attr in dir(self):
             if attr.startswith("do_"):
-                if self._mode == 'debug':
-                    print(f'DEBUG: Parsing attr: {attr}')
+                LOGGER.debug(f'Parsing attr: {attr}')
                 action = getattr(self, attr)
                 if callable(action):
-                    if self._mode == 'debug':
-                        print(f'DEBUG: attr --> {attr} is callable!')
+                    LOGGER.debug(f'attr --> {attr} is callable!')
                     tokens = attr[3:].split('_')
 
                     self.dispatches.append((tokens, action))
 
         tokens = [' '.join(v[0]) for v in self.dispatches]
-        if self._mode == 'debug':
-            print(f'DEBUG: Dispatches found:\n{tokens}')
+        LOGGER.debug(f'Dispatches found:\n{tokens}')
 
         # -----------------------------------------------------------------------
         # -- Perform the app.run() to setup the app                             |
@@ -100,30 +102,8 @@ class App:
         #     something else
         # TODO:
         self.prepare_for_run(run_mode)
-        if self._mode == 'debug':
-            print(f'# ~~~~~~~~~~ INIT End: CLIX ~~~~~~~~~~ #\n')
+        LOGGER.debug('# ~~~~~~~~~~ INIT End: CLIX ~~~~~~~~~~ #\n')
 
-
-    # -----------------------------------
-    # -- BEGIN embedded logging methods |
-    # -----------------------------------
-    def debug(self, msg):
-        self.logger.debug(msg)
-
-    def info(self, msg):
-        self.logger.info(msg)
-
-    def warning(self, msg):
-        self.logger.warning(msg)
-
-    def error(self, msg):
-        self.logger.error(msg)
-
-    def critical(self, msg):
-        self.logger.critical(msg)
-    # ---------------------------------
-    # -- END embedded logging methods |
-    # ---------------------------------
 
     @property
     def name(self):
@@ -149,47 +129,25 @@ class App:
         Any subclasses that want a different sequence should override this method.
         """
         # -- This is the default sequence of configuration folders...
-        return ['/etc/{}'.format(self.name),
-                os.path.expanduser('~/.config/{}'.format(self.name))]
+        return [
+            Path(__file__).parent,
+            Path.cwd(),
+        ]
 
     def configure(self):
         # -- look in these folders ...
         for folder in self.configuration_folders:
-            if self._mode == 'debug':
-                print(f'DEBUG: Searching configuration files in folder {folder}...')
+            LOGGER.debug(f'Searching configuration files in folder {folder}...')
             # -- Look for any file that matches the pattern 'conf_*.yml'
             # -- Load any found conf files in canonical sorting order by file name.
-            for confile in glob.glob(os.path.join(folder, "conf*.yml")):
-                if self._mode == 'debug':
-                    print(f'Looking at configuration file {confile}')
-                self.debug("looking for configuration in {}".format(confile))
+            for confile in glob.glob(os.path.join(folder, "config-caragols.yml")):
+                LOGGER.debug(f"looking for configuration in {confile}")
                 # Instantiating a new Condex
                 nuconf = condo.Condex()
                 # Loading the new conf with the confile
                 nuconf.load(confile)
                 # Updating our configuration file based on it
                 self.conf.update(nuconf)
-
-    def initialize_logger(self):
-        logging.basicConfig()
-        self.logger = logging.getLogger()
-        self.logger.setLevel(self.conf.get('log.level', DEFAULT_LOG_LEVEL))
-
-    def configure_logger(self):
-        self.logger = logging.getLogger(self.conf.get('log.key', self.name))
-        # self.logger.setLevel( self.conf.get('log.level', DEFAULT_LOG_LEVEL) )
-
-        if 'log.level' in self.conf:
-            grade = self.conf['log.level']
-            if isinstance(grade, str):
-                if grade.isdigit():
-                    # -- looks like the log.level was given as a number, e.g. 10 (for DEBUG)
-                    grade = int(grade)
-                else:
-                    # -- looks like the log.level was given as a symbol, e.g. DEBUG or ERROR
-                    # -- look for the given symbol in the logging module and use NOTSET (level 0) if I can't find it.
-                    grade = vars(logging).get(grade, logging.NOTSET)
-            self.logger.setLevel(grade)
 
     # ------------------------------
     # -- END configuration methods |
@@ -204,8 +162,7 @@ class App:
             gravity = len(tokens)
             idioms.append((gravity, tokens, action))
         idioms = list(sorted(idioms, reverse=True))
-        if self._mode == 'debug':
-            print(f'Created {len(idioms)} idioms')
+        LOGGER.debug(f'Created {len(idioms)} idioms')
         return idioms
 
     def cognize(self, comargs):
@@ -215,8 +172,7 @@ class App:
         that matches the command barewords is the list of remaining tokens that are not part of the command.
         Othwerise, I answer None.
         """
-        if self._mode == 'debug':
-            print(f'DEBUG: Cognizing {comargs}')
+        LOGGER.debug(f'Cognizing {comargs}')
         xtraopts = {'xtraopt': 'Pass for now'}
 
         matched = False
@@ -253,8 +209,7 @@ class App:
         pass
     
     def run(self):
-        if self._mode == 'debug':
-            print(f'\n\nDEBUG: (v) Running the actual executable')
+        LOGGER.debug(f'\n\n(v) Running the actual executable')
         xtraopts = self.xtraopts
         self.action(self.barewords, **xtraopts)
         # --------------------------------------------------
@@ -263,16 +218,14 @@ class App:
         # --------------------------------------------------
         # TODO: Alter the below code to sort based off of CLI vs. GUI modes
 
-        if self._mode == 'debug':
-            print(f'\n\nDEBUG: (vi): Running the final report')
+        LOGGER.debug(f'\n\n(vi): Running the final report')
         if getattr(self, 'report', None) is None:
             self.report = self.crashed("no report returned by action!")
 
         form = self.conf.get('report.form', 'prose')
 
         if self.run_mode == "cli":
-            sys.stdout.write(self.report.formatted(form))
-            sys.stdout.write('\n')
+            LOGGER.info(self.report.formatted(form) + '\n')
             self.done()
             if self.report.status.indicates_failure:
                 sys.exit(1)
@@ -289,8 +242,8 @@ class App:
         I make a special case for the verb "explain".
         "explain" does not execute a method, but instead dumps the invocation request as a merged context.
         """
-        if self._mode == 'debug':
-            print(f'\n\nDEBUG: (iii) Preparing for run')
+        LOGGER.debug(f'\n\(iii) Preparing for run')
+        LOGGER.debug(sys.argv)
         # TODO: Tracking the build of the application before running.
         self.begun()
 
@@ -320,11 +273,9 @@ class App:
         matched = self.cognize(self.comargs)
         self.matched = matched
 
-        if self._mode == 'debug':
-            print(f'\n\n(iv) Matching & Configuration Update. {matched=}')
+        LOGGER.debug(f'\n\n(iv) Matching & Configuration Update. {matched=}')
         if matched:
             tokens, action, barewords, xtraopts = matched
-            self.configure_logger()
 
             if explaining:
                 self.report = self.do_explain(
@@ -344,6 +295,7 @@ class App:
                     # if self._mode == 'debug':
                     #     print(f'\n#-----Executable~Complete-----#\n')
                 except Exception as err:
+                    LOGGER.exception('error unpacking cli?')
                     self.report = self.crashed(str(err))
         else:
             self.report = self.failed(
