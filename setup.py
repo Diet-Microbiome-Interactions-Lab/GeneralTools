@@ -43,6 +43,9 @@ setup(
 
     scripts=[script for script in glob.glob('bin/*')],
     packages=find_packages(),
+    package_data={
+        '': ['caragols/*.yaml', 'caragols/*.json'],
+    },
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",

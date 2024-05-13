@@ -310,7 +310,7 @@ class CxNode(object):
                     LOGGER.error("CxNode/read: I cannot read yaml files")
 
             else:
-                raise Exception(
+                raise ValueError(
                     "CxNode/load: I don't know how to handle files of form '{}'".format(form))
 
             if blob is not None:

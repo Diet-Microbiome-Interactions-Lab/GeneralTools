@@ -8,13 +8,16 @@ The natural language description of the pipeline would be hard-coded
 since we know what input and output to expect.
 '''
 import argparse
+import getpass
 import glob
 import importlib
 import os
+from pathlib import Path
 import pkgutil
 import sys
 
 # from Fasta import Fasta
+from GeneralTools import mypackage_version
 from GeneralTools.FileClasses.BaseClasses import BioBase
 from GeneralTools.caragols.logger import LOGGER, config_logging_for_app
 
@@ -40,6 +43,14 @@ def find_file_type(args: list)  -> importlib:
 
 def cli():
     config_logging_for_app()
+    startup_info = {
+        'cwd': Path.cwd(),
+        'user': getpass.getuser(),
+        'argv': sys.argv,
+        'package_version': mypackage_version
+    }
+    LOGGER.debug(f'Startup - {startup_info}', extra={'startup_info': startup_info}) # user, cwd, sys.argv, app version
+
     matched = False
     type_ = find_file_type(sys.argv)
     LOGGER.debug(f'Recognize file type: {type_}')
@@ -69,4 +80,3 @@ def cli():
 if __name__ == "__main__":
     # print(f'Sys.argv: {sys.argv}')
     cli()
-

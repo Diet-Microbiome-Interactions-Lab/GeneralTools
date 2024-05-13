@@ -85,6 +85,14 @@ The only positional arguments that matter are the `fileflux` as the first and th
 
 For specifying parameters, there's a hierarchy that our program uses in order to resolve duplicate parameters. We first check the home folder (~/.config/fileflux/config.yaml), then the /etc/fileflux, and then the command line. Any parameters specified in the home configuration file that overlap with the /etc/fileflux will be over written by the /etc/fileflux, and any parameters specified on the command line will take ultimate priority in redundant paramers.
 
+### iv) Logging
+
+Logs from each time you run a command are saved to your hard drive. By default in `~/.caragols`. These logs may be useful to look back on if you forget some work you did, or when you experience bugs, and us developers need more information in order to help. Up to 200MB of logs will be stored, after which, the oldest logs will start to get deleted.
+
+You can configure some locations and settings for these logs. 
+*coming in config PR* - also maybe don't use a hidden directory since this is for more general computer users
+
+
 ## First, let's dive into each section of our tools.
 
 ### **alignmentTools**
@@ -131,4 +139,4 @@ There's a folder called FileTypes, which contains Python classes that validate a
 Dane Deemer: Senior Computational Biologist (Purdue University)
 Nathan Denny: Lead Research Analyst (Purdue University)
 Stephen Lindemann: Associate Professor (Purdue University)
-Maverick Cook: Senior Database Engineer (Purdue University)
+Maverick Cook: Senior Software Engineer (Purdue University)

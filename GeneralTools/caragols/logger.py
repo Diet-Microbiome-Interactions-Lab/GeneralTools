@@ -6,7 +6,7 @@ import sys
 from pathlib import Path
 
 LOG_HANDLERS: list[str]
-CONFIG_PATH = Path(__file__).parent / 'config-caragols.json'
+CONFIG_PATH = Path(__file__).parent / 'logging-config.json'
 
 def load_config():
     config = json.loads(CONFIG_PATH.read_text())
@@ -22,13 +22,14 @@ def load_config():
         "version": 1,
         "disable_existing_loggers": False,
         "formatters": {
+            # https://docs.python.org/3/library/logging.html#logrecord-attributes
             "caragols_basicFormatter": {
                 "format": "[%(asctime)s %(levelname)s] - %(message)s",
                 "datefmt": "%H:%M:%S",
             },
             "caragols_verboseFormatter": {
                 "format":
-                    "[%(asctime)s %(levelname)s %(name)s %(filename)s:%(funcName)s:%(lineno)d] - %(message)s",
+                    "[%(asctime)s %(levelname)s %(process)d %(name)s %(filename)s:%(funcName)s:%(lineno)d] - %(message)s",
                 "datefmt": "%Y-%m-%dT%H:%M:%S%z",
             },
             "caragols_jsonFormatter": {
@@ -49,14 +50,16 @@ def load_config():
                 "class": "logging.handlers.RotatingFileHandler",
                 "formatter": "caragols_verboseFormatter",
                 "filename": log_dir / 'log.txt',
-                "maxBytes": 2e6 # 2MB
+                "maxBytes": 2e6, # 2MB
+                "backupCount": 100,
             },
             "caragols_jsonFileHandler": {
                 "level": "DEBUG",
                 "class": "logging.handlers.RotatingFileHandler",
                 "formatter": "caragols_jsonFormatter",
                 "filename": log_dir / 'log.jsonl',
-                "maxBytes": 2e6 # 2MB
+                "maxBytes": 2e6, # 2MB
+                "backupCount": 100,
             },
         },
         "loggers": {

@@ -14,7 +14,7 @@ RGB thumbnail ^defaults ^myconf landingzone: $HOME/APPF/LZ
               thumbnails.catalog+ hello.png thumbnails.processed! thumnails.cleaned~
 
 ... runs the RGB program with thumbnail as the command, with the default conf updated
-    by loading in myconf.yml and then applying the changes described in the rest of
+    by loading in myconf.yaml and then applying the changes described in the rest of
     the line.
 """
 import json
@@ -38,7 +38,6 @@ class App:
     """
 
     DEFAULTS = {
-        "log.level":    logging.WARN,
         "report.form": 'prose'
     }
 
@@ -70,15 +69,12 @@ class App:
         # -----------------------------------------------------------------------
         # -- the default dispatcher is loaded by reading self for .do_* methods |
         # -----------------------------------------------------------------------
-        LOGGER.debug(f'\n\n(ii) Attr Parsing')
+        LOGGER.debug('\n\n(ii) Attr Parsing')
         for attr in dir(self):
             if attr.startswith("do_"):
-                LOGGER.debug(f'Parsing attr: {attr}')
                 action = getattr(self, attr)
                 if callable(action):
-                    LOGGER.debug(f'attr --> {attr} is callable!')
                     tokens = attr[3:].split('_')
-
                     self.dispatches.append((tokens, action))
 
         tokens = [' '.join(v[0]) for v in self.dispatches]
@@ -130,14 +126,18 @@ class App:
         # -- look in these folders ...
         for folder in self.configuration_folders:
             LOGGER.debug(f'Searching configuration files in folder {folder}...')
-            # -- Look for any file that matches the pattern 'conf_*.yml'
+            # -- Look for any file that matches the pattern 'conf_*.yaml'
             # -- Load any found conf files in canonical sorting order by file name.
-            for confile in glob.glob(os.path.join(folder, "config-caragols.yml")):
+            for confile in glob.glob(os.path.join(folder, "config-caragols.yaml")):
                 LOGGER.debug(f"looking for configuration in {confile}")
                 # Instantiating a new Condex
                 nuconf = condo.Condex()
                 # Loading the new conf with the confile
-                nuconf.load(confile)
+                try:
+                    nuconf.load(confile)
+                except Exception:
+                    LOGGER.exception(f'loading configuration file {confile}')
+                    raise
                 # Updating our configuration file based on it
                 self.conf.update(nuconf)
 
@@ -196,7 +196,7 @@ class App:
         pass
     
     def run(self):
-        LOGGER.debug(f'\n\n(v) Running the actual executable')
+        LOGGER.debug('\n\n(v) Running the actual executable')
         xtraopts = self.xtraopts
         self.action(self.barewords, **xtraopts)
         # --------------------------------------------------
@@ -205,7 +205,7 @@ class App:
         # --------------------------------------------------
         # TODO: Alter the below code to sort based off of CLI vs. GUI modes
 
-        LOGGER.debug(f'\n\n(vi): Running the final report')
+        LOGGER.debug('\n\n(vi): Running the final report')
         if getattr(self, 'report', None) is None:
             self.report = self.crashed("No report returned by action!")
 
@@ -230,7 +230,7 @@ class App:
         I make a special case for the verb "explain".
         "explain" does not execute a method, but instead dumps the invocation request as a merged context.
         """
-        LOGGER.debug(f'\n\(iii) Preparing for run')
+        LOGGER.debug('\n(iii) Preparing for run')
         LOGGER.debug(sys.argv)
         # TODO: Tracking the build of the application before running.
         self.begun()
@@ -340,7 +340,7 @@ class App:
         repargs['data'] = dex
         # self.report     = carp.Report.Exception(msg, **repargs)
         self.report = carp.Report.Exception(**repargs)
-        self.critical(msg)  # -- emit the message to our log.
+        LOGGER.critical(msg)  # -- emit the message to our log.
         return self.report
 
     # ---------------------------
