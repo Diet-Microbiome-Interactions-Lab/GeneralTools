@@ -29,7 +29,7 @@ import logging
 from GeneralTools.caragols import carp
 from GeneralTools.caragols import condo
 
-from .logger import LOGGER, LOG_HANDLERS
+from .logger import LOGGER
 
 
 
@@ -43,13 +43,7 @@ class App:
     }
 
     def __init__(self, name=None, run_mode="cli", comargs=['help'], defaults=None, filetype=None, **kwargs):
-        self.filetype = filetype
-
-        # OK to add handlers since we are executing as CLI / Application, not a library
-        for handler in logging.root.handlers:
-            if handler.name in LOG_HANDLERS: # "consoleHandler", "plaintextFileHandler", 'jsonFileHandler'
-                LOGGER.addHandler(handler)
-    
+        self.filetype = filetype        
         # self.logger = LOGGER.getChild(name)
         LOGGER.debug('# ~~~~~~~~~~ INIT Start: CLIX ~~~~~~~~~~ #')
         LOGGER.debug('(i) Starting init for clix')

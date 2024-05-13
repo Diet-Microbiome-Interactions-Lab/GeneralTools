@@ -16,7 +16,7 @@ import sys
 
 # from Fasta import Fasta
 from GeneralTools.FileClasses.BaseClasses import BioBase
-from GeneralTools.caragols.logger import LOGGER
+from GeneralTools.caragols.logger import LOGGER, config_logging_for_app
 
 package_spec = importlib.util.find_spec("GeneralTools.FileClasses")
 package_path = package_spec.submodule_search_locations[0]
@@ -39,6 +39,7 @@ def find_file_type(args: list)  -> importlib:
 
 
 def cli():
+    config_logging_for_app()
     matched = False
     type_ = find_file_type(sys.argv)
     LOGGER.debug(f'Recognize file type: {type_}')

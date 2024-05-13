@@ -9,8 +9,6 @@ LOG_HANDLERS: list[str]
 CONFIG_PATH = Path(__file__).parent / 'config-caragols.json'
 
 def load_config():
-    global LOG_HANDLERS
-
     config = json.loads(CONFIG_PATH.read_text())
     logging_config = config['logging']
 
@@ -68,16 +66,27 @@ def load_config():
                 "level": "DEBUG",
                 "handlers": [],
             },
-            # "register" our handlers, but they won't be used by root
-            "root": {
-                "handlers": ["caragols_consoleHandler", "caragols_plaintextFileHandler", "caragols_jsonFileHandler"]
-            }
         },
     }
 
-    LOG_HANDLERS = root_log_config['handlers'].keys()
     return root_log_config
 
+
+
+def config_logging_for_app():
+    """(re)Configure the main logger for running as a CLI app
+
+    We default to running in a "library" logging config, meaning no handlers are added to the logger, so clients can add
+    their own, as recommended by https://docs.python.org/3/howto/logging.html#configuring-logging-for-a-library
+
+    This allows us to still leverage the convenience of dictConfig
+    """
+    global LOGGER
+    log_config = load_config()
+    log_handlers = log_config['handlers'].keys()
+    log_config['loggers']['caragols']['handlers'] = log_handlers
+    logging.config.dictConfig(config=log_config)
+    LOGGER = logging.getLogger('caragols')
 
 logging.config.dictConfig(config=load_config())
 LOGGER = logging.getLogger('caragols')
