@@ -34,9 +34,7 @@ class Fastq(BioBase):
         {entry_index: (header1, sequence, header2, quality)}
         '''
         if self.detect_mode == 'soft':
-            # print(f'DEBUG: Detecting in soft mode, only checking extension')
             return self.valid_extension
-        # print(f'DEBUG: Detecting comprehensively')
 
         # Content Stuff
         valid_chars = set('ATGCNatgcn')
