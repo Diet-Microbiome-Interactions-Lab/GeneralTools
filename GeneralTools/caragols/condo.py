@@ -162,23 +162,12 @@ class CxNode(object):
         self.name = name
         self.value = value
 
-    def show(self, viewer=None, *args, **kwargs):
-        if viewer is None:
-            return self.show(sys.stderr, *args, **kwargs)
-
-        elif isinstance(viewer, logging.Logger):
-            severity = kwargs.get('level', logging.DEBUG)
-            for k in sorted(self.allKeys):
-                v = self[k]
-                msg = "{key}:{value}".format(key=str(k), value=v)
-                viewer.log(severity, msg)
-
-        else:  # -- Assuming that viewer is a stream.
-            # -- Echo the complete configuration.
-            for k in sorted(self.allKeys):
-                v = self[k]
-                viewer.write("{key:40s}: {value}\n".format(
-                    key=str(k), value=v))
+    def show(self) -> str:
+        output = ''
+        for k in sorted(self.allKeys):
+            v = self[k]
+            output += "{key:40s}: {value}\n".format(key=str(k), value=v)
+        return output
 
     def translate(self, k, xlator, **kwargs):
         """
