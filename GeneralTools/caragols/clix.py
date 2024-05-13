@@ -42,8 +42,8 @@ class App:
         "report.form": 'prose'
     }
 
-    def __init__(self, name=None, run_mode="cli", comargs=['help'], defaults=None, _mode='debug', filetype=None, **kwargs):
-        self.filetype, self._mode = filetype, _mode
+    def __init__(self, name=None, run_mode="cli", comargs=['help'], defaults=None, filetype=None, **kwargs):
+        self.filetype = filetype
 
         # OK to add handlers since we are executing as CLI / Application, not a library
         for handler in logging.root.handlers:
@@ -60,8 +60,7 @@ class App:
         self.actions = []
         self.dispatches = []
         self._name = name
-        # if self._mode == 'debug':
-        #     print('\n(i) Configuration Setup')
+        LOGGER.debug('\n(i) Configuration Setup')
         self.conf = condo.Condex()  # Default configuration
         if defaults:
             self.DEFAULTS = defaults
@@ -73,7 +72,6 @@ class App:
         # -- load any configurations that are in expected places in the file system |
         # ---------------------------------------------------------------------------
         self.configure()
-        # self._mode = self.conf.get('mode', 'normal')
 
         # -----------------------------------------------------------------------
         # -- the default dispatcher is loaded by reading self for .do_* methods |
@@ -178,20 +176,15 @@ class App:
         matched = False
         for gravity, tokens, action in self.idioms:
             if comargs[:gravity] == tokens:
-                if self._mode == 'debug':
-                    print(f'DEBUG: Matched {comargs[:gravity]}. Breaking')
+                LOGGER.debug(f'Matched {comargs[:gravity]}')
                 matched = True
                 break
 
         if matched:
             confargs = comargs[gravity:]
-            if self._mode == 'debug':
-                print(f'DEBUG: Confargs: {confargs}')
+            LOGGER.debug(f'Found confargs: {confargs}')
             barewords = self.conf.sed(confargs)
-            if self._mode == 'debug':
-                print(f'DEBUG: Barewords: {barewords}')
-                print(f'DEBUG: Updated conf...')
-                print(f'DEBUG: {self.conf.show()}')
+            LOGGER.debug(f'Found barewords: {barewords}\nConfiguration: {self.conf.show()}')
             return (tokens, action, barewords, xtraopts)
 
         else:
@@ -220,12 +213,13 @@ class App:
 
         LOGGER.debug(f'\n\n(vi): Running the final report')
         if getattr(self, 'report', None) is None:
-            self.report = self.crashed("no report returned by action!")
+            self.report = self.crashed("No report returned by action!")
 
         form = self.conf.get('report.form', 'prose')
 
         if self.run_mode == "cli":
-            LOGGER.info(self.report.formatted(form) + '\n')
+            # Below is the culprite for the duplication!
+            LOGGER.info('\n' + self.report.formatted(form))
             self.done()
             if self.report.status.indicates_failure:
                 sys.exit(1)
@@ -254,8 +248,7 @@ class App:
         # -- "make new catalog" would have a gravity of 3.                       |
         # ------------------------------------------------------------------------
         explaining = False
-        method = None
-        report = None
+
         if run_mode.lower() == 'cli':
             # Super important ---> where the CL interacts
             self.comargs = sys.argv[1:]
@@ -282,18 +275,8 @@ class App:
                     tokens, action, barewords, **xtraopts)
             else:
                 try:
-                    if self._mode == 'debug':
-                        pass
-                        # print(
-                            # f'Running executable:\n\n#-----Executable~Start-----#\n')
-                    # print(f'Running action: {action} with {barewords} and {xtraopts}')
-                    # print(f'Setting up {action} with {barewords} and {xtraopts}')
                     self.action, self.barewords, self.xtraopts = action, barewords, xtraopts
                     return 0
-                    # return (action, barewords, xtraopts)
-                    action(barewords, **xtraopts)
-                    # if self._mode == 'debug':
-                    #     print(f'\n#-----Executable~Complete-----#\n')
                 except Exception as err:
                     LOGGER.exception('error unpacking cli?')
                     self.report = self.crashed(str(err))
@@ -399,9 +382,7 @@ class App:
             tokens, action = actionable
             humanable = " ".join(tokens)
             doclines.append(f'{cnt}: \033[92m $ {self.name} {humanable} type: {self.filetype} file: example.{self.filetype}\033[0m')
-            # doclines.append("* {} {}\n".format(self.name, humanable))
             if action.__doc__:
-                # print(f'Action.doc: {action.__doc__}')
                 for line in action.__doc__.strip().split('\n'):
                     doclines.append(line)
                 doclines.append('\n')
@@ -411,26 +392,3 @@ class App:
     # ------------------------------
     # -- END app operation methods |
     # ------------------------------
-
-
-class TestApp(App):
-
-    def do_something(self, args):
-        print('do something')
-        for arg in args:
-            print(arg)
-
-    def do_something_else(self, args):
-        print('do something else')
-        for arg in args:
-            print(arg)
-
-    def do_other_things(self, args):
-        print('do other things')
-        for arg in args:
-            print(arg)
-
-    @classmethod
-    def test(cls):
-        app = cls()
-        app.run()

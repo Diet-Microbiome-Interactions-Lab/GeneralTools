@@ -41,18 +41,20 @@ def find_file_type(args: list)  -> importlib:
 def cli():
     matched = False
     type_ = find_file_type(sys.argv)
+    LOGGER.debug(f'Recognize file type: {type_}')
     if type_:
-        LOGGER.info(f'Found type: {type_}, we can work with this...')
         for program, program_lower in avail_programs:
             if type_ == program or type_ == program_lower:
                 matched = True
-                LOGGER.info(f'Matched {program} or {program_lower} to {type_}')
+                LOGGER.debug(f'Matched {program} or {program_lower} to {type_}')
+                LOGGER.info(f'Recognized type ({type_}) and matched to module')
                 import_string = f"GeneralTools.FileClasses.{program}"
                 current_module = importlib.import_module(import_string)
                 CurrentClass = getattr(current_module, program)
                 
-                data = CurrentClass()
+                data = CurrentClass()  # Shows config
                 if not data.valid:
+                    LOGGER.debug(f'File provided failed validation test')
                     data.file_not_valid_report()
                 data.run()
             else:

@@ -16,9 +16,8 @@ class BioBase(clix.App):
     def __init__(self, file=None, detect_mode="medium", filetype=None) -> None:
         self.detect_mode = detect_mode
         super().__init__(run_mode="cli", name="fileflux", filetype=filetype)
-        self.form = self.conf.get('report.form', 'prose')
-        LOGGER.debug('\n#~~~~~~~~~~ Starting BioBase Init ~~~~~~~~~~#')
-        LOGGER.debug(f'BioBase:\n{self.conf.show()}')
+        self.form = self.conf.get('report.form', 'prose')  # Causing duplicate reports
+        LOGGER.debug(f'\n#~~~~~~~~~~ Starting BioBase Init ~~~~~~~~~~#\nBioBase:\n{self.conf.show()}')
         self.file = self.conf.get('file', None)
 
         if not self.matched:
@@ -36,15 +35,13 @@ class BioBase(clix.App):
             self.file_name = self.file_path.name
         else:
             message = f'ERROR: No file provided. Please add file via: $ python3 main.py file: example.fasta'
-            self.failed(
-                msg=f"Total sequences: {message}", dex=message)
+            self.failed(msg=f"Total sequences: {message}", dex=message)
             LOGGER.info(self.report.formatted(self.form) + '\n')
             self.done()
             if self.report.status.indicates_failure:
                 sys.exit(1)
             else:
                 sys.exit(0)
-
         LOGGER.debug('#~~~~~~~~~~ Finished BioBase Init ~~~~~~~~~~#\n')
     
     def clean_file_name(self) -> str:

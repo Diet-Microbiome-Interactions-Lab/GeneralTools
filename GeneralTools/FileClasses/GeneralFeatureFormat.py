@@ -146,6 +146,6 @@ class GeneralFeatureFormat(BioBase):
             if gene_length > max:
                 max = gene_length
                 longest_gene = entry
-        response = f'Longest gene:\n{longest_gene}'
-        self.succeeded(msg=f"{response}", dex=response)
+        data = longest_gene
+        self.succeeded(msg=f"Longest gene:\n{data}", dex=data)
 

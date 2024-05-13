@@ -11,7 +11,6 @@ from GeneralTools.caragols.clix import LOGGER
 def requires_validation(func):
     def wrapper(self, *args, **kwargs):
         if not self.valid:
-            print("This operation cannot be performed because the object is not validated.")
             # You can also raise an exception instead of returning None
             # raise Exception("Object is not validated.")
             return None
@@ -117,14 +116,12 @@ class Fasta(BioBase):
             with gzip.open(str(self.preferred_file_path), 'wt') as open_file:
                 for key, value in self.fastaKey.items():
                     open_file.write(f'>{value[0]}\n{value[1]}\n')
-            # self.written_output.append(('write_confident_fasta', self.preferred_file_path))  # Provenance
         else:
             with open(str(output), 'w') as open_file:
                 for _, value in self.fastaKey.items():
                     open_file.write(f'>{value[0]}\n{value[1]}\n')
-            # self.written_output.append(('write_confident_fasta', self.preferred_file_path))  # Provenance
-        response = 'Wrote the output file'
-        self.succeeded(msg=f"{response}", dex=response)
+
+        self.succeeded(msg=f"Wrote output file to {output}", dex=response)
     
     def do_write_table(self, barewords, **kwargs):
         '''Tabular output'''
@@ -132,14 +129,11 @@ class Fasta(BioBase):
             response = 'File is not valid'
             self.failed(msg=f"{response}")
 
-        print(self.conf.show())
         output = self.conf.get('output', None)
         if not output:
-            print(f'Self.file_path: {self.file_path}')
             output = self.file_path.stem + '-VALIDATED.txt.gz'
         output = pathlib.Path(output)
 
-        print(f'Writing to output...{output}')
         if output.suffix in ['.gz', '.gzip']:
             with gzip.open(str(output), 'wt') as open_file:
                 for _, value in self.fastaKey.items():
@@ -148,8 +142,25 @@ class Fasta(BioBase):
             with open(str(output), 'w') as open_file:
                 for key, value in self.fastaKey.items():
                     open_file.write(f'{value[0]},{value[1]}\n')
-        response = 'Wrote the output file'
-        self.succeeded(msg=f"{response}", dex=response)
+        self.succeeded(msg=f"Wrote output file to {output}", dex=response)
+    
+    def do_write_binid(self, barewords, **kwargs):
+        '''Create a bin ID file from the fasta file in the form: header,filename\n'''
+        output = self.conf.get('output', None)
+        if not output:
+            output = self.file_path.with_name(f'{self.basename}-BinID.txt.gz')
+        output = pathlib.Path(output)
+
+        if output.suffix in ['.gz', '.gzip']:
+            with gzip.open(str(output), 'wt') as open_file:
+                for _, value in self.fastaKey.items():
+                    open_file.write(f'{value[0]},{self.file_name}\n')
+        else:
+            with open(str(output), 'w') as open_file:
+                for _, value in self.fastaKey.items():
+                    open_file.write(f'{value[0]},{self.file_name}\n')
+        data = None
+        self.succeeded(msg=f"Wrote the binID file to {output}", dex=data)
         
 
     # ~~~ Common Properties ~~~ #
@@ -163,13 +174,13 @@ class Fasta(BioBase):
     # PROPERTIES
     def do_all_headers(self, barewords, **kwargs):
         '''Return all headers to standard out'''
-        response = [v[0] for k, v in self.fastaKey.items()]
-        self.succeeded(msg=f"{response}", dex=response)
+        data = [v[0] for k, v in self.fastaKey.items()]
+        self.succeeded(msg=f"All headers:\n{data}", dex=data)
 
     def do_all_seqs(self, barewords, **kwargs):
         '''Return all sequences to standard out'''
-        response = [v[1] for k, v in self.fastaKey.items()]
-        self.succeeded(msg=f"{response}", dex=response)
+        data = [v[1] for k, v in self.fastaKey.items()]
+        self.succeeded(msg=f"All sequences:\n{data}", dex=data)
     
     def do_gc_content(self, barewords, **kwargs):
         '''Return the GC content of each sequence in the fasta file'''
@@ -179,41 +190,40 @@ class Fasta(BioBase):
             gc_count = seq.count('G') + seq.count('C')
             percent = round((gc_count) / len(seq), 3)
             gcContent[cnt] = (items[0], percent)
-        response = gcContent
-        self.succeeded(msg=f"{response}", dex=response)
+        data = gcContent
+        self.succeeded(msg=f"GC Content per entry:\n{data}", dex=data)
 
     def do_gc_content_total(self, barewords, **kwargs):
         '''Return the total GC content of the fasta file'''
         values = []
-        for cnt, items in self.fastaKey.items():
+        for _, items in self.fastaKey.items():
             seq = items[1].upper()
             gc_count = seq.count('G') + seq.count('C')
             gc_content = (gc_count / len(seq)) * 100 if len(seq) > 0 else 0
             values.append(round(gc_content, 3))
-        response = sum(values) / len(values) if values else 0
-        self.succeeded(msg=f"{response}", dex=response)
-
-    def do_total_seq_length(self, barewords, **kwargs):
-        '''Return the total length of all sequences in the fasta file'''
-        response =  sum([len(v[1]) for k, v in self.fastaKey.items() ])
-        self.succeeded(msg=f"{response}", dex=response)
+        data = round(sum(values) / len(values), 2) if values else 0
+        if kwargs.get('internal_call', False):
+            return data
+        self.succeeded(msg=f"Total GC Content: {data}", dex=data)
 
     def do_total_seqs(self, barewords, **kwargs):
-        '''Return the total number of sequences in the fasta file'''
-        print(f'Running inside of total_seqs with {barewords} and {kwargs}')
-        response = len(self.fastaKey.keys())
-        self.succeeded(msg=f"Total sequences: {response}", dex=response)
+        '''Return the total number of sequences (aka, entries) in the fasta file'''
+        data = len(self.fastaKey.keys())
+        if kwargs.get('internal_call', False):
+            return data
+        self.succeeded(msg=f"Total sequences: {data}", dex=data)
     
-    def total_seq_length(self, barewords, **kwargs):
+    def do_total_seq_length(self, barewords, **kwargs):
         '''Return the total length of all sequences in the fasta file'''
-        response = sum([len(v[1]) for k, v in self.fastaKey.items() ])
-        self.succeeded(msg=f"{response}", dex=response)
+        data = sum([len(v[1]) for k, v in self.fastaKey.items() ])
+        if kwargs.get('internal_call', False):
+            return data
+        self.succeeded(msg=f"Total sequence length: {data}", dex=data)
 
-    
+
     # Misc. Actions and Functionality
     def do_filter_seqlength(self, barewords, **kwargs):
         '''Filter the sequences by length, default is 2000'''
-
         seqlength = self.conf.get('seqlen', 2000)
         output = self.conf.get('output', None)
         if not output:
@@ -224,8 +234,9 @@ class Fasta(BioBase):
                 if len(items[1]) > seqlength:
                     writeline = f'>{items[0]}\n{items[1]}\n'
                     open_file.write(writeline)
-        response = f'Processed with seqlength of {seqlength} and wrote to output: {output}'
-        self.succeeded(msg=f"{response}", dex=response)
+        data = {'seqlength': seqlength, 'output': output, 'action': 'filter_seqlength'}
+        msg = f'Processed with seqlength of {seqlength} and wrote to output: {output}'
+        self.succeeded(msg=f"{msg}", dex=data)
     
     def do_n_largest_seqs(self, barewords, **kwargs):
         '''Return the n largest sequences in the fasta file'''
@@ -237,19 +248,40 @@ class Fasta(BioBase):
         sorted_values = self.sorted_fasta
         with open(output, 'wt') as open_file:
             for count, (index, (header, seq)) in enumerate(sorted_values.items()):
-                print(f'Testing {seq} >= {n}')
                 if count >= n:
                     break
                 writeline = f'>{header}\n{seq}\n'
-                print(f'Writeline: {writeline}')
                 open_file.write(writeline)
-        response = 'Success: File created'
-        self.succeeded(msg=f"{response}", dex=response)
+        self.succeeded(msg=f'Success: File created', dex=None)
 
     def do_seq_length(self, barewords, **kwargs):
         '''Return the length of a specific sequence'''
-        response = {(k, v[0]): len(v[1]) for k, v in self.fastaKey.items()}
-        self.succeeded(msg=f"{response}", dex=response)
+        data = {(k, v[0]): len(v[1]) for k, v in self.fastaKey.items()}
+        if kwargs.get('internal_call', False):
+            return data
+        self.succeeded(msg=f"Total sequence length: {data}", dex=data)
+    
+    def do_search_subsequence(self, barewords, **kwargs):
+        '''Search for a subsequence in the fasta file'''
+        subsequence = self.conf.get('subsequence', None)
+        if not subsequence:
+            self.failed(msg='No subsequence provided. Please use subsequence: <subsequence>')
+        results = {}
+        for k, v in self.fastaKey.items():
+            if subsequence in v[1]:
+                results[k] = v
+        data = results
+        self.succeeded(msg=f"The following entries contained the subsequence:\n{data}", dex=data)
+    
+    def do_basic_stats(self, barewords, **kwargs):
+        '''Return basic statistics of the fasta file'''
+        data = {
+            'Total Sequences': self.do_total_seqs(barewords, internal_call=True),
+            'Total Sequence Length': self.do_total_seq_length(barewords, internal_call=True),
+            'Total GC Content': self.do_gc_content_total(barewords, internal_call=True)
+        }
+        self.succeeded(msg=f"Basic statistics:\n{data}", dex=data)
+        
 
     @property
     def sorted_fasta(self):
