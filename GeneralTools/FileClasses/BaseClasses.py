@@ -16,7 +16,7 @@ class BioBase(clix.App):
     def __init__(self, file=None, detect_mode="medium", filetype=None) -> None:
         self.detect_mode = detect_mode
         super().__init__(run_mode="cli", name="fileflux", filetype=filetype)
-        self.form = self.conf.get('report.form', 'prose')  # Causing duplicate reports
+        self.form = self.conf.get('report.form', 'prose')
         LOGGER.debug(f'\n#~~~~~~~~~~ Starting BioBase Init ~~~~~~~~~~#\nBioBase:\n{self.conf.show()}')
         self.file = self.conf.get('file', None)
 
