@@ -8,14 +8,18 @@ The natural language description of the pipeline would be hard-coded
 since we know what input and output to expect.
 '''
 import argparse
+import getpass
 import glob
 import importlib
 import os
+from pathlib import Path
 import pkgutil
 import sys
 
 # from Fasta import Fasta
+from GeneralTools import mypackage_version
 from GeneralTools.FileClasses.BaseClasses import BioBase
+from GeneralTools.caragols.logger import LOGGER, config_logging_for_app
 
 package_spec = importlib.util.find_spec("GeneralTools.FileClasses")
 package_path = package_spec.submodule_search_locations[0]
@@ -38,31 +42,41 @@ def find_file_type(args: list)  -> importlib:
 
 
 def cli():
+    config_logging_for_app()
+    startup_info = {
+        'cwd': Path.cwd(),
+        'user': getpass.getuser(),
+        'argv': sys.argv,
+        'package_version': mypackage_version
+    }
+    LOGGER.debug(f'Startup - {startup_info}', extra={'startup_info': startup_info}) # user, cwd, sys.argv, app version
+
     matched = False
     type_ = find_file_type(sys.argv)
+    LOGGER.debug(f'Recognize file type: {type_}')
     if type_:
-        print(f'Found type: {type_}, we can work with this...')
         for program, program_lower in avail_programs:
             if type_ == program or type_ == program_lower:
                 matched = True
-                print(f'Matched {program} or {program_lower} to {type_}')
+                LOGGER.debug(f'Matched {program} or {program_lower} to {type_}')
+                LOGGER.info(f'Recognized type ({type_}) and matched to module')
                 import_string = f"GeneralTools.FileClasses.{program}"
                 current_module = importlib.import_module(import_string)
                 CurrentClass = getattr(current_module, program)
                 
-                data = CurrentClass()
+                data = CurrentClass()  # Shows config
                 if not data.valid:
+                    LOGGER.debug(f'File provided failed validation test')
                     data.file_not_valid_report()
                 data.run()
             else:
                 pass
         if not matched:
-            print(f'Program not found in available programs to deal with file type: {type_} Exiting...\n\n')
+            LOGGER.error(f'Program not found in available programs to deal with file type: {type_} Exiting...\n\n')
     else:
-        print(f'No file type provided. Please specify via the command line\nfileflux type: <file_type>\nExiting...')
+        LOGGER.error(f'No file type provided. Please specify via the command line\nfileflux type: <file_type>\nExiting...')
 
 
 if __name__ == "__main__":
     # print(f'Sys.argv: {sys.argv}')
     cli()
-

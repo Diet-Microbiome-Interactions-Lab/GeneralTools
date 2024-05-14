@@ -36,16 +36,16 @@ class SequenceAlignmentMap(BioBase):
     # ~~~ Rewriting ~~~ #
     def do_write_confident(self, barewords, **kwargs):
         '''Write the confident SAM file to disk using default extension'''
-        response = 'Passing: TODO'
-        self.succeeded(msg=f"{response}", dex=response)
+        data = 'Passing: TODO'
+        self.succeeded(msg=f"{data}", dex=data)
     
     def do_write_table(self, barewords, **kwargs):
         '''Tabular SAM output'''
-        response = 'Passing: TODO'
-        self.succeeded(msg=f"{response}", dex=response)
+        data = 'Passing: TODO'
+        self.succeeded(msg=f"{data}", dex=data)
 
     def do_get_longest_gene(self, barewords, **kwargs):
         '''Test function'''
-        response = 'Test function'
-        self.succeeded(msg=f"{response}", dex=response)
+        data = 'Test function'
+        self.succeeded(msg=f"{data}", dex=data)
 

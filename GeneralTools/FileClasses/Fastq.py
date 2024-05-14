@@ -145,18 +145,18 @@ class Fastq(BioBase):
         '''
         Returns the first record in the fastq file
         '''
-        response = self.fastqKey[0]
+        data = self.fastqKey[0]
         self.succeeded(
-            msg=f"{response}", dex=response)
+            msg=f"First record:\n{data}", dex=data)
         return 0
 
     def do_all_headers(self, barewords, **kwargs):
         '''
         Shows all headers in the fastq file
         '''
-        response = [v[0] for k, v in self.fastqKey.items()]
+        data = [v[0] for k, v in self.fastqKey.items()]
         self.succeeded(
-            msg=f"{response}", dex=response)
+            msg=f"All headers:\n{data}", dex=data)
         return 0
     
     def do_seqlengths(self, barewords, **kwargs):
@@ -166,9 +166,9 @@ class Fastq(BioBase):
         seqlens = set()
         for k, v in self.fastqKey.items():
             seqlens.add(len(v[1]))
-        response = seqlens
+        data = seqlens
         self.succeeded(
-            msg=f"{response}", dex=response)
+            msg=f"All sequence lengths:\n{data}", dex=data)
         return 0
     
     def do_gc_content(self, barewords, **kwargs):
@@ -181,9 +181,9 @@ class Fastq(BioBase):
             gc_count = seq.count('G') + seq.count('C')
             percent = round((gc_count) / len(seq), 3)
             gcContent[cnt] = (items[0], percent)
-        response = gcContent
+        data = gcContent
         self.succeeded(
-            msg=f"{response}", dex=response)
+            msg=f"All GC Content:\n{data}", dex=data)
         return 0
 
     def do_gc_content_total(self, barewords, **kwargs):
@@ -196,8 +196,32 @@ class Fastq(BioBase):
             gc_count = seq.count('G') + seq.count('C')
             gc_content = (gc_count / len(seq)) * 100 if len(seq) > 0 else 0
             values.append(round(gc_content, 3))
-        value = sum(values) / len(values) if values else 0
-        response = f'Returned a GC value of {value}'
+        data = sum(values) / len(values) if values else 0
+        if kwargs.get('internal_call', False):
+            return data
         self.succeeded(
-            msg=f"{response}", dex=response)
+            msg=f"Total GC content: {data}", dex=data)
         return 0
+
+    def do_total_seqs(self, barewords, **kwargs):
+        '''Return the total number of sequences (aka, entries) in the fasta file'''
+        data = len(self.fastqKey.keys())
+        if kwargs.get('internal_call', False):
+            return data
+        self.succeeded(msg=f"Total sequences: {data}", dex=data)
+    
+    def do_total_seq_length(self, barewords, **kwargs):
+        '''Return the total length of all sequences in the fasta file'''
+        data = sum([len(v[1]) for k, v in self.fastqKey.items() ])
+        if kwargs.get('internal_call', False):
+            return data
+        self.succeeded(msg=f"Total sequence length: {data}", dex=data)
+    
+    def do_basic_stats(self, barewords, **kwargs):
+        '''Return basic statistics of the fasta file'''
+        data = {
+            'Total Sequences': self.do_total_seqs(barewords, internal_call=True),
+            'Total Sequence Length': self.do_total_seq_length(barewords, internal_call=True),
+            'Total GC Content': self.do_gc_content_total(barewords, internal_call=True)
+        }
+        self.succeeded(msg=f"Basic statistics:\n{data}", dex=data)

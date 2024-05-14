@@ -107,6 +107,10 @@ class Report:
         self.data = data
         self.body = body if body is not None else ""
 
+    def __str__(self):
+        # NOTE: this is for making json logging config a bit easier. If this gets in the way, it can be removed
+        return json.dumps(self.boxed())
+
     @property
     def flatten(self):
         """

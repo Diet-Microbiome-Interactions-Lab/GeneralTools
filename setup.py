@@ -43,6 +43,9 @@ setup(
 
     scripts=[script for script in glob.glob('bin/*')],
     packages=find_packages(),
+    package_data={
+        '': ['caragols/*.yaml', 'caragols/*.json'],
+    },
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
@@ -53,7 +56,8 @@ setup(
         'matplotlib',
         'numpy',
         'pandas',
-        'pysam'
+        'pyyaml==6.*',
+        'python-json-logger==2.0.7',
     ],
     python_requires='>=3.6',
     entry_points={'console_scripts': ['fileflux=GeneralTools.FileClasses.main:cli']}
