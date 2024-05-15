@@ -17,14 +17,14 @@ RGB thumbnail ^defaults ^myconf landingzone: $HOME/APPF/LZ
     by loading in myconf.yaml and then applying the changes described in the rest of
     the line.
 """
-import json
-import logging.config
-import logging.handlers
+import argparse
 from pathlib import Path
 import sys
 import os.path
 import glob
-import logging
+from typing import Optional
+
+import yaml
 
 from GeneralTools.caragols import carp
 from GeneralTools.caragols import condo
@@ -32,16 +32,16 @@ from GeneralTools.caragols import condo
 from .logger import LOGGER
 
 
-
 class App:
     """
     """
 
-    DEFAULTS = {
-        "report.form": 'prose'
-    }
+    config_filename = 'config-caragols.yaml'
+    default_config_path = Path(__file__).parent / config_filename
+    default_config = yaml.safe_load(default_config_path.read_text())
 
-    def __init__(self, name=None, run_mode="cli", comargs=['help'], defaults=None, filetype=None, **kwargs):
+
+    def __init__(self, name=None, run_mode="cli", comargs=['help'], filetype=None, **kwargs):
         self.filetype = filetype        
         # self.logger = LOGGER.getChild(name)
         LOGGER.debug('# ~~~~~~~~~~ INIT Start: CLIX ~~~~~~~~~~ #')
@@ -53,13 +53,7 @@ class App:
         self.actions = []
         self.dispatches = []
         self._name = name
-        LOGGER.debug('\n(i) Configuration Setup')
-        self.conf = condo.Condex()  # Default configuration
-        if defaults:
-            self.DEFAULTS = defaults
-
-        if self.DEFAULTS:
-            self.conf.update(self.DEFAULTS)
+        self.conf: condo.Condex
 
         # ---------------------------------------------------------------------------
         # -- load any configurations that are in expected places in the file system |
@@ -106,40 +100,72 @@ class App:
     # -- BEGIN configuration methods |
     # --------------------------------
 
-    @property
-    def configuration_folders(self):
-        return self._get_configuration_folders()
+    def _check_for_outdated_config(self, input_config_file: Path):
+        # FUTURE:
+        if input_config_file != self.default_config_path:
+            input_config = yaml.safe_load(input_config_file.read_text())
+            input_version = input_config['maintenance-info']['version']
+            default_version = self.default_config['maintenance-info']['version']
+            if input_version < default_version:
+                message = f"""
+{'* ' * 40}
+Your caragols configuration file version {input_version} is older than the default of version {default_version}
+Contact for help: {self.default_config['maintenance-info']['contact']}
+{'* ' * 40}
+                """.strip()
+                LOGGER.warn(message)
 
-    def _get_configuration_folders(self):
+    @classmethod
+    def _local_config_path(cls):
+        return Path.cwd() / cls.config_filename
+    
+    @classmethod
+    def _passed_config_file(cls) -> Optional[Path]:
+        """Hack to parse a command line arg for a file path to a configuration file
         """
-        I answer a sequence of configuration folders where configuration data can be found.
-        The folders are processed by .configure( ) in the same order as returned, here.
-        Any subclasses that want a different sequence should override this method.
+        parser = argparse.ArgumentParser(prog='hack')
+        parser.add_argument('--config-file', type=Path)
+        known_args = parser.parse_known_args()[0]
+        try:
+            return known_args.config_file.expanduser().absolute()
+        except AttributeError:
+            return None
+
+    @classmethod
+    def configuration_file(cls) -> Path:
         """
-        # -- This is the default sequence of configuration folders...
-        return [
-            Path(__file__).parent,
-            Path.cwd(),
+        Returns: 
+            the first path that exists, starting in order
+            1. check sys.argv for --config-file arg
+            2. check current working directory for {cls.config_filename}
+            3. the default configuration file {cls.default_config_path}
+            
+        Raises: 
+            FileNotFoundError: No configuration found
+        """
+        paths_to_check = [
+            cls._passed_config_file(),
+            cls._local_config_path(),
+            cls.default_config_path,
         ]
 
+        for path in paths_to_check:
+            if path and path.exists():
+                return path
+        raise FileNotFoundError('No configuration found')
+
+
     def configure(self):
-        # -- look in these folders ...
-        for folder in self.configuration_folders:
-            LOGGER.debug(f'Searching configuration files in folder {folder}...')
-            # -- Look for any file that matches the pattern 'conf_*.yaml'
-            # -- Load any found conf files in canonical sorting order by file name.
-            for confile in glob.glob(os.path.join(folder, "config-caragols.yaml")):
-                LOGGER.debug(f"looking for configuration in {confile}")
-                # Instantiating a new Condex
-                nuconf = condo.Condex()
-                # Loading the new conf with the confile
-                try:
-                    nuconf.load(confile)
-                except Exception:
-                    LOGGER.exception(f'loading configuration file {confile}')
-                    raise
-                # Updating our configuration file based on it
-                self.conf.update(nuconf)
+        LOGGER.debug('\n(i) Configuration Setup')
+        nuconf = condo.Condex()
+        config_file = self.configuration_file()
+        # self._check_for_outdated_config(config_file)
+        try:
+            nuconf.load(config_file)
+        except Exception:
+            LOGGER.exception(f'loading configuration file {config_file}')
+            raise
+        self.conf = nuconf
 
     # ------------------------------
     # -- END configuration methods |
