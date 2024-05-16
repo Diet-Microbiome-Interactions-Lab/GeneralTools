@@ -3,19 +3,19 @@ import mimetypes
 import pathlib
 import pandas as pd
 
-from GeneralTools.FileClasses.BaseClasses import BioBase
+from bioinformatic_tools.FileClasses.BaseClasses import BioBase
 
 
-class BrowserExtensibleData(BioBase):
+class BAM(BioBase):
     '''
     Class definition of Variant Calling Format Files
     '''
 
     def __init__(self, file=None, detect_mode="medium") -> None:
-        super().__init__(file, detect_mode, filetype='browserextensibledata')
+        super().__init__(file, detect_mode, filetype='bam')
         # Default values
-        self.known_extensions.extend(['.bed'])
-        self.preferred_extension = '.bed.gz'
+        self.known_extensions.extend(['.bam'])
+        self.preferred_extension = '.bam'
 
         # Custom stuff
         self.vcfKey = {}
@@ -35,12 +35,12 @@ class BrowserExtensibleData(BioBase):
 
     # ~~~ Rewriting ~~~ #
     def do_write_confident(self, barewords, **kwargs):
-        '''Write the confident BED file to disk using default extension'''
+        '''Write the confident BAM file to disk using default extension'''
         response = 'Passing: TODO'
         self.succeeded(msg=f"{response}", dex=response)
     
     def do_write_table(self, barewords, **kwargs):
-        '''Tabular BED output'''
+        '''Tabular BAM output'''
         response = 'Passing: TODO'
         self.succeeded(msg=f"{response}", dex=response)
 

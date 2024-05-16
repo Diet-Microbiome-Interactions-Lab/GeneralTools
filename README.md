@@ -17,10 +17,8 @@ One of those commands should show "Python 3.6" or newer if you have python3 inst
 ### ii) Installation
 
 Installation should be pretty quick using the package manager _pip_. We recommend first creating and entering a virtual environment before installing our package, but this is not necessary. Perform the following command to install the package:  
-`pip install danegeneraltools`  
-Once this is installed, you should be able to type:  
-`dane --test`  
-and it should produce a nice success message for you in the terminal.
+`pip install bioinformatic_tools`
+
 
 ## How to use this library
 
@@ -105,10 +103,10 @@ In summary, all the following commands are equivalent
 For those trying to share configs across multiple users (for example, a bioinformatician lab manager), you can modify the default configuration file. To see the default configuration info, run
 
 ```
-python -m GeneralTools.caragols.configurator
+python -m bioinformatic_tools.caragols.configurator
 ```
 
-The `maintenance-info` section is a starter guide to help track configuration files used in shared environments. It is not used by the application yet, so you can replace it or modify it in any way you want that makes sense for you. The configuration file content is logged each time a command is ran, so it might be useful for debugging with users to add information here. Future versions of GeneralTools may rely on such a section to detect when a local config is out of date with the default config, that way users can keep up with the recommended configuration for the lab even when they have defined their own configuration files.
+The `maintenance-info` section is a starter guide to help track configuration files used in shared environments. It is not used by the application yet, so you can replace it or modify it in any way you want that makes sense for you. The configuration file content is logged each time a command is ran, so it might be useful for debugging with users to add information here. Future versions of bioinformatic_tools may rely on such a section to detect when a local config is out of date with the default config, that way users can keep up with the recommended configuration for the lab even when they have defined their own configuration files.
 
 ### iv) Logging
 
@@ -118,13 +116,9 @@ You can configure some locations and settings for these logs.
 To update, edit the file at path reported after running this command
 
 ```sh
-python  # Enter a python interactive shell
+python -c 'import bioinformatic_tools.caragols.logger; print(bioinformatic_tools.caragols.logger.CONFIG_PATH)'
 ```
 
-```python
->>> import GeneralTools.caragols.logger
->>> print(GeneralTools.caragols.logger.CONFIG_PATH)
-```
 
 The contents of the file should look something like this
 

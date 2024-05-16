@@ -26,8 +26,8 @@ from typing import Optional
 
 import yaml
 
-from GeneralTools.caragols import carp
-from GeneralTools.caragols import condo
+from bioinformatic_tools.caragols import carp
+from bioinformatic_tools.caragols import condo
 
 from .logger import LOGGER
 

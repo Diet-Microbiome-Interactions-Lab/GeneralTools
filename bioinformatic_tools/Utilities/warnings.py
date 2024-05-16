@@ -2,7 +2,7 @@
 General warnings to display
 '''
 import sys
-from GeneralTools import toolSets
+from bioinformatic_tools import toolSets
 
 
 def TooFewArgumentsWarning():

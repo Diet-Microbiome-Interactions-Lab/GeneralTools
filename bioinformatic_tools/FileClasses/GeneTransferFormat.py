@@ -3,22 +3,22 @@ import mimetypes
 import pathlib
 import pandas as pd
 
-from GeneralTools.FileClasses.BaseClasses import BioBase
+from bioinformatic_tools.FileClasses.BaseClasses import BioBase
 
 
-class VariantCallingFormat(BioBase):
+class GeneTransferFormat(BioBase):
     '''
-    Class definition of Variant Calling Format Files
+    Class definition of Gene Transfer Format Files
     '''
 
     def __init__(self, file=None, detect_mode="medium") -> None:
-        super().__init__(file, detect_mode, filetype='variantcallingformat')
+        super().__init__(file, detect_mode, filetype='genetransferformat')
         # Default values
-        self.known_extensions.extend(['.vcf'])
-        self.preferred_extension = '.vcf.gz'
+        self.known_extensions.extend(['.gtf'])
+        self.preferred_extension = '.gtf.gz'
 
         # Custom stuff
-        self.vcfKey = {}
+        self.gtfKey = {}
         self.written_output = []
         self.preferred_file_path = self.clean_file_name()
 
@@ -35,12 +35,12 @@ class VariantCallingFormat(BioBase):
 
     # ~~~ Rewriting ~~~ #
     def do_write_confident(self, barewords, **kwargs):
-        '''Write the confident VCF file to disk using default extension'''
+        '''Write the confident GTF file to disk using default extension'''
         response = 'Passing: TODO'
         self.succeeded(msg=f"{response}", dex=response)
     
     def do_write_table(self, barewords, **kwargs):
-        '''Tabular VCF output'''
+        '''Tabular GTF output'''
         response = 'Passing: TODO'
         self.succeeded(msg=f"{response}", dex=response)
 

@@ -3,7 +3,7 @@ import mimetypes
 import pathlib
 import pandas as pd
 
-from GeneralTools.FileClasses.BaseClasses import BioBase
+from bioinformatic_tools.FileClasses.BaseClasses import BioBase
 
 
 class SequenceAlignmentMap(BioBase):
