@@ -155,6 +155,10 @@ There's a folder called FileTypes, which contains Python classes that validate a
   - This is the meat and potatoes (as we say in the midwest US) of the general toolset, allowing us to quickly and easily extend the things we can do with a particular file.
 - Subsetting functionality, or rewriting a new file based on a filtering condition. For example, you may want to write the 10 largest sequences, or sequences > 2000 basepairs to a new file in a fasta.
 
+## Releases
+
+This project adheres to [semantic versioning](https://semver.org/), and we are in our 0.y.z phase, so this project is not signifying initial development. These releases are not considered stable, and their APIs can change frequently and without warning.
+
 ## Next Steps
 
 - Allow strict vs. lenient validation of files
