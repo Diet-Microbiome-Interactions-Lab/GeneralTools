@@ -1,6 +1,6 @@
 import argparse
 
-from GeneralTools.FileClasses.Fasta import Fasta
+from GeneralTools.file_classes.Fasta import Fasta
 
 def main(args):
     input = args.Input

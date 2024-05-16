@@ -2,7 +2,7 @@ import gzip
 import pathlib
 import pandas as pd
 
-from GeneralTools.FileClasses.BaseClasses import BioBase
+from GeneralTools.file_classes.BaseClasses import BioBase
 
 
 class GeneralFeatureFormat(BioBase):

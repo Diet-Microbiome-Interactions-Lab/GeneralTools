@@ -60,5 +60,5 @@ setup(
         'python-json-logger==2.0.7',
     ],
     python_requires='>=3.6',
-    entry_points={'console_scripts': ['fileflux=GeneralTools.FileClasses.main:cli']}
+    entry_points={'console_scripts': ['fileflux=GeneralTools.file_classes.main:cli']}
 )

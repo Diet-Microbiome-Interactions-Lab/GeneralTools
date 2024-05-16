@@ -1,4 +1,5 @@
 # Local stuff
+ignored_notes.md
 *.code-workspace
 *-VALIDATED*
 

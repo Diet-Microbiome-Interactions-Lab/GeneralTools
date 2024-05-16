@@ -4,7 +4,7 @@ import re
 
 
 from GeneralTools.caragols.clix import LOGGER
-from GeneralTools.FileClasses.BaseClasses import BioBase
+from GeneralTools.file_classes.BaseClasses import BioBase
 
 
 class SequenceAlignmentMap(BioBase):

@@ -3,7 +3,7 @@ import mimetypes
 import pathlib
 import pandas as pd
 
-from GeneralTools.FileClasses.BaseClasses import BioBase
+from GeneralTools.file_classes.BaseClasses import BioBase
 
 
 class VariantCallingFormat(BioBase):
