@@ -46,7 +46,7 @@ After, it will show a list of every possible command, along with the docstring c
 
 ### ii) Command LIne Extension (CLIX)
 
-To run an executable, you must first type the executable's name (e.g., `fileflux`) and immediately after provide positional arguments that align with the action you wish to perform. For exampe, from the fileflux help page, you see:  
+To run an executable, you must first type the executable's name (e.g., `fileflux`) and immediately after provide positional arguments that align with the action you wish to perform. For example, from the fileflux help page, you see:  
 `$ fileflux seq length type: fasta file: example.fasta`
 
 Let's break down this command.  
@@ -61,20 +61,8 @@ which will specify the parameter you want and the value it will have. For exampl
 `length: 100 width: 200`  
 will tell our system that we have the parameter length=100 and width=200.
 
-### iii) Configuration Settings
 
-One of our least favorite things to do is specify the same parameters over and over again, or forget which parameters we used because we did not document concisely enough. By default, we scan the home (~/.config/fileflux/) and /etc/fileflux/ folders for \*.yaml files. Attributes put into these files will automatically be added to the configuration, which is available for all your programs to use.  
-For example, say you have a file `~/.config/fileflux/config.yaml` with the following parameters
-
-```yml
-name: "dane"
-length: 10
-```
-
-If you were to invoke the following command:  
-`fileflux filter sequences type: fasta file: example.fasta`  
-and the action _filter sequences_ took in a _length_ parameter, the action can grab that length parameter from the configuration file by default. Now let's say you have that configuration file but it does not have the _length_ parameter specified. No worries, because each action will have default parameters baked into it. If you wanted to change the parameter on the fly _without_ having to edit your config.yaml file, you can easily do that specifying the parameter on the command line:
-
+For the following command
 `fileflux filter sequences type: fasta file: example.fasta length: 20`
 
 Note that the position of the parameters, the type, and the file do not matter. The above command is the same as the below command:
@@ -83,14 +71,74 @@ Note that the position of the parameters, the type, and the file do not matter. 
 
 The only positional arguments that matter are the `fileflux` as the first and the next sequence of arguments specifying the action to invoke (`filter sequences`)
 
-For specifying parameters, there's a hierarchy that our program uses in order to resolve duplicate parameters. We first check the home folder (~/.config/fileflux/config.yaml), then the /etc/fileflux, and then the command line. Any parameters specified in the home configuration file that overlap with the /etc/fileflux will be over written by the /etc/fileflux, and any parameters specified on the command line will take ultimate priority in redundant paramers.
+
+### iii) Configuration Settings
+
+One of our least favorite things to do is specify the same parameters over and over again, or forget which parameters we used because we did not document concisely enough. By default, we check your [current directory](https://hpc.nmsu.edu/onboarding/linux/commands/cd/#_print_current_directory) for a file named config-caragols.yaml. Attributes put into these files will automatically be added to the configuration, which is available for all your programs to use.  
+For example, say you have a file `config-caragols.yaml` with the following parameters
+
+```yml
+name: "dane"
+length: 10
+```
+
+If you were to invoke the following command:  
+`fileflux filter sequences type: fasta file: example.fasta`  
+and the action _filter sequences_ took in a _length_ parameter, the action can grab that length parameter from the configuration file by default. Now let's say you have that configuration file but it does not have the _length_ parameter specified. No worries, because each action will have default parameters baked into it. If you wanted to change the parameter on the fly _without_ having to edit your config-caragols.yaml file, you can easily do that by specifying the parameter on the command line:
+
+`fileflux filter sequences type: fasta file: example.fasta length: 20`
+
+If you have no configuration file in your [current directory](https://hpc.nmsu.edu/onboarding/linux/commands/cd/#_print_current_directory), the "default config" will be used, which exists inside this tool. See [Advanced Users](#advanced-users) to learn more about this.
+
+If you have a config file that lives somewhere else outside your [current directory](https://hpc.nmsu.edu/onboarding/linux/commands/cd/#_print_current_directory), you can pass the path to file as part of the command, using the `--config-file` flag
+
+```
+fileflux filter sequences type: fasta file: example.fasta --config-file /tmp/myconfig.yaml
+```
+
+In summary, all the following commands are equivalent
+
+`fileflux filter sequences type: fasta file: example.fasta length: 20` - uses the "default config"
+`fileflux filter sequences type: fasta file: example.fasta` - where the "local config", config-caragols.yaml, is located in the current directory, and contains `length: 20`
+`fileflux filter sequences type: fasta file: example.fasta --config-file /tmp/conf.yaml` - where `/tmp/conf.yaml` contains `length: 20`
+
+
+#### Advanced Users
+
+For those trying to share configs across multiple users (for example, a bioinformatician lab manager), you can modify the default configuration file. To see the default configuration info, run
+
+```
+python -m GeneralTools.caragols.configurator
+```
+
+The `maintenance-info` section is a starter guide to help track configuration files used in shared environments. It is not used by the application yet, so you can replace it or modify it in any way you want that makes sense for you. The configuration file content is logged each time a command is ran, so it might be useful for debugging with users to add information here. Future versions of GeneralTools may rely on such a section to detect when a local config is out of date with the default config, that way users can keep up with the recommended configuration for the lab even when they have defined their own configuration files.
+
 
 ### iv) Logging
 
 Logs from each time you run a command are saved to your hard drive. By default in `~/.caragols`. These logs may be useful to look back on if you forget some work you did, or when you experience bugs, and us developers need more information in order to help. Up to 200MB of logs will be stored, after which, the oldest logs will start to get deleted.
 
 You can configure some locations and settings for these logs. 
-*coming in config PR* - also maybe don't use a hidden directory since this is for more general computer users
+to update, edit the file at path reported after running this command
+`python -c 'python -c 'import GeneralTools.caragols.logger; print(GeneralTools.caragols.logger.CONFIG_PATH)'`
+
+The contents of the file should look something like this
+```jsonc
+{
+    "logging": {
+        "console_log_level": "INFO",
+        "directory": "~/.caragols/logs", 
+        "use_user_subdir": true
+    }
+}
+```
+
+`console_log_level`: change this to WARNING if you want less information put
+`directory`: is where logs will be stored on your machine
+`user_user_subdir`: if true, the logs will be put one folder deeper (than that defined by `directory`), in a folder named after the current user. For example, if the user `bobbyboucher` runs any commands, their logs will appear under `~/.caragols/logs/bobbyboucher`
+
+
+
 
 
 ## First, let's dive into each section of our tools.
