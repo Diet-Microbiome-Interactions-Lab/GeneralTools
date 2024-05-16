@@ -3,9 +3,8 @@ import pathlib
 
 import pandas as pd
 
-from GeneralTools.FileClasses.BaseClasses import BioBase
-
 from GeneralTools.caragols.clix import LOGGER
+from GeneralTools.FileClasses.BaseClasses import BioBase
 
 
 def requires_validation(func):
