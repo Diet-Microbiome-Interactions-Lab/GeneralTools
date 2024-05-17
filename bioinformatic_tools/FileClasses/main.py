@@ -17,7 +17,7 @@ import pkgutil
 import sys
 
 # from Fasta import Fasta
-from bioinformatic_tools import mypackage_version
+import bioinformatic_tools
 from bioinformatic_tools.FileClasses.BaseClasses import BioBase
 from bioinformatic_tools.caragols.logger import LOGGER, config_logging_for_app
 
@@ -47,7 +47,7 @@ def cli():
         'cwd': Path.cwd(),
         'user': getpass.getuser(),
         'argv': sys.argv,
-        'package_version': mypackage_version
+        'package_version': bioinformatic_tools.__version__
     }
     LOGGER.debug(f'Startup - {startup_info}', extra={'startup_info': startup_info}) # user, cwd, sys.argv, app version
 

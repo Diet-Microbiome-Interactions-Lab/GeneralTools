@@ -11,7 +11,7 @@ init_py_path = os.path.normpath(os.path.dirname(
     os.path.abspath(__file__))) + '/bioinformatic_tools/__init__.py'
 # Grab the version
 version_string = [i.strip() for i in open(init_py_path).readlines()
-                  if i.strip().startswith('mypackage_version')][0]
+                  if i.strip().startswith('__version__')][0]
 mypack_version = version_string.split("'")[1].split('-')[0]
 
 
