@@ -26,7 +26,7 @@ setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
 
-    url="https://github.com/ddeemerpurdue",
+    url="https://github.com/Diet-Microbiome-Interactions-Lab/GeneralTools",
 
     packages=find_packages(),
     package_data={
