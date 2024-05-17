@@ -1,16 +1,5 @@
-import sys
 
-
-mypackage_version = '0.2-setup'
-
-# Ensure the user is using python version >= 3
-try:
-    if sys.version_info.major != 3:
-        sys.stderr.write(
-            f"Your python version is not >= 3. You version is {sys.version_info.major}.")
-        sys.exit(-1)
-except Exception:
-    sys.stderr.write("Failed to determine what python version is being used.")
+__version__ = '0.1.0'
 
 
 main_help = "A suite of tools used during various bioinformatic analyses."

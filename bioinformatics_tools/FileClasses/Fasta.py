@@ -3,9 +3,9 @@ import pathlib
 
 import pandas as pd
 
-from GeneralTools.FileClasses.BaseClasses import BioBase
+from bioinformatics_tools.FileClasses.BaseClasses import BioBase
 
-from GeneralTools.caragols.clix import LOGGER
+from bioinformatics_tools.caragols.clix import LOGGER
 
 
 def requires_validation(func):

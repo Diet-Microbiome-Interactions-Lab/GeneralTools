@@ -3,22 +3,22 @@ import mimetypes
 import pathlib
 import pandas as pd
 
-from GeneralTools.FileClasses.BaseClasses import BioBase
+from bioinformatics_tools.FileClasses.BaseClasses import BioBase
 
 
-class GeneTransferFormat(BioBase):
+class BAM(BioBase):
     '''
-    Class definition of Gene Transfer Format Files
+    Class definition of Variant Calling Format Files
     '''
 
     def __init__(self, file=None, detect_mode="medium") -> None:
-        super().__init__(file, detect_mode, filetype='genetransferformat')
+        super().__init__(file, detect_mode, filetype='bam')
         # Default values
-        self.known_extensions.extend(['.gtf'])
-        self.preferred_extension = '.gtf.gz'
+        self.known_extensions.extend(['.bam'])
+        self.preferred_extension = '.bam'
 
         # Custom stuff
-        self.gtfKey = {}
+        self.vcfKey = {}
         self.written_output = []
         self.preferred_file_path = self.clean_file_name()
 
@@ -35,12 +35,12 @@ class GeneTransferFormat(BioBase):
 
     # ~~~ Rewriting ~~~ #
     def do_write_confident(self, barewords, **kwargs):
-        '''Write the confident GTF file to disk using default extension'''
+        '''Write the confident BAM file to disk using default extension'''
         response = 'Passing: TODO'
         self.succeeded(msg=f"{response}", dex=response)
     
     def do_write_table(self, barewords, **kwargs):
-        '''Tabular GTF output'''
+        '''Tabular BAM output'''
         response = 'Passing: TODO'
         self.succeeded(msg=f"{response}", dex=response)
 

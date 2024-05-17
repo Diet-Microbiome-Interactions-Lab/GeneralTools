@@ -3,7 +3,7 @@ import pathlib
 
 import pandas as pd
 
-from GeneralTools.FileClasses.BaseClasses import BioBase
+from bioinformatics_tools.FileClasses.BaseClasses import BioBase
 
 
 class Fastq(BioBase):

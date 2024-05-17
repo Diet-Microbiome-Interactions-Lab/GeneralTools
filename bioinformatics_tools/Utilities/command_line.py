@@ -1,5 +1,5 @@
 # Command line utilities
-import GeneralTools.warnings as warnings
+import bioinformatics_tools.warnings as warnings
 import shutil
 
 

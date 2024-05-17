@@ -17,11 +17,11 @@ import pkgutil
 import sys
 
 # from Fasta import Fasta
-from GeneralTools import mypackage_version
-from GeneralTools.FileClasses.BaseClasses import BioBase
-from GeneralTools.caragols.logger import LOGGER, config_logging_for_app
+import bioinformatics_tools
+from bioinformatics_tools.FileClasses.BaseClasses import BioBase
+from bioinformatics_tools.caragols.logger import LOGGER, config_logging_for_app
 
-package_spec = importlib.util.find_spec("GeneralTools.FileClasses")
+package_spec = importlib.util.find_spec("bioinformatics_tools.FileClasses")
 package_path = package_spec.submodule_search_locations[0]
 
 raw_programs = [f.rsplit('.', 1)[0] for f in os.listdir(package_path) if f.endswith('.py') and not f.startswith('__')]
@@ -47,7 +47,7 @@ def cli():
         'cwd': Path.cwd(),
         'user': getpass.getuser(),
         'argv': sys.argv,
-        'package_version': mypackage_version
+        'package_version': bioinformatics_tools.__version__
     }
     LOGGER.debug(f'Startup - {startup_info}', extra={'startup_info': startup_info}) # user, cwd, sys.argv, app version
 
@@ -60,7 +60,7 @@ def cli():
                 matched = True
                 LOGGER.debug(f'Matched {program} or {program_lower} to {type_}')
                 LOGGER.info(f'Recognized type ({type_}) and matched to module')
-                import_string = f"GeneralTools.FileClasses.{program}"
+                import_string = f"bioinformatics_tools.FileClasses.{program}"
                 current_module = importlib.import_module(import_string)
                 CurrentClass = getattr(current_module, program)
                 

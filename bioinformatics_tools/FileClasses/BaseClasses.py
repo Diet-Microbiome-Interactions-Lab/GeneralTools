@@ -3,8 +3,8 @@ import mimetypes
 import pathlib
 import sys
 
-from GeneralTools.caragols import clix
-from GeneralTools.caragols.clix import LOGGER
+from bioinformatics_tools.caragols import clix
+from bioinformatics_tools.caragols.clix import LOGGER
 
 class BioBase(clix.App):
     '''
