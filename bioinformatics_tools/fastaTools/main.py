@@ -1,6 +1,6 @@
 import argparse
 
-from bioinformatic_tools.FileClasses.Fasta import Fasta
+from bioinformatics_tools.FileClasses.Fasta import Fasta
 
 def main(args):
     input = args.Input

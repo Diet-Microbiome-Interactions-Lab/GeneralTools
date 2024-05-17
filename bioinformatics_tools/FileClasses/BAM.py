@@ -3,19 +3,19 @@ import mimetypes
 import pathlib
 import pandas as pd
 
-from bioinformatic_tools.FileClasses.BaseClasses import BioBase
+from bioinformatics_tools.FileClasses.BaseClasses import BioBase
 
 
-class VariantCallingFormat(BioBase):
+class BAM(BioBase):
     '''
     Class definition of Variant Calling Format Files
     '''
 
     def __init__(self, file=None, detect_mode="medium") -> None:
-        super().__init__(file, detect_mode, filetype='variantcallingformat')
+        super().__init__(file, detect_mode, filetype='bam')
         # Default values
-        self.known_extensions.extend(['.vcf'])
-        self.preferred_extension = '.vcf.gz'
+        self.known_extensions.extend(['.bam'])
+        self.preferred_extension = '.bam'
 
         # Custom stuff
         self.vcfKey = {}
@@ -35,12 +35,12 @@ class VariantCallingFormat(BioBase):
 
     # ~~~ Rewriting ~~~ #
     def do_write_confident(self, barewords, **kwargs):
-        '''Write the confident VCF file to disk using default extension'''
+        '''Write the confident BAM file to disk using default extension'''
         response = 'Passing: TODO'
         self.succeeded(msg=f"{response}", dex=response)
     
     def do_write_table(self, barewords, **kwargs):
-        '''Tabular VCF output'''
+        '''Tabular BAM output'''
         response = 'Passing: TODO'
         self.succeeded(msg=f"{response}", dex=response)
 

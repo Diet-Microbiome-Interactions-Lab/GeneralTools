@@ -3,22 +3,22 @@ import mimetypes
 import pathlib
 import pandas as pd
 
-from bioinformatic_tools.FileClasses.BaseClasses import BioBase
+from bioinformatics_tools.FileClasses.BaseClasses import BioBase
 
 
-class SequenceAlignmentMap(BioBase):
+class VariantCallingFormat(BioBase):
     '''
-    Class definition of Sequence Alignment Mapper Files
+    Class definition of Variant Calling Format Files
     '''
 
     def __init__(self, file=None, detect_mode="medium") -> None:
-        super().__init__(file, detect_mode, filetype='sequencealignmentformat')
+        super().__init__(file, detect_mode, filetype='variantcallingformat')
         # Default values
-        self.known_extensions.extend(['.sam', '.sm', '.s'])
-        self.preferred_extension = '.sam.gz'
+        self.known_extensions.extend(['.vcf'])
+        self.preferred_extension = '.vcf.gz'
 
         # Custom stuff
-        self.gffKey = {}
+        self.vcfKey = {}
         self.written_output = []
         self.preferred_file_path = self.clean_file_name()
 
@@ -35,17 +35,17 @@ class SequenceAlignmentMap(BioBase):
 
     # ~~~ Rewriting ~~~ #
     def do_write_confident(self, barewords, **kwargs):
-        '''Write the confident SAM file to disk using default extension'''
-        data = 'Passing: TODO'
-        self.succeeded(msg=f"{data}", dex=data)
+        '''Write the confident VCF file to disk using default extension'''
+        response = 'Passing: TODO'
+        self.succeeded(msg=f"{response}", dex=response)
     
     def do_write_table(self, barewords, **kwargs):
-        '''Tabular SAM output'''
-        data = 'Passing: TODO'
-        self.succeeded(msg=f"{data}", dex=data)
+        '''Tabular VCF output'''
+        response = 'Passing: TODO'
+        self.succeeded(msg=f"{response}", dex=response)
 
     def do_get_longest_gene(self, barewords, **kwargs):
         '''Test function'''
-        data = 'Test function'
-        self.succeeded(msg=f"{data}", dex=data)
+        response = 'Test function'
+        self.succeeded(msg=f"{response}", dex=response)
 

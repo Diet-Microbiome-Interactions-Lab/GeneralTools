@@ -4,7 +4,7 @@ Formatting output to shell
 import os
 import sys
 
-from bioinformatic_tools import toolSets
+from bioinformatics_tools import toolSets
 
 
 def printMainExecutableHelp(executable):
