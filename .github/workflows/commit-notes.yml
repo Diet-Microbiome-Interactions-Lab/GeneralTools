@@ -1,0 +1,34 @@
+name: Save Commit Info
+
+on:
+    push:
+        branches:
+            - "**" # Match all branches
+
+jobs:
+    save-commit-info:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+
+            - name: Get latest commit info
+              run: |
+                  COMMIT_HASH=$(git rev-parse HEAD)
+                  COMMIT_MSG=$(git log -1 --pretty=%B)
+                  COMMIT_AUTHOR=$(git log -1 --pretty="%an <%ae>")
+                  COMMIT_DATE=$(git log -1 --pretty=%ad)
+
+                  echo "Commit: $COMMIT_HASH" > commit-$COMMIT_HASH.txt
+                  echo "Author: $COMMIT_AUTHOR" >> commit-$COMMIT_HASH.txt
+                  echo "Date: $COMMIT_DATE" >> commit-$COMMIT_HASH.txt
+                  echo "Message: $COMMIT_MSG" >> commit-$COMMIT_HASH.txt
+
+            - name: Commit commit info file
+              run: |
+                  git config user.name "github-actions[bot]"
+                  git config user.email "github-actions[bot]@users.noreply.github.com"
+                  git add commit-*.txt
+                  git commit -m "Add commit info file for $COMMIT_HASH"
+                  git push
