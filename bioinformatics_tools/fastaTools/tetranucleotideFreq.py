@@ -7,7 +7,7 @@ Example usage:
 $ python tetranucleotideFreq.py 'MYSTRING'
 """
 import argparse
-
+# A comment to test the import
 
 def main(args):
     sequence = args.Sequence
