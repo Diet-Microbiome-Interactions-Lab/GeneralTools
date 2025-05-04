@@ -19,17 +19,16 @@ One of those commands should show "Python 3.6" or newer if you have python3 inst
 Installation should be pretty quick using the package manager _pip_. We recommend first creating and entering a virtual environment before installing our package, but this is not necessary. Perform the following command to install the package:  
 `pip install bioinformatics_tools`
 
-
 ## How to use this library
 
 ### i) Getting help
 
 One of the first things you may notice about this library is the interesting way in which you invoke it. Invocations always start with an executable from our library, such as:  
-`fileflux`  
+`dane`  
 and they must always have a `type: EXAMPLE` key-value pair, as each executable is specific to the type of file it receives.
 
-If you want to know what sort of arguments you're able to run for a particular executable, you just need to pass the word _help_ as the first positional argument (the first word _after_ fileflux), along with specifying the _type_:  
-`fileflux help type: fasta`  
+If you want to know what sort of arguments you're able to run for a particular executable, you just need to pass the word _help_ as the first positional argument (the first word _after_ dane), along with specifying the _type_:  
+`dane help type: fasta`  
 The `type: fasta` follows the pattern where you have a key followed by a colon (key:), then provide the name of a _value_ separated by a space, e.g., `key: value`.
 
 Above, this will first provide a status report that consists of 4 lines, which look something like this:  
@@ -44,11 +43,11 @@ After, it will show a list of every possible command, along with the docstring c
 
 ### ii) Command LIne Extension (CLIX)
 
-To run an executable, you must first type the executable's name (e.g., `fileflux`) and immediately after provide positional arguments that align with the action you wish to perform. For example, from the fileflux help page, you see:  
-`$ fileflux seq length type: fasta file: example.fasta`
+To run an executable, you must first type the executable's name (e.g., `dane`) and immediately after provide positional arguments that align with the action you wish to perform. For example, from the dane help page, you see:  
+`$ dane seq length type: fasta file: example.fasta`
 
 Let's break down this command.  
-`fileflux` is the executable and is always required first.  
+`dane` is the executable and is always required first.  
 `seq length` is a series of 2 positional arguments that conform to an executable found in the help message. These positional arguments are what tell the executable what to do, and may be anywhere from 1 to 5 space-separated arguments.  
 `type: TYPE` (in this case, `type: fasta`) is **always required**. This tells the executable what type of file we are dealing with. In later releases of this app, we will try to smart-parse files so this is not necessarily needed.  
 `file: FILE` (in this case, `file: example.fasta`) is also **always required** for any action to occur. This is the file you want to perform some action on.
@@ -60,13 +59,13 @@ which will specify the parameter you want and the value it will have. For exampl
 will tell our system that we have the parameter length=100 and width=200.
 
 For the following command
-`fileflux filter sequences type: fasta file: example.fasta length: 20`
+`dane filter sequences type: fasta file: example.fasta length: 20`
 
 Note that the position of the parameters, the type, and the file do not matter. The above command is the same as the below command:
 
-`fileflux filter sequences length: 20 type: fasta file: example.fasta`
+`dane filter sequences length: 20 type: fasta file: example.fasta`
 
-The only positional arguments that matter are the `fileflux` as the first and the next sequence of arguments specifying the action to invoke (`filter sequences`)
+The only positional arguments that matter are the `dane` as the first and the next sequence of arguments specifying the action to invoke (`filter sequences`)
 
 ### iii) Configuration Settings
 
@@ -79,24 +78,24 @@ length: 10
 ```
 
 If you were to invoke the following command:  
-`fileflux filter sequences type: fasta file: example.fasta`  
+`dane filter sequences type: fasta file: example.fasta`  
 and the action _filter sequences_ took in a _length_ parameter, the action can grab that length parameter from the configuration file by default. Now let's say you have that configuration file but it does not have the _length_ parameter specified. No worries, because each action will have default parameters baked into it. If you wanted to change the parameter on the fly _without_ having to edit your config-caragols.yaml file, you can easily do that by specifying the parameter on the command line:
 
-`fileflux filter sequences type: fasta file: example.fasta length: 20`
+`dane filter sequences type: fasta file: example.fasta length: 20`
 
 If you have no configuration file in your [current directory](https://hpc.nmsu.edu/onboarding/linux/commands/cd/#_print_current_directory), the "default config" will be used, which exists inside this tool. See [Advanced Users](#advanced-users) to learn more about this.
 
 If you have a config file that lives somewhere else outside your [current directory](https://hpc.nmsu.edu/onboarding/linux/commands/cd/#_print_current_directory), you can pass the path to file as part of the command, using the `--config-file` flag
 
 ```
-fileflux filter sequences type: fasta file: example.fasta --config-file /tmp/myconfig.yaml
+dane filter sequences type: fasta file: example.fasta --config-file /tmp/myconfig.yaml
 ```
 
 In summary, all the following commands are equivalent
 
-`fileflux filter sequences type: fasta file: example.fasta length: 20` - uses the "default config"
-`fileflux filter sequences type: fasta file: example.fasta` - where the "local config", config-caragols.yaml, is located in the current directory, and contains `length: 20`
-`fileflux filter sequences type: fasta file: example.fasta --config-file /tmp/conf.yaml` - where `/tmp/conf.yaml` contains `length: 20`
+`dane filter sequences type: fasta file: example.fasta length: 20` - uses the "default config"
+`dane filter sequences type: fasta file: example.fasta` - where the "local config", config-caragols.yaml, is located in the current directory, and contains `length: 20`
+`dane filter sequences type: fasta file: example.fasta --config-file /tmp/conf.yaml` - where `/tmp/conf.yaml` contains `length: 20`
 
 #### Advanced Users
 
@@ -119,16 +118,15 @@ To update, edit the file at path reported after running this command
 python -c 'import bioinformatics_tools.caragols.logger; print(bioinformatics_tools.caragols.logger.CONFIG_PATH)'
 ```
 
-
 The contents of the file should look something like this
 
 ```jsonc
 {
-  "logging": {
-    "console_log_level": "INFO",
-    "directory": "~/.caragols/logs",
-    "use_user_subdir": true
-  }
+    "logging": {
+        "console_log_level": "INFO",
+        "directory": "~/.caragols/logs",
+        "use_user_subdir": true
+    }
 }
 ```
 
@@ -144,16 +142,16 @@ Often times we get a file in our hands of a known type, but...how confident are 
 So here's our solution, which is meant to be an open-source, collaborative effort. We are creating validation classes that scrub our files squeeky clean (and add additional logging) before performing any work on them.  
 There's a folder called FileTypes, which contains Python classes that validate as many bioinformatics file types as possible. Each described file has the following capabilities and qualities:
 
-- Validate the file by scrubbing the entirety of the content
-  - `$ fileflux valid type: fasta file: example.py` # Return True or False
-  - Coming Soon: Strict vs. Lenient file validation levels
-- A standardized **Preferred Filename**, which removes ambiguity in file naming and extension.
-  - For example, .fna, .fasta, .fa, .fasta.gz, etc., will be coerced to _'.fasta.gz'_. This allows us to control not only the validation but also the naming of the file, which is helpful when we release automated analyses connected via **SnakeMake** (TBD...\*\*)
-- Rewrite a scrubbed, standardized (filename) file that adhered to the preferred filename attribute.
-  `$ fileflux write confident type: fasta file: example`
-- A ton of properties that describe the file. For example, in a BAM file, how many reads are aligned? Or in a gff3 file, where are the XX1 genes located?
-  - This is the meat and potatoes (as we say in the midwest US) of the general toolset, allowing us to quickly and easily extend the things we can do with a particular file.
-- Subsetting functionality, or rewriting a new file based on a filtering condition. For example, you may want to write the 10 largest sequences, or sequences > 2000 basepairs to a new file in a fasta.
+-   Validate the file by scrubbing the entirety of the content
+    -   `$ dane valid type: fasta file: example.py` # Return True or False
+    -   Coming Soon: Strict vs. Lenient file validation levels
+-   A standardized **Preferred Filename**, which removes ambiguity in file naming and extension.
+    -   For example, .fna, .fasta, .fa, .fasta.gz, etc., will be coerced to _'.fasta.gz'_. This allows us to control not only the validation but also the naming of the file, which is helpful when we release automated analyses connected via **SnakeMake** (TBD...\*\*)
+-   Rewrite a scrubbed, standardized (filename) file that adhered to the preferred filename attribute.
+    `$ dane write confident type: fasta file: example`
+-   A ton of properties that describe the file. For example, in a BAM file, how many reads are aligned? Or in a gff3 file, where are the XX1 genes located?
+    -   This is the meat and potatoes (as we say in the midwest US) of the general toolset, allowing us to quickly and easily extend the things we can do with a particular file.
+-   Subsetting functionality, or rewriting a new file based on a filtering condition. For example, you may want to write the 10 largest sequences, or sequences > 2000 basepairs to a new file in a fasta.
 
 ## Releases
 
@@ -161,10 +159,10 @@ This project adheres to [semantic versioning](https://semver.org/), and we are i
 
 ## Next Steps
 
-- Allow strict vs. lenient validation of files
-- Add new filetypes
-- Incorporate files interacting with other files
-- Incorporate workflows
+-   Allow strict vs. lenient validation of files
+-   Add new filetypes
+-   Incorporate files interacting with other files
+-   Incorporate workflows
 
 ## Contributor Guide
 

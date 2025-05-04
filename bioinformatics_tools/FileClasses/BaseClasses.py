@@ -19,6 +19,7 @@ class BioBase(clix.App):
         self.form = self.conf.get('report.form', 'prose')
         LOGGER.debug(f'\n#~~~~~~~~~~ Starting BioBase Init ~~~~~~~~~~#\nBioBase:\n{self.conf.show()}')
         self.file = self.conf.get('file', None)
+        LOGGER.info(f'self.comarfs: {self.comargs}\nself.actions: {self.actions}\nself.barewords: {self.barewords}')
 
         if not self.matched:
             LOGGER.info(self.report.formatted(self.form)+'\n')
@@ -28,7 +29,7 @@ class BioBase(clix.App):
             else:
                 sys.exit(0)
 
-        if 'help' in self.matched[0]:  # Dont necessarily need a file to show help
+        if 'help' in self.matched[0]:  # If just running help, don't need to d
             self.run()
         elif self.file:
             self.file_path = pathlib.Path(self.file)
@@ -52,7 +53,7 @@ class BioBase(clix.App):
         '''
         suffixes = self.file_path.suffixes
         self.basename = self.file_path.stem
-        if suffixes[-1] in self.known_compressions:
+        if suffixes and suffixes[-1] in self.known_compressions:
             if len(suffixes) > 1 and suffixes[-2] in self.known_extensions:
                 self.basename = pathlib.Path(self.basename).stem
                 return self.file_path.with_name(f'{self.basename}-VALIDATED{self.preferred_extension}')
@@ -73,6 +74,7 @@ class BioBase(clix.App):
     def is_valid(self) -> bool:
         _, encoding = mimetypes.guess_type(self.file_path)
 
+        # Here, open up the file and validate it to determine if it is indeed the correct file type
         if not encoding:  # This means no compression
             LOGGER.debug('File is not compressed')
             with open(str(self.file_path), 'rt') as open_file:

@@ -1,21 +1,10 @@
 import gzip
 import pathlib
 
-import pandas as pd
-
 from bioinformatics_tools.FileClasses.BaseClasses import BioBase
 
 from bioinformatics_tools.caragols.clix import LOGGER
 
-
-def requires_validation(func):
-    def wrapper(self, *args, **kwargs):
-        if not self.valid:
-            # You can also raise an exception instead of returning None
-            # raise Exception("Object is not validated.")
-            return None
-        return func(self, *args, **kwargs)
-    return wrapper
 
 class Fasta(BioBase):
     '''
@@ -42,8 +31,9 @@ class Fasta(BioBase):
         # Custom stuff
         self.fastaKey = {}
         self.written_output = []
-        self.preferred_file_path = self.clean_file_name()
 
+        # Filename and Content Validation stuff
+        self.preferred_file_path = self.clean_file_name()
         self.valid_extension = self.is_known_extension()
         self.valid = self.is_valid()
 
@@ -207,7 +197,14 @@ class Fasta(BioBase):
         self.succeeded(msg=f"Total GC Content: {data}", dex=data)
 
     def do_total_seqs(self, barewords, **kwargs):
-        '''Return the total number of sequences (aka, entries) in the fasta file'''
+        '''
+        Return the total number of sequences (entries) in the fasta file.
+
+        Parameters: None
+
+        Returns:
+            int: The total number of sequences.
+        '''
         data = len(self.fastaKey.keys())
         if kwargs.get('internal_call', False):
             return data

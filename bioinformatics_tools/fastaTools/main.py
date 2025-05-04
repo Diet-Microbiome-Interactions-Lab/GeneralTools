@@ -1,8 +1,23 @@
 import argparse
+import getpass
+from pathlib import Path
+import sys
 
+import bioinformatics_tools
 from bioinformatics_tools.FileClasses.Fasta import Fasta
+from bioinformatics_tools.caragols.logger import LOGGER, config_logging_for_app
 
-def main(args):
+def main():
+    config_logging_for_app()
+    startup_info = {
+        'cwd': Path.cwd(),
+        'user': getpass.getuser(),
+        'argv': sys.argv,
+        'package_version': bioinformatics_tools.__version__
+    }
+    LOGGER.debug(f'\nStartup:\n{startup_info}', extra={'startup_info': startup_info}) # user, cwd, sys.argv, app version
+
+
     input = args.Input
     output = args.Output
     print(f'Dealing with {input} and {output}')

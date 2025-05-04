@@ -20,7 +20,7 @@ setup(
     name="bioinformatics_tools",
     version=mypack_version,
     author="Dane Deemer",
-    author_email="ddeemer@purdue.edu",
+    author_email="dane@liminalbios.com",
 
     description="Simple tools for common bioinformatic use-cases",
     long_description=long_description,
@@ -46,5 +46,10 @@ setup(
         'python-json-logger==2.0.7',
     ],
     python_requires='>=3.11',
-    entry_points={'console_scripts': ['fileflux=bioinformatics_tools.FileClasses.main:cli']}
+    entry_points={
+        'console_scripts': [
+            'dane=bioinformatics_tools.FileClasses.main:cli',
+            'fasta-tools=bioinformatics_tools.fastaTools.main:main'
+            ],
+        }
 )
