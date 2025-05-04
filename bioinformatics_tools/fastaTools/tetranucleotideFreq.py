@@ -8,6 +8,7 @@ $ python tetranucleotideFreq.py 'MYSTRING'
 """
 import argparse
 # A comment to test the import
+# Make sure to import the necessary libraries
 
 def main(args):
     sequence = args.Sequence
